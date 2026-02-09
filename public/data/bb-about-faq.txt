@@ -1,0 +1,180 @@
+**BEST BEFORE**
+
+Living artworks with a BEST BEFORE date: born SEALED at inscription, OPENED by its collector, and aging on block time until EXPIRED. Many live short lives, some endure, and the rare outlier may never expire.
+
+**What if art had a lifespan?**
+
+That’s the question at the heart of Best Before, a first-of-its-kind generative art project on the Bitcoin blockchain. Here, the traditional concept of an immutable, permanent digital asset is turned on its head, mimicking instead the impermanent, sometimes all too short human lifespan.
+
+<<<LIFECYCLE_IMAGE>>>
+
+Each of the 420 unique works is born “sealed” at the time of inscription, its fate, lifespan, and even its final visual identity is determined unwittingly by the collector who chooses to “unseal” it. Once activated, the piece begins a countdown, aging according to a mortality curve dictated by Bitcoin block time. It will live, peak, and eventually expire: the inscription remains on-chain, but the living render is gone.
+
+Yet, within this system of transience lies a tantalizing exception: a tiny fraction of these works, 0.69%, are mathematically destined to become immortal. These rare pieces will defy the mortality curve, existing forever as an enduring testament to the permanence of the blockchain.
+
+<<<INTRO_IMAGE>>>
+
+By choosing when to activate a work, the collector becomes a critical participant in its life, making an intentional decision to either keep a piece sealed for years to come, or release it to begin its countdown toward an uncertain fate. Each sealed artwork is full of potential, a state of perfect and eternal preservation. But it is only by unsealing it and revealing its predestined expiry that its full beauty and story can be enjoyed.
+
+This act of activation is a profound one, transforming a static object into a living work of art. It forces us to confront a fundamental question: Is the risk of starting the countdown - knowing its life may be all too short - worth the reward of witnessing its full, vibrant, fleeting existence?
+
+**HOW IT WORKS?**
+
+SEALDED at birth. Before activation, a piece remains SEALED and its expiry is unknowable. You can activate it years—or even a century—later.
+
+**SEALDED at birth.** Before activation, a piece remains SEALED and its expiry is unknowable. You can activate it years—or even a century—later.
+
+**OPEN by the collector.** Activation happens by inscribing a child “key” to the piece; activation, not mint, starts the clock. The first activating children form their own “BEST BEFORE - Keys” collection.
+
+**A lifespan with a floor.** After activation, every piece lives at least one Bitcoin difficulty period but 25% will be EXPIRED within 1 month, 50% within 3 years and the remaining 50% will leave between 3 and 90 years with a tiny chance (0.69%) of immortals.
+
+**THE COLLECTOR'S ROLE**
+
+You choose when the life of your piece begins. Activation injects the randomness that determines the piece’s fate; time and block height write the rest. The result is a culture of stewardship and timing: some collectors may incubate SEALED works for years; others may activate early to watch an artwork’s life unfold in public. A SEALED work invites patience; an activated work invites attention.
+
+Each work is a living system.
+
+A self-contained performance—ritual, narrative, and time-based artwork in one.
+
+Collectors, galleries, museums, and audiences don’t merely observe these pieces; they participate in how they are born, lived, and ended.
+
+***
+
+**SEALED — Latent Performance**
+
+A work exists in suspension.
+The collector chooses when to activate it.
+That choice—time, place, context—is already part of the artwork.
+
+**UNSEALING — Act of Theater**
+
+The single gesture of unsealing is a performance.
+Private or public, intimate or ceremonial, it is the moment the work enters time.
+
+**LIFESPAN — Durational Art**
+
+Once opened, the piece lives.
+Each Bitcoin block unfolds the performance—measured, irreversible, precise.
+
+**EXPIRY — Finale**
+
+Not a failure or shutdown, but a conclusion.
+A real ending that deserves witnessing, marking, and celebration.
+
+Bitcoin block time becomes the medium—
+what tape was to the banana, time itself is here.
+
+***
+
+Imagine this
+
+A collector activates a piece.
+In a gallery.
+A crowd gathers.
+
+The block arrives: the work is born.
+Expiry revealed: eight months.
+
+Eight months later, the audience returns.
+The final block hits.
+The work expires.
+Curtain.
+
+***
+
+Expanded Performance Possibilities
+
+Vernissage & Finissage
+
+The artwork dictates both opening and closing.
+Unsealed live at the vernissage.
+Years later, the exhibition ends when the piece itself expires—turning off the lights.
+
+Collector Rituals
+
+Collectors announce moments of activation:
+“I’ll unseal at block 888,888.”
+The community gathers.
+The act becomes folklore.
+
+Lottery Theater
+
+Each birth reveals fate in real time.
+Two weeks. Ten years. Immortal.
+Streamed, witnessed, shared—chance as spectacle.
+
+Festival Format
+
+A stage. An audience.
+Collectors unseal works live, one by one.
+Each activation unique. Each outcome unknown.
+The exhibition is the performance.
+
+Gallery Commitments
+
+A gallery pledges to display a work until it expires—
+whether that’s weeks or decades.
+The promise itself becomes part of the piece.
+
+Museum Stewardship
+
+Museums issue commitments:
+If an immortal emerges, it will be housed indefinitely.
+The institution becomes caretaker of a work without an end.
+
+***
+
+This is BEST BEFORE as performance art—
+where time is material, activation is theater,
+and ownership carries responsibility, presence, and ritual.
+
+
+
+**What’s the total supply?**
+
+The collection’s supply is 420.
+
+**Will there be allowlists or whitelists?**
+
+No. The only way to participate in the mint is by backing the project via Signals (buying spots with bars).
+
+**How do I activate a piece?**
+
+By inscribing a child (“Best Before - Keys”) using the sealed inscription as parent. This “unseals” the parent and the life of the artwork begins.
+
+**What are “Keys”?**
+
+They are the activation inscriptions; they will form a distinct, community-built collection within the project’s story.
+
+**How do I inscribe a child Key?**
+
+We recommend using a non-custodial inscription service like https://inscribe.dev/ or https://chisel.xyz/ or the open source ord client.
+
+**What can I inscribe as a child Key?**
+
+That is completely up to you. Any child inscription activates the piece and serves as its Key. Tasteful inscription will however lead to a more meaningful community-built collection of “Best Before - Keys”.
+
+**Can I wait to activate?**
+
+Yes. While sealed, a piece’s expiry is unknown and can be triggered far in the future (even after many decades).
+
+**How long will activated pieces live?**
+
+It depends, here are the odds of death:
+
+25% expires within 1 month
+50% expires within 3 years
+the rest lives between 3 and 90 years
+and 0.69% can be immortal.
+
+**Are there immortal pieces?**
+
+Possibly. A very small immortal probability (around 0.69%, ≈3 in 420) is built in.
+
+**Why can’t you tell how many immortals there will be?**
+
+Because immortality isn’t assigned at mint, it’s only determined at activation. Each piece “draws its fate” only when a collector unseals it. Until the last piece is activated, the final count of immortals is literally unknowable. If a collector chooses never to unseal his piece, it remains in a Schrödinger’s state of immortality.
+
+**How do you make a piece’s fate truly unknowable until activation?**
+
+We don’t pre-assign fates: neither an artwork’s lifespan, nor the seed for the generative algorithm. When a collector unseals by inscribing a child, the piece takes its “draw” from on-chain data that doesn’t exist beforehand, specifically from the child inscription (“Key”) and the block that confirms it. It is then combined with the piece’s own inscription ID to derive the result. This combination of data is provably unknown beforehand and the child inscription cannot knowingly influence the artwork’s visuals or fate. This way, no one can know a piece’s fate before it’s activated, yet it still serves as a direct and predictable influence to its final outcome.
