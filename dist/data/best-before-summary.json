@@ -1,0 +1,34 @@
+{
+  "generatedAt": "2026-02-06T19:37:51.683Z",
+  "source": {
+    "provenance": "../COMBU/provenance.json",
+    "openByNumberDir": "../BEST BEFORE/BEST BEFORE (OPEN) in Number",
+    "expiredDir": "../BEST BEFORE/BEST BEFORE EXPIRED",
+    "diarySource": "../html text/Lemon HTML.rtf",
+    "aboutFaqSource": "../BEST BEFORE/BEST BEFORE - ABOUT AND FAQ.rtf"
+  },
+  "totals": {
+    "total": 420,
+    "sealed": 299,
+    "open": 120,
+    "expired": 1
+  },
+  "logoAsset": "/assets/logo/bb-uploaded-logo.jpeg",
+  "storyAssets": {
+    "aboutIntro": "/assets/story/about-intro.webp",
+    "lifecycle": "/assets/story/lifecycle.webp",
+    "teaser": "/assets/story/teaser.webp"
+  },
+  "previewAssets": 119,
+  "heightCoverage": {
+    "knownHeights": 2,
+    "placeholders": 418,
+    "minKnownHeight": 916097,
+    "maxKnownHeight": 916097
+  },
+  "snapshot": {
+    "nowUtc": "2026-02-06T19:37:51.683Z",
+    "liveConfidence": "partial",
+    "note": "Live open/expired tracking is based on local source files and placeholders until chain-height mapping is complete."
+  }
+}
