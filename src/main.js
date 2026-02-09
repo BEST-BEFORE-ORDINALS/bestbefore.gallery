@@ -1741,9 +1741,28 @@ const setupGallery = () => {
     return b.number - a.number;
   };
 
-  /* Setup Carousel (Slideshow) - Uses Static Data */
-  const openWithPreview = state.items
-    .filter((item) => item.status === 'open' && item.preview)
+  /* Setup Carousel (Slideshow) - Uses Live Data first, then fallback */
+  let carouselPool = [];
+
+  if (state.liveItems && Array.isArray(state.liveItems) && state.liveItems.length > 0) {
+    carouselPool = state.liveItems;
+  } else {
+    carouselPool = state.items;
+  }
+
+  const openWithPreview = carouselPool
+    .filter((item) => (item.status || '').toLowerCase() === 'open')
+    .map((item) => {
+      // Use the specific remote image source if we have a number
+      if (item.number) {
+        return {
+          ...item,
+          preview: `https://bestbefore.space/images/BESTBEFORE_${item.number}.png`,
+        };
+      }
+      return item;
+    })
+    .filter((item) => item.preview)
     .sort(sortItems);
 
   state.carousel.items = openWithPreview;
