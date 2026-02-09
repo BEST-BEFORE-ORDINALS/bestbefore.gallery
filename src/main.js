@@ -140,154 +140,231 @@ const stopMotionTimers = () => {
 
 const renderShell = () => {
   app.innerHTML = `
-    <div class="bb-root">
+    <div class="bb-root bb-scroll-container">
       <div class="bb-grain" aria-hidden="true"></div>
 
-      <section class="bb-intro" id="bbIntro" aria-label="Landing intro">
-        <div class="bb-intro__core">
-          <div class="bb-intro__logo-shell">
-            <img class="bb-intro__logo bb-intro__logo--uploaded" src="/assets/logo/bb-uploaded-logo.jpeg" alt="BEST BEFORE logo" />
-            <span class="bb-intro__hourglass" aria-hidden="true"></span>
-            <span class="bb-intro__sand bb-intro__sand--top" aria-hidden="true"></span>
-            <span class="bb-intro__sand bb-intro__sand--stream" aria-hidden="true"></span>
-            <span class="bb-intro__sand bb-intro__sand--bottom" aria-hidden="true"></span>
-          </div>
-          <h1 class="bb-intro__title">BEST BEFORE</h1>
-          <p class="bb-intro__caption">BY LEMONHAZE X ORDINALLY</p>
-          <button class="bb-intro__enter" id="bbEnterButton" type="button">ENTER MUSEUM</button>
+      <!-- Minimal floating header -->
+      <header class="bb-header">
+        <div class="bb-header__brand">
+          <img src="/assets/logo/bb-uploaded-logo.jpeg" alt="BB" class="bb-header__mark" />
+          <span class="bb-header__title">BEST BEFORE</span>
         </div>
-      </section>
+        <div class="bb-header__zone" id="bbZoneIndicator">THE GALLERY</div>
+        <div class="bb-header__stats" id="bbMenuStats">Loading...</div>
+      </header>
 
       <main class="bb-experience">
-        <header class="bb-menu">
-          <div class="bb-menu__brand-wrap">
-            <img src="/assets/logo/bb-uploaded-logo.jpeg" alt="BB" class="bb-menu__mark bb-menu__mark--uploaded" />
-            <div class="bb-menu__brand-copy">
-              <button class="bb-menu__brand" id="bbBrandButton" type="button">BEST BEFORE</button>
-              <p class="bb-menu__subbrand">by Lemonhaze x ORDINALLY</p>
+        <!-- Zone 1: The Gallery -->
+        <section class="bb-zone bb-zone--gallery" id="bbZoneGallery" data-zone="gallery">
+          <div class="bb-gallery-stage" id="bbGalleryStage">
+            <button class="bb-carousel-control bb-carousel-control--prev" id="bbPrevBtn" type="button" aria-label="Previous slide">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <div class="bb-carousel" id="bbCarousel" aria-live="polite"></div>
+            <div class="bb-immersive-hud" id="bbImmersiveHud" aria-hidden="true">
+              <p class="bb-immersive-hud__label" id="bbImmersiveLabel"></p>
+              <a id="bbImmersiveLink" href="#" target="_blank" rel="noreferrer">View inscription</a>
+              <button id="bbImmersiveClose" type="button">Close</button>
             </div>
+            <button class="bb-carousel-control bb-carousel-control--next" id="bbNextBtn" type="button" aria-label="Next slide">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
           </div>
-
-          <nav class="bb-menu__nav" id="bbMenuNav" aria-label="Museum views">
-            <button class="bb-menu__item is-active" data-view="gallery" type="button">GALLERY</button>
-            <button class="bb-menu__item" data-view="lifecycle" type="button">ABOUT</button>
-            <button class="bb-menu__item" data-view="diary" type="button">BEYOND</button>
-          </nav>
-
-          <button class="bb-menu__toggle" id="bbMenuToggle" type="button" aria-label="Toggle menu">
-            <span></span>
-            <span></span>
+          <div class="bb-gallery-meta" id="bbGalleryMeta"></div>
+          
+          <!-- Scroll hint -->
+          <button class="bb-scroll-hint" id="bbScrollHint" type="button" aria-label="Scroll to learn more">
+            <span class="bb-scroll-hint__text">ABOUT</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
           </button>
-
-          <div class="bb-menu__stats" id="bbMenuStats">Loading collection snapshot...</div>
-        </header>
-
-        <section class="bb-content">
-          <section class="bb-view bb-view--open is-active" data-view="gallery">
-            <div class="bb-gallery-tools">
-              <div class="bb-mode-toggle" role="tablist" aria-label="Gallery mode">
-                <button class="bb-mode-btn is-active" data-mode="carousel" type="button" aria-label="Slideshow Mode">
-                  <!-- Custom Carousel Icon: 3 Vertical Rectangles (Middle Taller) -->
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="5" y="8" width="3.5" height="8" rx="0.5" stroke="currentColor" stroke-width="1.2"/>
-                    <rect x="10.25" y="5" width="3.5" height="14" rx="0.5" stroke="currentColor" stroke-width="1.2"/>
-                    <rect x="15.5" y="8" width="3.5" height="8" rx="0.5" stroke="currentColor" stroke-width="1.2"/>
-                  </svg>
-                </button>
-                <button class="bb-mode-btn" data-mode="heartbeat" type="button" aria-label="Live Mode">
-                  <span class="bb-live-dot" aria-hidden="true"></span>
-                  LIVE
-                </button>
-              </div>
-            </div>
-
-            <div class="bb-gallery-panel is-active" data-gallery-mode="carousel">
-              <div class="bb-gallery-stage" id="bbGalleryStage">
-                <button class="bb-carousel-control bb-carousel-control--prev" id="bbPrevBtn" type="button" aria-label="Previous slide">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                  </svg>
-                </button>
-                <div class="bb-carousel" id="bbCarousel" aria-live="polite"></div>
-                <div class="bb-immersive-hud" id="bbImmersiveHud" aria-hidden="true">
-                  <p class="bb-immersive-hud__label" id="bbImmersiveLabel"></p>
-                  <a id="bbImmersiveLink" href="#" target="_blank" rel="noreferrer">View inscription</a>
-                  <button id="bbImmersiveClose" type="button">Close</button>
-                </div>
-                <button class="bb-carousel-control bb-carousel-control--next" id="bbNextBtn" type="button" aria-label="Next slide">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                </button>
-              </div>
-              <div class="bb-gallery-meta" id="bbGalleryMeta"></div>
-            </div>
-
-            <div class="bb-gallery-panel" data-gallery-mode="heartbeat">
-              <div class="bb-heartbeat-stage" id="bbHeartbeatStage">
-                <button class="bb-heartbeat-control bb-heartbeat-control--prev" id="bbHeartbeatPrev" type="button" aria-label="Previous heartbeat">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                  </svg>
-                </button>
-                <div class="bb-heartbeat-track-wrap">
-                  <div class="bb-heartbeat-track" id="bbHeartbeatTrack"></div>
-                </div>
-                <div class="bb-heartbeat-info" id="bbHeartbeatInfo"></div>
-                <button class="bb-heartbeat-control bb-heartbeat-control--next" id="bbHeartbeatNext" type="button" aria-label="Next heartbeat">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </section>
-
-
-
-          <section class="bb-view" data-view="diary">
-            <div class="bb-beyond-layout">
-              <nav class="bb-sub-nav">
-                <button class="bb-sub-nav__item ${state.beyond.activeTab === 'artists' ? 'is-active' : ''}" data-beyond-tab="artists" type="button">ARTISTS</button>
-                <button class="bb-sub-nav__item ${state.beyond.activeTab === 'diary' ? 'is-active' : ''}" data-beyond-tab="diary" type="button">DIARY</button>
-                <button class="bb-sub-nav__item ${state.beyond.activeTab === 'analytics' ? 'is-active' : ''}" data-beyond-tab="analytics" type="button">ANALYTICS</button>
-              </nav>
-
-              <div class="bb-beyond-content" id="bbBeyondContent">
-                ${renderBeyondContent()}
-              </div>
-            </div>
-          </section>
-
-          <section class="bb-view" data-view="lifecycle">
-            <div class="bb-scroll-view">
-              <article class="bb-block">
-                <!-- <p class="bb-block__sub">SEALED - OPENED - EXPIRED</p> -->
-                <div class="bb-about-rich" id="bbAboutFaq">Loading project description...</div>
-              </article>
-            </div>
-          </section>
         </section>
 
+        <!-- Zone 2: About -->
+        <section class="bb-zone bb-zone--about" id="bbZoneAbout" data-zone="about">
+          <div class="bb-zone__content">
+            <div class="bb-about-rich" id="bbAboutFaq">Loading project description...</div>
+          </div>
+        </section>
+
+        <!-- Zone 3: The Vault (Beyond) -->
+        <section class="bb-zone bb-zone--vault" id="bbZoneVault" data-zone="vault">
+          <div class="bb-zone__content">
+            <nav class="bb-sub-nav">
+              <button class="bb-sub-nav__item ${state.beyond.activeTab === 'artists' ? 'is-active' : ''}" data-beyond-tab="artists" type="button">ARTISTS</button>
+              <button class="bb-sub-nav__item ${state.beyond.activeTab === 'diary' ? 'is-active' : ''}" data-beyond-tab="diary" type="button">DIARY</button>
+              <button class="bb-sub-nav__item ${state.beyond.activeTab === 'analytics' ? 'is-active' : ''}" data-beyond-tab="analytics" type="button">LEDGER</button>
+            </nav>
+
+            <div class="bb-beyond-content" id="bbBeyondContent">
+              ${renderBeyondContent()}
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   `;
 };
 
+
+const parseDiary = (text) => {
+  const lines = text.split('\n');
+  const cards = [];
+  let currentCard = null;
+
+  const flushCard = () => {
+    if (currentCard) {
+      currentCard.content = currentCard.content.trim();
+      if (currentCard.content || currentCard.title) {
+        cards.push(currentCard);
+      }
+      currentCard = null;
+    }
+  };
+
+  const startCard = (type, title = '', date = '') => {
+    flushCard();
+    currentCard = { type, title, date, content: '' };
+  };
+
+  // Regex to catch L/O prefix (L:, O:, L :, O :) and dates (Month Day, Year optional)
+  const dateRegex = /^(?:([LO]\s?:?)\s+)?([A-Za-z]+ \d{1,2}(?:, \d{4})?.*)/;
+  const partRegex = /^(Part \d+.*)/;
+  const headerRegex = /^#### (.*)/;
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+
+    if (trimmed.startsWith('<!--')) return; // Skip comments
+
+    // Check for Part header
+    const partMatch = trimmed.match(partRegex);
+    if (partMatch) {
+      startCard('chapter', partMatch[1]);
+      return;
+    }
+
+    // Check for Section header (####)
+    const headerMatch = trimmed.match(headerRegex);
+    if (headerMatch) {
+      startCard('section', headerMatch[1]);
+      return;
+    }
+
+    // Check for Date
+    // Handle "L: Date" or "O: Date" or just "- Date"
+    let dateMatch = trimmed.match(dateRegex);
+
+    if (dateMatch) {
+      const fullLine = trimmed;
+      let headerText = fullLine;
+      let contentPart = '';
+      let speakerPart = dateMatch[1] || ''; // "L: " or "O :"
+
+      // Remove trailing colon if present
+      if (headerText.endsWith(':')) {
+        headerText = headerText.slice(0, -1);
+      } else {
+        // Check for separator ": "
+        let restOfLine = fullLine;
+        if (speakerPart) {
+          restOfLine = dateMatch[2];
+        }
+        const splitMatch = restOfLine.match(/^(.+?):\s+(.*)$/);
+
+        if (splitMatch) {
+          headerText = (speakerPart ? fullLine.substring(0, fullLine.indexOf(restOfLine)) : '') + splitMatch[1];
+          contentPart = splitMatch[2];
+        }
+      }
+
+      startCard('entry', '', headerText);
+
+      if (contentPart) {
+        currentCard.content += contentPart + '\n';
+      }
+      return;
+    }
+
+    // Normal content
+    if (currentCard) {
+      currentCard.content += trimmed + '\n\n';
+    } else {
+      // Content before any card? Start a generic intro card
+      startCard('intro');
+      currentCard.content += trimmed + '\n\n';
+    }
+  });
+
+  flushCard();
+  return cards;
+};
+
+const renderDiaryCards = (cards) => {
+  return cards.map(card => {
+    let classes = `bb-diary-card bb-diary-card--${card.type}`;
+    let html = '';
+
+    if (card.type === 'chapter') {
+      html += `<h3 class="bb-diary-chapter-title">${escapeHtml(card.title)}</h3>`;
+    } else if (card.type === 'section') {
+      html += `<h4 class="bb-diary-section-title">${escapeHtml(card.title)}</h4>`;
+    } else if (card.type === 'entry') {
+      // Handle speaker styling in date header
+      let dateHtml = escapeHtml(card.date);
+      // Highlight L: or O: at the start
+      dateHtml = dateHtml.replace(/^([LO]\s?:?)\s*/, '<span class="bb-diary-speaker">$1</span> ');
+      html += `<div class="bb-diary-date">${dateHtml}</div>`;
+    }
+
+    if (card.content) {
+      let formattedContent = escapeHtml(card.content)
+        .replace(/\n\n/g, '</p><p>')
+        // Bold L: or O: in content if present (backup)
+        .replace(/^([LO]:)/gm, '<strong>$1</strong>');
+
+      // Style "Prelude:" title
+      if (formattedContent.startsWith('Prelude:')) {
+        formattedContent = formattedContent.replace('Prelude:', '<span class="bb-diary-prelude-title">Prelude</span>');
+      }
+
+      html += `<div class="bb-diary-content"><p>${formattedContent}</p></div>`;
+    }
+
+    return `<article class="${classes}">${html}</article>`;
+  }).join('');
+};
+
 const renderBeyondContent = () => {
   if (state.beyond.activeTab === 'artists') {
     return `
-      <div class="bb-artists-grid">
-        <article class="bb-artist-profile">
-          <h3 class="bb-artist-name">Lemonhaze</h3>
-          <div class="bb-artist-bio">
-            <p>${ARTIST_BIO_LEMONHAZE.trim().replace(/\n/g, '<br />')}</p>
+      <div class="bb-vault-section bb-artists-grid">
+        <article class="bb-artist-card">
+          <div class="bb-artist-avatar">
+            <img src="https://ordinals.com/content/757c7d19f53501b9f1e11f49f1731622d5d257eed99c721b32af0438d0d1f9cfi0" alt="Lemonhaze" loading="lazy" />
+          </div>
+          <div class="bb-artist-info">
+            <h3 class="bb-artist-name">Lemonhaze</h3>
+            <div class="bb-artist-bio">
+              <p>${ARTIST_BIO_LEMONHAZE.trim().replace(/\n/g, '<br />')}</p>
+            </div>
           </div>
         </article>
-        <article class="bb-artist-profile">
-          <h3 class="bb-artist-name">ORDINALLY</h3>
-          <div class="bb-artist-bio">
-            <p>${ARTIST_BIO_ORDINALLY.trim().replace(/\n/g, '<br />')}</p>
+        <article class="bb-artist-card">
+          <div class="bb-artist-avatar">
+            <iframe src="https://ordinals.com/content/23ab1013ce5b3745b007125b692191793ad52c2b83252e8e888838686d7e209ai0" title="ORDINALLY" loading="lazy"></iframe>
+          </div>
+          <div class="bb-artist-info">
+            <h3 class="bb-artist-name">ORDINALLY</h3>
+            <div class="bb-artist-bio">
+              <p>${ARTIST_BIO_ORDINALLY.trim().replace(/\n/g, '<br />')}</p>
+            </div>
           </div>
         </article>
       </div>
@@ -295,21 +372,28 @@ const renderBeyondContent = () => {
   }
 
   if (state.beyond.activeTab === 'diary') {
+    const cards = parseDiary(DIARY_CONTENT);
     return `
-      <div class="bb-scroll-view bb-scroll-view--diary">
-        <article class="bb-block">
-          <h2>BEYOND THE CANVAS</h2>
-          <p class="bb-block__sub">Fragments and notes tied directly to the collection journey.</p>
-          <pre class="bb-pre" id="bbDiaryFocused">${escapeHtml(state.diary || 'Loading diary...')}</pre>
-        </article>
+      <div class="bb-vault-section bb-diary-journal">
+        <header class="bb-diary-header">
+          <h2>Beyond the Canvas</h2>
+          <p class="bb-diary-subtitle">Fragments from the creative journey</p>
+        </header>
+        <div class="bb-diary-scroll-snap">
+          ${renderDiaryCards(cards)}
+        </div>
       </div>
     `;
   }
 
   if (state.beyond.activeTab === 'analytics') {
     return `
-      <div class="bb-analytics-container">
-        <iframe class="bb-analytics-frame" src="https://BESTBEFORE.SPACE" frameborder="0"></iframe>
+      <div class="bb-vault-section bb-ledger-container">
+        <header class="bb-ledger-header">
+          <h2>The Ledger</h2>
+          <p class="bb-ledger-subtitle">On-chain records and analytics</p>
+        </header>
+        <iframe class="bb-ledger-frame" src="https://BESTBEFORE.SPACE" frameborder="0"></iframe>
       </div>
     `;
   }
@@ -402,58 +486,6 @@ const resolveLogoAsset = async (preferredAsset) => {
   return null;
 };
 
-const initIntro = () => {
-  const intro = document.querySelector('#bbIntro');
-  const enterButton = document.querySelector('#bbEnterButton');
-  const introLogo = document.querySelector('.bb-intro__logo');
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let autoEnterTimer = null;
-
-  const enterMuseum = () => {
-    if (document.body.classList.contains('bb-intro-exit')) {
-      return;
-    }
-
-    if (autoEnterTimer) {
-      window.clearTimeout(autoEnterTimer);
-      autoEnterTimer = null;
-    }
-
-    window.requestAnimationFrame(() => {
-      document.body.classList.add('bb-intro-exit');
-    });
-
-    window.setTimeout(() => {
-      document.body.classList.add('bb-intro-complete');
-      intro.setAttribute('hidden', '');
-      restartMotionTimers();
-    }, INTRO_EXIT_DURATION_MS);
-  };
-
-  enterButton.addEventListener('click', enterMuseum);
-
-  if (prefersReducedMotion) {
-    enterMuseum();
-    return;
-  }
-
-  const scheduleAutoEnter = () => {
-    if (document.body.classList.contains('bb-intro-exit')) {
-      return;
-    }
-
-    autoEnterTimer = window.setTimeout(enterMuseum, INTRO_AUTO_DELAY_MS);
-  };
-
-  if (introLogo?.complete) {
-    scheduleAutoEnter();
-  } else if (introLogo) {
-    introLogo.addEventListener('load', scheduleAutoEnter, { once: true });
-    introLogo.addEventListener('error', scheduleAutoEnter, { once: true });
-  } else {
-    scheduleAutoEnter();
-  }
-};
 
 const setActiveView = (viewId) => {
   state.activeView = viewId;
@@ -473,77 +505,83 @@ const setActiveView = (viewId) => {
   restartMotionTimers();
 };
 
-const setGalleryMode = (mode) => {
-  if (mode !== 'carousel' && state.carousel.immersive) {
-    setCarouselImmersive(false);
-  }
-
-  state.galleryMode = mode;
-
-  document.querySelectorAll('.bb-mode-btn').forEach((button) => {
-    button.classList.toggle('is-active', button.dataset.mode === mode);
-  });
-
-  document.querySelectorAll('.bb-gallery-panel').forEach((panel) => {
-    panel.classList.toggle('is-active', panel.dataset.galleryMode === mode);
-  });
-
-  if (mode === 'carousel') {
-    updateCarousel();
-  }
-
-  if (mode === 'heartbeat') {
-    renderHeartbeat({ centerBehavior: state.heartbeat.initialized ? 'smooth' : 'auto' });
-  }
-
-  restartMotionTimers();
-};
-
 const initNavigation = () => {
-  const menuNav = document.querySelector('#bbMenuNav');
-  const menuToggle = document.querySelector('#bbMenuToggle');
+  const scrollContainer = document.querySelector('.bb-scroll-container');
+  const zoneIndicator = document.querySelector('#bbZoneIndicator');
+  const scrollHint = document.querySelector('#bbScrollHint');
+  const zones = document.querySelectorAll('.bb-zone');
 
-  if (menuToggle && menuNav) {
-    menuToggle.addEventListener('click', () => {
-      menuNav.classList.toggle('is-open');
-      menuToggle.classList.toggle('is-active');
-    });
+  // Zone names for the header indicator
+  const zoneNames = {
+    gallery: 'THE GALLERY',
+    about: 'ABOUT',
+    vault: 'THE VAULT',
+  };
+
+  // Intersection Observer to detect which zone is in view
+  if (zoneIndicator && zones.length > 0) {
+    const observerOptions = {
+      root: scrollContainer,
+      rootMargin: '-40% 0px -40% 0px',
+      threshold: 0,
+    };
+
+    const zoneObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const zone = entry.target.dataset.zone;
+          state.activeView = zone;
+          zoneIndicator.textContent = zoneNames[zone] || zone.toUpperCase();
+
+          // Hide scroll hint when not on gallery
+          if (scrollHint) {
+            scrollHint.style.opacity = zone === 'gallery' ? '1' : '0';
+            scrollHint.style.pointerEvents = zone === 'gallery' ? 'auto' : 'none';
+          }
+        }
+      });
+    }, observerOptions);
+
+    zones.forEach((zone) => zoneObserver.observe(zone));
   }
 
-  document.querySelectorAll('.bb-menu__item').forEach((button) => {
-    button.addEventListener('click', () => {
-      setActiveView(button.dataset.view);
-      if (menuNav && menuNav.classList.contains('is-open')) {
-        menuNav.classList.remove('is-open');
-        menuToggle.classList.remove('is-active');
+  // Scroll hint click - scroll to about section
+  if (scrollHint && scrollContainer) {
+    scrollHint.addEventListener('click', () => {
+      const aboutZone = document.querySelector('#bbZoneAbout');
+      if (aboutZone) {
+        aboutZone.scrollIntoView({ behavior: 'smooth' });
       }
     });
-  });
+  }
 
-  document.querySelector('#bbBrandButton').addEventListener('click', () => {
-    setActiveView('gallery');
-  });
-
-  document.querySelectorAll('.bb-mode-btn').forEach((button) => {
-    button.addEventListener('click', () => {
-      setGalleryMode(button.dataset.mode);
+  // Vault hint click - scroll to vault section
+  const vaultHint = document.querySelector('#bbVaultHint');
+  if (vaultHint && scrollContainer) {
+    vaultHint.addEventListener('click', () => {
+      const vaultZone = document.querySelector('#bbZoneVault');
+      if (vaultZone) {
+        vaultZone.scrollIntoView({ behavior: 'smooth' });
+      }
     });
-  });
+  }
 
-  document.querySelector('#bbHeartbeatPrev')?.addEventListener('click', () => {
-    prevHeartbeat();
-    restartMotionTimers();
-  });
+  // Brand click - scroll back to gallery
+  const brandElement = document.querySelector('.bb-header__brand');
+  if (brandElement && scrollContainer) {
+    brandElement.style.cursor = 'pointer';
+    brandElement.addEventListener('click', () => {
+      const galleryZone = document.querySelector('#bbZoneGallery');
+      if (galleryZone) {
+        galleryZone.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
 
-  document.querySelector('#bbHeartbeatNext')?.addEventListener('click', () => {
-    nextHeartbeat();
-    restartMotionTimers();
-  });
-
-  // Beyond sub-navigation delegation
-  const beyondNav = document.querySelector('.bb-view[data-view="diary"]');
-  if (beyondNav) {
-    beyondNav.addEventListener('click', (e) => {
+  // Beyond (Vault) sub-navigation delegation
+  const vaultZone = document.querySelector('#bbZoneVault');
+  if (vaultZone) {
+    vaultZone.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-beyond-tab]');
       if (!btn) return;
 
@@ -553,7 +591,7 @@ const initNavigation = () => {
       state.beyond.activeTab = tab;
 
       // Update nav state
-      beyondNav.querySelectorAll('[data-beyond-tab]').forEach((b) => {
+      vaultZone.querySelectorAll('[data-beyond-tab]').forEach((b) => {
         b.classList.toggle('is-active', b.dataset.beyondTab === tab);
       });
 
@@ -565,6 +603,7 @@ const initNavigation = () => {
     });
   }
 };
+
 
 const formatBlockTime = (blocks) => {
   if (!blocks || blocks < 0) return '0m';
@@ -647,113 +686,128 @@ const renderAboutFaq = (text) => {
     return;
   }
 
-  if (!text) {
-    aboutFaq.textContent = 'Project description unavailable.';
-    return;
-  }
+  // Get live stats for dynamic content
+  const stats = state.stats || {};
+  const openCount = stats.open || 98;
+  const sealedCount = stats.sealed || 296;
+  const expiredCount = stats.expired || 26;
+  const immortalCount = stats.immortal || 2;
 
-  const assets = state.storyAssets || {};
-  const normalizedText = text.replace(/\r/g, '').trim();
-  // Allow for Markdown bold markers in the search for the FAQ start.
-  const faqStart = normalizedText.search(/^\**_?What['’]s the total supply\?/im);
-  const narrativeText = faqStart >= 0 ? normalizedText.slice(0, faqStart).trim() : normalizedText;
-  const faqText = faqStart >= 0 ? normalizedText.slice(faqStart).trim() : '';
+  // Build dramatic story-first HTML
+  aboutFaq.innerHTML = `
+    <!-- Hero Question -->
+    <section class="bb-about-hero bb-reveal">
+      <h2 class="bb-about-hero__question">What if art could expire?</h2>
+      <p class="bb-about-hero__tagline">Living artworks with a BEST BEFORE date</p>
+    </section>
 
-  const lifecycleTopFigure = assets.lifecycle
-    ? `
-      <figure class="bb-about-media bb-about-media--lifecycle-top">
-        <img src="${assets.lifecycle}" alt="BEST BEFORE lifecycle visual" loading="lazy" decoding="async" />
+    <!-- Lifecycle Visual (using existing image) -->
+    <section class="bb-lifecycle-visual bb-reveal bb-reveal--delay-1">
+      <figure class="bb-lifecycle-image">
+        <img src="/assets/story/lifecycle.webp" alt="BEST BEFORE lifecycle: SEALED → OPEN → EXPIRED" loading="lazy" decoding="async" />
       </figure>
-  `
-    : '';
+    </section>
 
-  const introFigure = assets.aboutIntro
-    ? `
-      <figure class="bb-about-media bb-about-media--intro-inline">
-        <img src="${assets.aboutIntro}" alt="BEST BEFORE intro visual" loading="lazy" decoding="async" />
-      </figure>
-  `
-    : '';
+    <!-- Core Narrative -->
+    <section class="bb-about-narrative bb-reveal bb-reveal--delay-2">
+      <p class="bb-about-narrative__lead">
+        Every piece is <strong>born sealed</strong>, waiting in silence.
+      </p>
+      <p>
+        Once opened by its collector, it begins to age on-chain — block by block, 
+        moment by moment. Some live short, intense lives. Others endure for decades. 
+        A rare few are <em>immortal</em>.
+      </p>
+      <p>
+        And when its time comes... it expires. The artwork transforms, 
+        forever marked by the passage of time.
+      </p>
+    </section>
 
-  const renderNarrative = (text) => {
-    if (!text) return '';
-    const blocks = text.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
-
-    return blocks.map((block) => {
-      // Remove Markdown bold wrappers for the heading check if they exist.
-      const normalized = block.replace(/^\*\*(.+)\*\*$/, '$1').replaceAll('’', "'").trim();
-      const headingMatch = /^(Best Before|How it works\??|The collector's role|About the artists|Lemonhaze|ORDINALLY|IT IS NOT JUST CODE|Expanded Performance Possibilities|Vernissage & Finissage|Collector Rituals|Lottery Theater|Festival Format|Gallery Commitments|Museum Stewardship)$/i.test(
-        normalized,
-      );
-
-      if (headingMatch) {
-        return `<h3 class="bb-about-heading">${escapeHtml(normalized)}</h3>`;
-      }
-
-      return `<p>${formatInlineMarkup(block)}</p>`;
-    }).join('\n');
-  };
-
-  // Split narrative by image placeholders to respect text flow.
-  const segments = narrativeText.split(/(<<<(?:LIFECYCLE|INTRO)_IMAGE>>>)/);
-  const mainHtml = segments.map((segment) => {
-    if (segment === '<<<LIFECYCLE_IMAGE>>>') return lifecycleTopFigure;
-    if (segment === '<<<INTRO_IMAGE>>>') return introFigure;
-    return renderNarrative(segment);
-  }).join('');
-
-  const faqLines = faqText
-    .split(/\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  const faqItems = [];
-  let currentFaq = null;
-  faqLines.forEach((line) => {
-    // Check for questionmark, optionally followed by bold markers.
-    if (/\?\*{0,2}$/.test(line)) {
-      if (currentFaq) {
-        faqItems.push(currentFaq);
-      }
-      // Remove potential bold markers from valid questions for clean display
-      const cleanQuestion = line.replace(/^\*\*/, '').replace(/\*\*$/, '');
-      currentFaq = { question: cleanQuestion, answerLines: [] };
-      return;
-    }
-
-    if (!currentFaq) {
-      return;
-    }
-
-    currentFaq.answerLines.push(line);
-  });
-
-  if (currentFaq) {
-    faqItems.push(currentFaq);
-  }
-
-  const faqHtml = faqItems.length
-    ? `
-      <section class="bb-faq">
-        <h3 class="bb-about-heading bb-about-heading--faq">FAQ</h3>
-        <div class="bb-faq__list">
-          ${faqItems
-      .map(
-        (item) => `
-                <article class="bb-faq__item">
-                  <h4 class="bb-faq__q">${escapeHtml(item.question)}</h4>
-                  <p class="bb-faq__a">${item.answerLines.map((line) => formatInlineMarkup(line)).join('<br />')}</p>
-                </article>
-              `,
-      )
-      .join('')}
+    <!-- Live Stats -->
+    <section class="bb-about-stats bb-reveal bb-reveal--delay-3">
+      <div class="bb-about-stats__grid">
+        <div class="bb-about-stat bb-about-stat--open">
+          <span class="bb-about-stat__number">${openCount}</span>
+          <span class="bb-about-stat__label">OPEN</span>
         </div>
-      </section>
-  `
-    : '';
+        <div class="bb-about-stat bb-about-stat--sealed">
+          <span class="bb-about-stat__number">${sealedCount}</span>
+          <span class="bb-about-stat__label">SEALED</span>
+        </div>
+        <div class="bb-about-stat bb-about-stat--expired">
+          <span class="bb-about-stat__number">${expiredCount}</span>
+          <span class="bb-about-stat__label">EXPIRED</span>
+        </div>
+        <div class="bb-about-stat bb-about-stat--immortal">
+          <span class="bb-about-stat__number">${immortalCount}</span>
+          <span class="bb-about-stat__label">IMMORTAL</span>
+        </div>
+      </div>
+    </section>
 
-  aboutFaq.innerHTML = `${mainHtml}${faqHtml} `;
+    <!-- Collapsible FAQ -->
+    <section class="bb-about-faq bb-reveal bb-reveal--delay-4">
+      <details class="bb-faq-item">
+        <summary class="bb-faq-question">How does it work?</summary>
+        <div class="bb-faq-answer">
+          <p>Each BEST BEFORE piece is inscribed on Bitcoin with a hidden lifespan, revealed only when the collector "opens" it via a child inscription. Once opened, the clock starts ticking — measured in Bitcoin blocks (~10 min each).</p>
+          <p>Lifespans range from 2 weeks to 90 years, with a 0.69% chance of immortality. 25% expires within 1 month, 50% expires within 3 years.</p>
+        </div>
+      </details>
+
+      <details class="bb-faq-item">
+        <summary class="bb-faq-question">What's the total supply?</summary>
+        <div class="bb-faq-answer">
+          <p>420 unique editions, each with its own randomly determined lifespan and palette. Every piece is one-of-a-kind.</p>
+        </div>
+      </details>
+
+      <details class="bb-faq-item">
+        <summary class="bb-faq-question">Can I keep it sealed forever?</summary>
+        <div class="bb-faq-answer">
+          <p>Yes! A SEALED piece never ages. It remains frozen in potential — a perpetual mystery. Some collectors may never open their pieces, preserving the suspended anticipation indefinitely.</p>
+        </div>
+      </details>
+
+      <details class="bb-faq-item">
+        <summary class="bb-faq-question">What happens when it expires?</summary>
+        <div class="bb-faq-answer">
+          <p>The artwork transforms visually to its EXPIRED state — a permanent memorial to its lived experience. The generative art remains, but overlaid with the mark of time passed.</p>
+        </div>
+      </details>
+
+      <details class="bb-faq-item">
+        <summary class="bb-faq-question">Who are the artists?</summary>
+        <div class="bb-faq-answer">
+          <p><strong>Lemonhaze</strong> and <strong>ORDINALLY</strong></p>
+        </div>
+      </details>
+    </section>
+
+    <!-- Scroll hint to Vault -->
+    <div class="bb-section-hint" id="bbVaultHint">
+      <span class="bb-scroll-hint__text">THE VAULT</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </div>
+  `;
+
+  // Add intersection observer for lifecycle animation
+  const lifecycle = aboutFaq.querySelector('.bb-lifecycle-visual');
+  if (lifecycle) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          lifecycle.classList.add('is-animated');
+        }
+      });
+    }, { threshold: 0.5 });
+    observer.observe(lifecycle);
+  }
 };
+
 
 const applyHeartbeatScale = (scale) => {
   const stage = document.querySelector('#bbHeartbeatStage');
@@ -806,30 +860,7 @@ const renderCarouselCards = () => {
     )
     .join('');
 
-  carousel.querySelectorAll('.bb-slide').forEach((slide) => {
-    slide.addEventListener('click', (event) => {
-      if (state.carousel.dragging) {
-        return;
-      }
 
-      const isMobile = window.innerWidth < 768;
-      if (isMobile) {
-        // Mobile behavior: Tap to skip/advance
-        event.stopPropagation();
-        nextSlide();
-        restartMotionTimers();
-        return;
-      }
-
-      const targetIndex = Number.parseInt(slide.dataset.index, 10);
-      state.carousel.index = targetIndex;
-      state.carousel.dragOffset = 0;
-      state.carousel.pendingDragOffset = 0;
-      setCarouselImmersive(true);
-      updateCarousel();
-      restartMotionTimers();
-    });
-  });
 };
 
 const updateImmersiveHud = () => {
@@ -874,6 +905,253 @@ const setCarouselImmersive = (enabled) => {
   updateImmersiveHud();
 };
 
+/* ═══ Artwork Modal — Live from Chain ═══ */
+
+const openArtworkModal = (item) => {
+  // Pause carousel auto-advance
+  stopMotionTimers();
+
+  // Remove any existing modal
+  const existing = document.querySelector('.bb-modal-overlay');
+  if (existing) existing.remove();
+
+  const block = item.block || {};
+  const paletteColors = item.palette?.colors || [];
+  const status = (item.status || 'unknown').toLowerCase();
+
+  // Content URL — live from ordinals.com
+  const contentUrl = `https://ordinals.com/content/${item.id}`;
+
+  // Lifespan calculations
+  const fmtBlocks = (val) => typeof val === 'number' ? numberFormat.format(val) : '—';
+  const fmtBlockTime = (blocks) => {
+    if (!blocks || blocks <= 0) return '—';
+    const mins = Math.round(blocks * 10);
+    if (mins < 60) return `${mins}m`;
+    const hours = Math.floor(mins / 60);
+    const remainMins = mins % 60;
+    if (hours < 24) return remainMins > 0 ? `${hours}h ${remainMins}m` : `${hours}h`;
+    const days = Math.floor(hours / 24);
+    const years = (days / 365.25).toFixed(1);
+    if (days > 730) return `~${years} years`;
+    const remainHours = hours % 24;
+    return remainHours > 0 ? `${days}d ${remainHours}h` : `${days}d`;
+  };
+
+  // Lifespan progress percentage
+  let lifespanPct = 0;
+  let lifespanClass = '';
+  if (block.immortal) {
+    lifespanPct = 100;
+    lifespanClass = 'is-immortal';
+  } else if (block.lifespan && block.remaining != null) {
+    lifespanPct = Math.max(0, Math.min(100, (block.remaining / block.lifespan) * 100));
+    if (lifespanPct < 15) lifespanClass = 'is-low';
+  }
+
+  // Status badge class
+  const badgeClass = block.immortal ? 'is-immortal' : `is-${status}`;
+  const badgeLabel = block.immortal ? 'IMMORTAL' : statusLabel[status] || status.toUpperCase();
+
+  // Lifespan section HTML
+  let lifespanHtml = '';
+  if (status === 'open') {
+    if (block.immortal) {
+      lifespanHtml = `
+        <div class="bb-modal__data-row">
+          <span class="bb-modal__data-label">Lifespan</span>
+          <span class="bb-modal__data-value bb-modal__data-value--immortal">∞ FOREVER</span>
+        </div>
+        <div class="bb-modal__lifespan-bar">
+          <div class="bb-modal__lifespan-fill is-immortal"></div>
+        </div>`;
+    } else {
+      lifespanHtml = `
+        <div class="bb-modal__data-row">
+          <span class="bb-modal__data-label">Remaining</span>
+          <span class="bb-modal__data-value ${lifespanPct < 15 ? 'bb-modal__data-value--danger' : 'bb-modal__data-value--accent'}">${fmtBlocks(block.remaining)} blocks</span>
+        </div>
+        <div class="bb-modal__data-row">
+          <span class="bb-modal__data-label">Time Left</span>
+          <span class="bb-modal__data-value">${fmtBlockTime(block.remaining)}</span>
+        </div>
+        <div class="bb-modal__data-row">
+          <span class="bb-modal__data-label">Total Lifespan</span>
+          <span class="bb-modal__data-value">${fmtBlocks(block.lifespan)} blocks</span>
+        </div>
+        <div class="bb-modal__lifespan-bar">
+          <div class="bb-modal__lifespan-fill ${lifespanClass}" style="width: ${lifespanPct.toFixed(1)}%"></div>
+        </div>`;
+    }
+  } else if (status === 'sealed') {
+    lifespanHtml = `
+      <div class="bb-modal__data-row">
+        <span class="bb-modal__data-label">Lifespan</span>
+        <span class="bb-modal__data-value bb-modal__data-value--warn">Awaiting activation</span>
+      </div>`;
+  } else if (status === 'expired') {
+    lifespanHtml = `
+      <div class="bb-modal__data-row">
+        <span class="bb-modal__data-label">Lifespan</span>
+        <span class="bb-modal__data-value bb-modal__data-value--danger">Expired</span>
+      </div>
+      <div class="bb-modal__data-row">
+        <span class="bb-modal__data-label">Lived For</span>
+        <span class="bb-modal__data-value">${fmtBlocks(block.lifespan)} blocks (${fmtBlockTime(block.lifespan)})</span>
+      </div>`;
+  }
+
+  // Palette section HTML
+  const paletteHtml = (item.palette && paletteColors.length > 0) ? `
+    <div class="bb-modal__palette">
+      <span class="bb-modal__palette-name">${escapeHtml(item.palette.id || 'Unknown')}</span>
+      <div class="bb-modal__palette-swatches">
+        ${paletteColors.map(c => `<span class="bb-modal__palette-dot" style="background: ${c}"></span>`).join('')}
+      </div>
+    </div>` : '';
+
+  // Truncate address
+  const truncAddr = item.address
+    ? `${item.address.slice(0, 10)}...${item.address.slice(-8)}`
+    : '—';
+
+  // Build modal HTML
+  const overlay = document.createElement('div');
+  overlay.className = 'bb-modal-overlay';
+  overlay.innerHTML = `
+    <div class="bb-modal is-solo" id="bbArtworkModal">
+      <div class="bb-modal__toggle">
+        <button class="bb-modal__toggle-btn is-active" data-modal-view="solo" type="button">Solo</button>
+        <button class="bb-modal__toggle-btn" data-modal-view="details" type="button">Details</button>
+      </div>
+      <button class="bb-modal__close" type="button" aria-label="Close modal">&times;</button>
+
+      <div class="bb-modal__artwork">
+        <iframe class="bb-modal__iframe" src="${contentUrl}" title="${escapeHtml(item.name)} — Live from chain" sandbox="allow-scripts allow-same-origin" loading="eager"></iframe>
+      </div>
+
+      <div class="bb-modal__details">
+        <div>
+          <h2 class="bb-modal__detail-title">${escapeHtml(item.name)}</h2>
+          <p class="bb-modal__detail-edition">Edition ${item.number || '?'} / 420</p>
+        </div>
+
+        <div class="bb-modal__detail-status">
+          <span class="bb-modal__status-badge ${badgeClass}">${badgeLabel}</span>
+        </div>
+
+        ${paletteHtml}
+
+        <hr class="bb-modal__detail-divider" />
+
+        <div class="bb-modal__data-grid">
+          ${lifespanHtml}
+        </div>
+
+        <hr class="bb-modal__detail-divider" />
+
+        <div class="bb-modal__data-grid">
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Inscription</span>
+            <span class="bb-modal__data-value">${fmtBlocks(block.inscription)}</span>
+          </div>
+          ${block.activation ? `
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Activation</span>
+            <span class="bb-modal__data-value">${fmtBlocks(block.activation)}</span>
+          </div>` : ''}
+          ${block.expiry ? `
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Expiry Block</span>
+            <span class="bb-modal__data-value">${fmtBlocks(block.expiry)}</span>
+          </div>` : ''}
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Current Tip</span>
+            <span class="bb-modal__data-value">${fmtBlocks(block.tip)}</span>
+          </div>
+        </div>
+
+        <hr class="bb-modal__detail-divider" />
+
+        <div>
+          <span class="bb-modal__data-label">Owner</span>
+          <p class="bb-modal__address">${escapeHtml(truncAddr)}</p>
+        </div>
+
+        ${item.ordinalsUrl ? `<a class="bb-modal__ext-link" href="${item.ordinalsUrl}" target="_blank" rel="noreferrer">View on Ordinals &rarr;</a>` : ''}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Animate in
+  requestAnimationFrame(() => {
+    overlay.classList.add('is-active');
+  });
+
+  // Lock body scroll
+  document.body.style.overflow = 'hidden';
+
+  // --- Event listeners ---
+
+  // Close button
+  overlay.querySelector('.bb-modal__close').addEventListener('click', closeArtworkModal);
+
+  // Click backdrop to close
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeArtworkModal();
+  });
+
+  // Escape key
+  const escHandler = (e) => {
+    if (e.key === 'Escape') {
+      closeArtworkModal();
+      document.removeEventListener('keydown', escHandler);
+    }
+  };
+  document.addEventListener('keydown', escHandler);
+  overlay._escHandler = escHandler;
+
+  // Solo / Details toggle
+  overlay.querySelectorAll('[data-modal-view]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const modal = document.querySelector('#bbArtworkModal');
+      const view = btn.dataset.modalView;
+      modal.classList.toggle('is-solo', view === 'solo');
+      overlay.querySelectorAll('[data-modal-view]').forEach(b => {
+        b.classList.toggle('is-active', b.dataset.modalView === view);
+      });
+    });
+  });
+};
+
+const closeArtworkModal = () => {
+  const overlay = document.querySelector('.bb-modal-overlay');
+  if (!overlay) return;
+
+  // Clean up escape listener
+  if (overlay._escHandler) {
+    document.removeEventListener('keydown', overlay._escHandler);
+  }
+
+  overlay.classList.remove('is-active');
+
+  // Remove after animation
+  setTimeout(() => {
+    // Destroy iframe to stop network activity
+    const iframe = overlay.querySelector('iframe');
+    if (iframe) iframe.src = 'about:blank';
+    overlay.remove();
+  }, 450);
+
+  // Restore body scroll
+  document.body.style.overflow = '';
+
+  // Resume carousel
+  restartMotionTimers();
+};
+
 const renderCarouselMeta = () => {
   const target = document.querySelector('#bbGalleryMeta');
 
@@ -883,26 +1161,70 @@ const renderCarouselMeta = () => {
   }
 
   const item = state.carousel.items[state.carousel.index];
-  const current = state.carousel.index + 1;
-  const total = state.carousel.items.length;
+  const block = item.block || {};
+  const paletteColors = item.palette?.colors || [];
+
+  // Palette display - only show for OPEN pieces
+  const paletteHtml = (item.status === 'open' && paletteColors.length > 0)
+    ? `<div class="bb-palette-list">
+        <span class="bb-palette-name">${escapeHtml(item.palette?.id || 'Unknown')}</span>
+        <div class="bb-palette-swatches">
+          ${paletteColors.map(c => `<span class="bb-palette-dot" style="background: ${c}"></span>`).join('')}
+        </div>
+      </div>`
+    : '';
+
+  // Remaining lifespan display
+  const formattedBlocks = (val) => typeof val === 'number' ? numberFormat.format(val) : '0';
+  const formatBlockTime = (blocks) => {
+    if (!blocks || blocks <= 0) return '0m';
+    const mins = Math.round(blocks * 10);
+    if (mins < 60) return `${mins}m`;
+    const hours = Math.floor(mins / 60);
+    const remainMins = mins % 60;
+    if (hours < 24) return remainMins > 0 ? `${hours}h ${remainMins}m` : `${hours}h`;
+    const days = Math.floor(hours / 24);
+    const remainHours = hours % 24;
+    return remainHours > 0 ? `${days}d ${remainHours}h` : `${days}d`;
+  };
+
+  let lifespanHtml = '';
+  if (item.status === 'open') {
+    if (block.immortal) {
+      // Immortal piece - lives forever
+      lifespanHtml = '<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__immortal">IMMORTAL — Lives Forever</span></div>';
+    } else if (block.remaining) {
+      lifespanHtml = `
+        <div class="bb-meta-lifespan">
+          <span class="bb-meta-lifespan__remaining">${formattedBlocks(block.remaining)} blocks</span>
+          <span class="bb-meta-lifespan__time">${formatBlockTime(block.remaining)} remaining</span>
+        </div>
+      `;
+    }
+  } else if (item.status === 'sealed') {
+    lifespanHtml = '<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__sealed">Awaiting activation</span></div>';
+  } else if (item.status === 'expired') {
+    lifespanHtml = '<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__expired">Expired</span></div>';
+  }
 
   target.innerHTML = `
   <div class="bb-gallery-meta__left">
-      <p class="bb-gallery-meta__eyebrow">${current} / ${total}</p>
-      <h2>${escapeHtml(item.name)}</h2>
-      <p>${escapeHtml(getNumberLabel(item.number))} • <span class="${statusClass[item.status] || ''}">${escapeHtml(
-    statusLabel[item.status] || item.status,
-  )}</span></p>
-      <p>${escapeHtml(item.dimensions || '9:16')}</p>
+    <h2>${escapeHtml(item.name)}</h2>
+    <div class="bb-gallery-meta__status">
+      <span class="bb-status-badge is-${item.status}">${escapeHtml(statusLabel[item.status] || item.status)}</span>
+      ${paletteHtml}
     </div>
+    ${lifespanHtml}
+  </div>
   <div class="bb-gallery-meta__right">
     ${item.ordinalsUrl
       ? `<a href="${item.ordinalsUrl}" target="_blank" rel="noreferrer">View inscription</a>`
-      : '<span>Sealed</span>'
+      : ''
     }
   </div>
 `;
 };
+
 
 const updateCarousel = () => {
   const stage = document.querySelector('#bbGalleryStage');
@@ -1423,14 +1745,6 @@ const initCarouselInteractions = () => {
     restartMotionTimers();
   };
 
-  // Click to next on mobile (if not immersive)
-  document.querySelector('#bbCarousel')?.addEventListener('click', (e) => {
-    const isMobile = window.innerWidth < 768;
-    if (isMobile && !state.carousel.immersive) {
-      nextSlide();
-      restartMotionTimers();
-    }
-  });
 
   const clickPrev = (event) => {
     event.stopPropagation();
@@ -1487,6 +1801,8 @@ const initCarouselInteractions = () => {
     }
 
     state.carousel.dragging = true;
+    state.carousel.dragMoved = false;
+    state.carousel.dragStartTarget = event.target;
     flashCarouselControls();
     state.carousel.dragStartX = event.clientX;
     state.carousel.dragOffset = 0;
@@ -1519,6 +1835,11 @@ const initCarouselInteractions = () => {
 
     state.carousel.pendingDragOffset = event.clientX - state.carousel.dragStartX;
 
+    // Mark as moved if pointer traveled beyond a small threshold
+    if (Math.abs(state.carousel.pendingDragOffset) > 5) {
+      state.carousel.dragMoved = true;
+    }
+
     if (!state.carousel.dragRaf) {
       state.carousel.dragRaf = window.requestAnimationFrame(flushDragFrame);
     }
@@ -1545,6 +1866,23 @@ const initCarouselInteractions = () => {
       nextSlide();
     } else if (offset >= threshold) {
       prevSlide();
+    } else if (!state.carousel.dragMoved) {
+      // This was a tap/click (no significant pointer movement)
+      const tappedSlide = state.carousel.dragStartTarget?.closest('.bb-slide');
+      if (tappedSlide) {
+        const targetIndex = Number.parseInt(tappedSlide.dataset.index, 10);
+        if (targetIndex === state.carousel.index) {
+          // Tapped the center slide — open artwork modal
+          const item = state.carousel.items[targetIndex];
+          if (item) openArtworkModal(item);
+        } else {
+          // Tapped a side slide — navigate to it
+          state.carousel.index = targetIndex;
+          updateCarousel();
+        }
+      } else {
+        updateCarousel();
+      }
     } else {
       updateCarousel();
     }
@@ -1616,15 +1954,17 @@ const initCarouselInteractions = () => {
     }, 120);
   };
 
-  heartbeatStage.addEventListener('mouseenter', () => {
-    state.heartbeat.hovering = true;
-    restartMotionTimers();
-  });
+  if (heartbeatStage) {
+    heartbeatStage.addEventListener('mouseenter', () => {
+      state.heartbeat.hovering = true;
+      restartMotionTimers();
+    });
 
-  heartbeatStage.addEventListener('mouseleave', () => {
-    state.heartbeat.hovering = false;
-    restartMotionTimers();
-  });
+    heartbeatStage.addEventListener('mouseleave', () => {
+      state.heartbeat.hovering = false;
+      restartMotionTimers();
+    });
+  }
 
   if (heartbeatTrackWrap) {
     heartbeatTrackWrap.addEventListener('pointerdown', (event) => {
@@ -1741,7 +2081,7 @@ const setupGallery = () => {
     return b.number - a.number;
   };
 
-  /* Setup Carousel (Slideshow) - Uses Live Data first, then fallback */
+  /* Setup Carousel - Uses ALL artworks from Live Data first, then fallback */
   let carouselPool = [];
 
   if (state.liveItems && Array.isArray(state.liveItems) && state.liveItems.length > 0) {
@@ -1750,22 +2090,36 @@ const setupGallery = () => {
     carouselPool = state.items;
   }
 
-  const openWithPreview = carouselPool
-    .filter((item) => (item.status || '').toLowerCase() === 'open')
+  // Use ALL artworks, not just OPEN — map with appropriate preview images
+  const allWithPreview = carouselPool
     .map((item) => {
-      // Use the specific remote image source if we have a number
+      const status = (item.status || '').toLowerCase();
+      // Use CDN images for all statuses
       if (item.number) {
-        return {
-          ...item,
-          preview: `https://bestbefore.space/images/BESTBEFORE_${item.number}.png`,
-        };
+        if (status === 'sealed') {
+          return {
+            ...item,
+            preview: 'https://cdn.lemonhaze.com/assets/assets/SEALED.png',
+          };
+        } else if (status === 'expired') {
+          return {
+            ...item,
+            preview: 'https://cdn.lemonhaze.com/assets/assets/EXPIRED.png',
+          };
+        } else {
+          // OPEN - use the specific remote image source
+          return {
+            ...item,
+            preview: `https://bestbefore.space/images/BESTBEFORE_${item.number}.png`,
+          };
+        }
       }
       return item;
     })
     .filter((item) => item.preview)
     .sort(sortItems);
 
-  state.carousel.items = openWithPreview;
+  state.carousel.items = allWithPreview;
   state.carousel.index = 0;
   state.carousel.dragOffset = 0;
   state.carousel.pendingDragOffset = 0;
@@ -1773,39 +2127,9 @@ const setupGallery = () => {
   state.carousel.immersive = false;
   document.querySelector('.bb-root')?.classList.remove('is-carousel-immersive');
 
-  /* Setup Heartbeat (Live) - Uses Live Data if available */
-  let heartbeatPool;
-
-  if (state.liveItems && Array.isArray(state.liveItems) && state.liveItems.length > 0) {
-    // Map live items: use 'id' to construct ordinals content URL.
-    heartbeatPool = state.liveItems.map((item) => ({
-      ...item,
-      preview: `https://ordinals.com/content/${item.id}`,
-      ordinalsUrl: `https://ordinals.com/inscription/${item.id}`,
-    })).sort((a, b) => sortItems(b, a)); // Reverse sort: Ascending (1 -> 420)
-  } else {
-    // Fallback to static items if live data failed
-    heartbeatPool = state.items
-      .filter((item) => item.preview)
-      .sort(sortItems);
-  }
-
-  state.heartbeat.items = heartbeatPool;
-  state.heartbeat.index = heartbeatPool.length ? Math.floor(Math.random() * heartbeatPool.length) : 0;
-  state.heartbeat.dragging = false;
-  state.heartbeat.dragStartX = 0;
-  state.heartbeat.dragStartScrollLeft = 0;
-  state.heartbeat.initialized = false;
-  if (state.heartbeat.settleTimer) {
-    window.clearTimeout(state.heartbeat.settleTimer);
-    state.heartbeat.settleTimer = null;
-  }
-
   renderCarouselCards();
   updateCarousel();
-  renderHeartbeat({ rebuild: true, centerBehavior: 'auto' });
   initCarouselInteractions();
-  setGalleryMode(state.galleryMode);
   restartMotionTimers();
 };
 
@@ -1837,15 +2161,16 @@ const renderLoadError = (message) => {
 
 const DIARY_CONTENT = `<!--BEST BEFORE by Lemonhaze & ORDINALLY-->
 
-<!--
+Prelude:
 
-Prelude: "The concept? Art for art’s sake, art that is timeless, art with the guts to make you feel uncomfortable with the truth most people won’t say."
+"The concept? Art for art’s sake, art that is timeless, art with the guts to make you feel uncomfortable with the truth most people won’t say."
 
 - December 24, 2024 11:43 AM (Phú Quc, Vietnam)
 
 This was the very first spark. Before 'Best Before'
 
 I heard people say "art is all about concept now"
+
 or "art on bitcoin must use the chain data" bla bla bla...
 
 I was somewhat irritated. A concept? Futile!
@@ -1890,9 +2215,8 @@ I want the work to be more human and expire just like we do .
 
 Suddenly I need the chain to determine fate and keep track of time.
 
-April 29, 2025 - 1:24pm: Hello sir! Hope you’re doing great.
-
-(...)
+April 29, 2025 - 1:24pm:
+Hello sir! Hope you’re doing great. (...)
 
 Part 1 (First steps):
 
@@ -1957,64 +2281,159 @@ Evenings focus on wrapping up tasks . L finalizes palettes , recorder tweaks , a
 
 Part 3 (OPEN):
 
-Early July , we faced one of the most crucial problems of all : when and how to start the clock ? O and I shared a few ideas but nothing conclusive yet - we needed more time ... And then , boom ! July 16 th arrived . O dropped in our chat and tells me all about this child activation thing he ' s been brainstorming with Nick a few days before while discussing potential mint / inscribing options . Admittedly , it took me a good 20 minutes to wrap my head around the implications of it all - but once it clicked , I was in awe . One of the things I like the most about " generative art " is seeing the collectors involved in the generation and randomness of the piece itself - and now collectors were gonna have absolute control over when to start the clock : I ' m in love !!! Suddenly , I can see all sorts of cool game theory and approaches to collecting this already exciting piece of art we were working on . Are you gonna keep it SEALED ? What if it' s EXPIRED in a few months ? And what if it ' s immortal ? As always , so many questions but exciting ones . Since each inscription can remain SEALED for decades / centuries , the collection was no longer going to end in 90 years . ' Best Before ' became exponentially more timeless and appealing to collect on that day .
+Early July, we faced one of the most crucial problems of all: when and how to start the clock?
+
+O and I shared a few ideas but nothing conclusive yet - we needed more time...
+
+And then, boom! July 16th arrived.
+
+O dropped in our chat and tells me all about this child activation thing he's been brainstorming with Nick a few days before while discussing potential mint/inscribing options.
+
+Admittedly, it took me a good 20 minutes to wrap my head around the implications of it all - but once it clicked, I was in awe.
+
+One of the things I like the most about "generative art" is seeing the collectors involved in the generation and randomness of the piece itself - and now collectors were gonna have absolute control over when to start the clock: I'm in love!!!
+
+Suddenly, I can see all sorts of cool game theory and approaches to collecting this already exciting piece of art we were working on.
+
+Are you gonna keep it SEALED?
+
+What if it's EXPIRED in a few months?
+
+And what if it's immortal?
+
+As always, so many questions but exciting ones.
+
+Since each inscription can remain SEALED for decades/centuries, the collection was no longer going to end in 90 years.
+
+'Best Before' became exponentially more timeless and appealing to collect on that day.
 
 Part 4 (PERFORMANCE):
 
-" Best Before "... It ' s not just code .
-Not just concept .
+"Best Before"...
 
-Each piece is a living system .
+It's not just code. Not just concept.
 
-A ritual , a story , a self - contained performance art .
+Each piece is a living system.
 
-Museums , galleries , collectors , performers : everyone can play a role in shaping how these works live and die .
+A ritual, a story, a self-contained performance art.
 
-SEALED = latent performance The collector decides when to press play . That decision alone (time, place, context) is part of the art .
+Museums, galleries, collectors, performers: everyone can play a role in shaping how these works live and die.
 
-UNSEALING = act of theater Whether in private or in public , that single gesture is performance .
+SEALED = latent performance
+The collector decides when to press play. That decision alone (time, place, context) is part of the art.
 
-The lifespan = durational art Once opened , the piece lives - each block unfolding the performance .
+UNSEALING = act of theater
+Whether in private or in public, that single gesture is performance.
 
-EXPIRY = finale Not just code executing , but a literal ending that deserves celebration. Something like the banana on the wall - but instead of tape , you ’ ve got Bitcoin block time itself as the medium.
+The lifespan = durational art
+Once opened, the piece lives - each block unfolding the performance.
 
-Picture this : A collector activates a piece . In a gallery. Crowd gathers. The block hits : the work is born - expiry ? 8 months ! Eight months later ? Same crowd returns . Final block arrives : the work expires . Curtain closes .
+EXPIRY = finale
+Not just code executing, but a literal ending that deserves celebration.
 
-And this is just on the surface ... Here are some more ideas that we ' ve brought up so far :
+Something like the banana on the wall - but instead of tape, you’ve got Bitcoin block time itself as the medium.
 
-Vernissage & Finissage Traditional exhibitions have openings and closings . Here , the artwork itself dictates both . A piece is unveiled at the vernissage (unsealed live), and years later the exhibition ends with the actual expiry - the piece itself shutting the lights off .
+Picture this:
 
-Collector Rituals Collectors can turn their choice into a cultural and networked event . " I ' ll unseal my piece at block 888,888." The community shows up . It becomes folklore . Think of card - pack opening streams - but with way higher stakes .
+A collector activates a piece.
+In a gallery.
+Crowd gathers.
+The block hits: the work is born - expiry? 8 months!
+Eight months later? Same crowd returns.
+Final block arrives: the work expires.
+Curtain closes.
 
-Lottery Theater Every birth is a surprise . Two weeks ? Ten years ? An immortal ? Stream it ! Let the randomness play out in front of an audience or something else you come up with . Let people cheer or gasp as fate is revealed .
+And this is just on the surface...
 
-Festival Format Organize an event . A whole fair where collectors unseal their works live on stage . Each one unique , each one unpredictable . The exhibition is the act of activation .
+Here are some more ideas that we've brought up so far:
 
-Gallery Commitments A gallery pledges : " We ' ll keep this piece live on display until it dies ". Whether that ’ s 2 weeks or 20 years . That promise itself becomes part of the art .
+#### Vernissage & Finissage
 
-Museum Insurance Museums could issue contracts : if an immortal emerges , they guarantee to house it forever . The museum becomes the afterlife caretaker of an artwork that will never expire .
+Traditional exhibitions have openings and closings. Here, the artwork itself dictates both. A piece is unveiled at the vernissage (unsealed live), and years later the exhibition ends with the actual expiry - the piece itself shutting the lights off.
+
+#### Collector Rituals
+
+Collectors can turn their choice into a cultural and networked event. "I'll unseal my piece at block 888,888." The community shows up. It becomes folklore. Think of card-pack opening streams - but with way higher stakes.
+
+#### Lottery Theater
+
+Every birth is a surprise. Two weeks? Ten years? An immortal? Stream it! Let the randomness play out in front of an audience or something else you come up with. Let people cheer or gasp as fate is revealed.
+
+#### Festival Format
+
+Organize an event. A whole fair where collectors unseal their works live on stage. Each one unique, each one unpredictable. The exhibition is the act of activation.
+
+#### Gallery Commitments
+
+A gallery pledges: "We'll keep this piece live on display until it dies". Whether that’s 2 weeks or 20 years. That promise itself becomes part of the art.
+
+#### Museum Insurance
+
+Museums could issue contracts: if an immortal emerges, they guarantee to house it forever. The museum becomes the afterlife caretaker of an artwork that will never expire.
 
 --- SO MUCH MORE CAN BE DONE IT ' S UP TO OUR IMAGINATION !!! ---
 
 Part 5 (VISUAL):
 
-Before and After : Just like the idea evolved - so did the visual . In my first message to O , I included a sketch (April 29) with an expiry date stamped at the bottom . I still had no clue what I really wanted to do for the visual - in fact , I have to admit my first thought was to make the work as boring / ugly as possible to focus on the concept and go full satirical - but one might say , I was talked out of it !
+Before and After:
 
-O : June 12, 2025 - 9:14 PM
+Just like the idea evolved - so did the visual.
 
-" Hey ! How are things looking on your end ? I ' d have capacity starting from next week to start digging into this ." Shortly after , we had a good first call covering all sorts of things - and what stuck with me the most was our shared enthusiasm for the journey ahead of us . At the time I was just finishing my new website , a learning experience that opened my eyes to all the possibilities of creating in vanilla JavaScript without relying on external libraries - so at least I knew I wanted to keep going in that direction . But nothing more . I ’ m not a coder by any means but little by little over the years , I ’ m learning and building my own little weird system that allows me to do what I call : painting . This time I had to start over .
+In my first message to O, I included a sketch (April 29) with an expiry date stamped at the bottom. I still had no clue what I really wanted to do for the visual - in fact, I have to admit my first thought was to make the work as boring/ugly as possible to focus on the concept and go full satirical - but one might say, I was talked out of it!
 
-L : June 25 - 2:02 PM :
+O: June 12, 2025 - 9:14 PM
+"Hey! How are things looking on your end? I'd have capacity starting from next week to start digging into this."
 
-" How can I paint , without having to justify myself or without making something that is ' too deliberately ' (perhaps 'too obvious' is the better term) in line with the original concept , that it would make it just unoriginal in the end ?"
+Shortly after, we had a good first call covering all sorts of things - and what stuck with me the most was our shared enthusiasm for the journey ahead of us.
 
-L : August 20 - 3:22 PM :
+At the time I was just finishing my new website, a learning experience that opened my eyes to all the possibilities of creating in vanilla JavaScript without relying on external libraries - so at least I knew I wanted to keep going in that direction. But nothing more.
 
-" I wanted to paint without having to justify - all I needed was for the work to be alive . It was summer 2025." I started from scratch and shared various iterations with O along the way - right after the first week . I very rarely , if ever , ask for feedback for my work - but knowing we ' re going full long - form - I make exceptions . O never disappoints with his inputs - always very pertinent without interfering in my own raw approach to creating . As summer went by , deep down I was not satisfied with the work yet (June 30) even if out loud I was saying otherwise . But on our first call , O said we ' didn ' t need to rush anything - so I took his words for cash and took my time . O kept himself busy over the summer with the family and inscribing like he always does - the George Martin of Ordinals . On my end , I had my first solo show in Montreal - all the while continuing my creative exploration outside the ' Best Before ' code . I needed a little get away after all … And so between July and early August as I was working on some stuff I had this " caveman discovering fire " moment - suddenly I had new ideas on how to craft my textures . I was enjoying the latest breakthroughs , but didn ' t dare to try these new textures on the ' Best Before ' code . Until I did ...
+I’m not a coder by any means but little by little over the years, I’m learning and building my own little weird system that allows me to do what I call: painting.
 
-L : August 18, 2025 - 8:19 PM
+This time I had to start over.
 
-" I think you ' re gonna hate me " At least now I was truly satisfied and ready to move forward with getting things done for real . It was going to be the current and final iteration of Best Before . Or was it ? Yes and No Believe it or not - we are still here making the most out of the time we have left before we put this one on - chain . Elevating and polishing till the end .
+⸻
+
+L: June 25 - 2:02 PM:
+"How can I paint, without having to justify myself or without making something that is 'too deliberate' (perhaps 'too obvious' is the better term) in line with the original concept, that it would make it just unoriginal in the end?"
+
+L: August 20 - 3:22 PM:
+"I wanted to paint without having to justify - all I needed was for the work to be alive. It was summer 2025."
+
+⸻
+
+I started from scratch and shared various iterations with O along the way - right after the first week.
+
+I very rarely, if ever, ask for feedback for my work - but knowing we're going full long-form - I make exceptions.
+
+O never disappoints with his inputs - always very pertinent without interfering in my own raw approach to creating.
+
+As summer went by, deep down I was not satisfied with the work yet (June 30) even if out loud I was saying otherwise. But on our first call, O said we didn't need to rush anything - so I took his words for cash and took my time.
+
+O kept himself busy over the summer with the family and inscribing like he always does - the George Martin of Ordinals.
+
+On my end, I had my first solo show in Montreal - all the while continuing my creative exploration outside the 'Best Before' code.
+
+I needed a little get away after all…
+
+And so between July and early August as I was working on some stuff I had this "caveman discovering fire" moment - suddenly I had new ideas on how to craft my textures.
+
+I was enjoying the latest breakthroughs, but didn't dare to try these new textures on the 'Best Before' code.
+
+Until I did...
+
+L: August 18, 2025 - 8:19 PM
+"I think you're gonna hate me"
+
+At least now I was truly satisfied and ready to move forward with getting things done for real.
+
+It was going to be the current and final iteration of Best Before.
+
+Or was it? Yes and No
+
+Believe it or not - we are still here making the most out of the time we have left before we put this one on-chain.
+
+Elevating and polishing till the end.
 
 Part 6: INDIVIDUAL THOUGHTS & LAST LOGS
 
@@ -2095,7 +2514,8 @@ Today I cried. I don't remember when was the last time I did. This reality pains
 
 const boot = async () => {
   renderShell();
-  initIntro();
+  // Skip intro — go directly into gallery
+  document.body.classList.add('bb-intro-complete');
   initNavigation();
 
   try {
@@ -2157,3 +2577,20 @@ const boot = async () => {
 };
 
 boot();
+
+/* ═══ Phase 5: Scroll-triggered reveals ═══ */
+if ('IntersectionObserver' in window) {
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+  // Observe after a short delay to let DOM render
+  setTimeout(() => {
+    document.querySelectorAll('.bb-reveal').forEach(el => revealObserver.observe(el));
+  }, 500);
+}

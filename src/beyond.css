@@ -66,10 +66,10 @@
 .bb-artists-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    max-width: 1400px;
+    gap: 3rem;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 2rem 1rem;
     align-items: start;
 }
 
