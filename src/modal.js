@@ -44,6 +44,10 @@ export const openArtworkModal = (item) => {
     const contentUrl = `https://ordinals.com/content/${item.id}`;
 
     const fmtBlocks = (val) => typeof val === 'number' ? numberFormat.format(val) : '—';
+    const fmtValue = (val) => {
+        if (val === null || val === undefined || val === '') return '—';
+        return escapeHtml(String(val));
+    };
     const fmtBlockTime = (blocks) => {
         if (!blocks || blocks <= 0) return '—';
         const mins = Math.round(blocks * 10);
@@ -82,7 +86,7 @@ export const openArtworkModal = (item) => {
         <div class="bb-modal__lifespan-bar">
           <div class="bb-modal__lifespan-fill is-immortal"></div>
         </div>`;
-        } else {
+        } else if (block.lifespan && block.remaining != null) {
             lifespanHtml = `
         <div class="bb-modal__data-row">
           <span class="bb-modal__data-label">Remaining</span>
@@ -98,6 +102,12 @@ export const openArtworkModal = (item) => {
         </div>
         <div class="bb-modal__lifespan-bar">
           <div class="bb-modal__lifespan-fill ${lifespanClass}" style="width: ${lifespanPct.toFixed(1)}%"></div>
+        </div>`;
+        } else {
+            lifespanHtml = `
+        <div class="bb-modal__data-row">
+          <span class="bb-modal__data-label">Lifespan</span>
+          <span class="bb-modal__data-value bb-modal__data-value--warn">Live block data unavailable</span>
         </div>`;
         }
     } else if (status === 'sealed') {
@@ -129,14 +139,52 @@ export const openArtworkModal = (item) => {
     const truncAddr = item.address
         ? `${item.address.slice(0, 10)}...${item.address.slice(-8)}`
         : '—';
+    const truncId = item.id
+        ? `${item.id.slice(0, 12)}...${item.id.slice(-8)}`
+        : '—';
+    const dimensionsValue = status === 'open' ? '1800 x 3200 px' : item.dimensions;
+
+    const metadataRowsHtml = `
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Inscription ID</span>
+            <span class="bb-modal__data-value">${escapeHtml(truncId)}</span>
+          </div>
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Dimensions</span>
+            <span class="bb-modal__data-value">${fmtValue(dimensionsValue)}</span>
+          </div>
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Inscription Block</span>
+            <span class="bb-modal__data-value">${fmtBlocks(block.inscription)}</span>
+          </div>
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Activation Block</span>
+            <span class="bb-modal__data-value">${fmtBlocks(block.activation)}</span>
+          </div>
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Expiry Block</span>
+            <span class="bb-modal__data-value">${fmtBlocks(block.expiry)}</span>
+          </div>
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Current Block Height</span>
+            <span class="bb-modal__data-value">${fmtBlocks(block.tip)}</span>
+          </div>
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Sat</span>
+            <span class="bb-modal__data-value">${fmtValue(item.sat)}</span>
+          </div>
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Activation Timestamp</span>
+            <span class="bb-modal__data-value">${fmtValue(item.timestampIso || item.timestamp)}</span>
+          </div>`;
 
     const overlay = document.createElement('div');
     overlay.className = 'bb-modal-overlay';
     overlay.innerHTML = `
-    <div class="bb-modal is-solo" id="bbArtworkModal">
+    <div class="bb-modal" id="bbArtworkModal">
       <div class="bb-modal__toggle">
-        <button class="bb-modal__toggle-btn is-active" data-modal-view="solo" type="button">Solo</button>
-        <button class="bb-modal__toggle-btn" data-modal-view="details" type="button">Details</button>
+        <button class="bb-modal__toggle-btn" data-modal-view="solo" type="button">Solo</button>
+        <button class="bb-modal__toggle-btn is-active" data-modal-view="details" type="button">Details</button>
       </div>
       <button class="bb-modal__close" type="button" aria-label="Close modal">&times;</button>
 
@@ -165,24 +213,7 @@ export const openArtworkModal = (item) => {
         <hr class="bb-modal__detail-divider" />
 
         <div class="bb-modal__data-grid">
-          <div class="bb-modal__data-row">
-            <span class="bb-modal__data-label">Inscription</span>
-            <span class="bb-modal__data-value">${fmtBlocks(block.inscription)}</span>
-          </div>
-          ${block.activation ? `
-          <div class="bb-modal__data-row">
-            <span class="bb-modal__data-label">Activation</span>
-            <span class="bb-modal__data-value">${fmtBlocks(block.activation)}</span>
-          </div>` : ''}
-          ${block.expiry ? `
-          <div class="bb-modal__data-row">
-            <span class="bb-modal__data-label">Expiry Block</span>
-            <span class="bb-modal__data-value">${fmtBlocks(block.expiry)}</span>
-          </div>` : ''}
-          <div class="bb-modal__data-row">
-            <span class="bb-modal__data-label">Current Tip</span>
-            <span class="bb-modal__data-value">${fmtBlocks(block.tip)}</span>
-          </div>
+          ${metadataRowsHtml}
         </div>
 
         <hr class="bb-modal__detail-divider" />

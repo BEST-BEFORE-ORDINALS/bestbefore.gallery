@@ -72,8 +72,8 @@ body {
   height: 100dvh;
   overflow-y: auto;
   overflow-x: hidden;
-  scroll-snap-type: y proximity;
-  scroll-behavior: smooth;
+  scroll-snap-type: none;
+  scroll-behavior: auto;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
 }
@@ -144,7 +144,7 @@ body {
 /* Scroll zones */
 .bb-zone {
   min-height: 100vh;
-  scroll-snap-align: start;
+  scroll-snap-align: none;
   scroll-snap-stop: normal;
   position: relative;
 }
@@ -192,7 +192,7 @@ body {
   cursor: pointer;
   padding: 1rem;
   transition: color 0.3s ease, transform 0.3s ease;
-  animation: pulse-scroll 2s ease-in-out infinite;
+  animation: none;
 }
 
 .bb-scroll-hint:hover {
@@ -239,7 +239,7 @@ body {
   padding: 3rem 1rem 1rem;
   margin-top: 2rem;
   transition: color 0.3s ease, transform 0.3s ease;
-  animation: pulse-section 2s ease-in-out infinite;
+  animation: none;
 }
 
 .bb-section-hint:hover {

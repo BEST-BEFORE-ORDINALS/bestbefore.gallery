@@ -43,7 +43,7 @@ export const restartMotionTimers = () => {
             return;
         }
 
-        if (state.carousel.items.length > 1 && !state.carousel.hovering && !state.carousel.dragging) {
+        if (state.carousel.autoplay && state.carousel.items.length > 1 && !state.carousel.hovering && !state.carousel.dragging) {
             state.carousel.timer = window.setInterval(() => {
                 nextSlide();
             }, 4600);
@@ -167,7 +167,7 @@ export const applyHeartbeatScale = (scale) => {
     stage.style.setProperty('--hb-thumb-size', `${thumb}px`);
     stage.style.setProperty('--hb-gap', `${gap}px`);
     stage.style.setProperty('--hb-active-scale', String(activeScale));
-    stage.style.setProperty('--hb-center-pad', `${centerPad} px`);
+    stage.style.setProperty('--hb-center-pad', `${centerPad}px`);
 };
 
 export const renderLifecycle = () => { };

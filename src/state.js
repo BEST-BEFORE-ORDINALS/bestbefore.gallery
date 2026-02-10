@@ -35,6 +35,7 @@ export const state = {
     carousel: {
         items: [],
         index: 0,
+        autoplay: false,
         dragOffset: 0,
         pendingDragOffset: 0,
         dragStartX: 0,
