@@ -191,12 +191,14 @@ export const renderCarouselCards = () => {
       <article class="bb-slide ${statusClass[item.status] || ''}" data-index="${index}" aria-label="${escapeHtml(item.name)}">
         <img
           data-src="${item.preview}"
+          data-src-mobile="${item.previewMobile || item.preview}"
           data-index="${index}"
           data-ordinals="${item.ordinalsUrl || ''}"
           alt="${escapeHtml(item.name)}"
           loading="lazy"
           decoding="async"
           onload="state.carousel.fullyLoaded.add(${index}); this.classList.add('is-loaded');"
+          onerror="if(this.dataset.fallback !== '1'){this.dataset.fallback='1'; this.src=this.dataset.src;}"
         />
       </article>
       `,
@@ -332,6 +334,7 @@ export const updateCarousel = () => {
     }
 
     const stageWidth = stage.clientWidth;
+    const useMobilePreview = window.matchMedia('(max-width: 760px)').matches;
     // Fix: Use the ACTIVE slide for measurement, as slides[0] might be display:none (width=0) due to optimization
     const sampleSlide = slides[state.carousel.index] || slides[0];
     const slideWidth = sampleSlide ? sampleSlide.offsetWidth : Math.min(350, Math.max(220, stageWidth * 0.22));
@@ -385,6 +388,26 @@ export const updateCarousel = () => {
     slides.forEach((slide, index) => {
         const diff = getRelativeDiff(index, state.carousel.index, total);
         const abs = Math.abs(diff);
+        const image = slide.querySelector('img');
+        const previewSrc = useMobilePreview
+            ? (image?.dataset.srcMobile || image?.dataset.src)
+            : image?.dataset.src;
+
+        // Mobile stability: render only focused slide to prevent hidden OPEN art
+        // from bleeding behind square SEALED/EXPIRED pieces.
+        if (isCompact && !state.carousel.immersive && diff !== 0) {
+            if (image && abs <= 2 && !state.carousel.loadedIndexes.has(index)) {
+                image.loading = 'eager';
+                image.fetchPriority = 'low';
+                image.src = previewSrc;
+                image.decoding = 'async';
+                state.carousel.loadedIndexes.add(index);
+            }
+            if (slide.style.display !== 'none') {
+                slide.style.display = 'none';
+            }
+            return;
+        }
 
         // OPTIMIZATION: Only process visible slides (window of +/- 4)
         if (abs > 4 && !state.carousel.immersive) {
@@ -400,10 +423,8 @@ export const updateCarousel = () => {
             slide.style.display = 'grid';
         }
 
-        const image = slide.querySelector('img');
-
         if (image && abs <= 3 && !state.carousel.loadedIndexes.has(index)) {
-            image.src = image.dataset.src;
+            image.src = previewSrc;
             image.decoding = 'async';
             state.carousel.loadedIndexes.add(index);
         }
@@ -491,7 +512,6 @@ export const updateCarousel = () => {
             : 'transform 720ms cubic-bezier(0.18, 0.76, 0.24, 1), opacity 540ms ease';
 
         if (image) {
-            const previewSrc = image.dataset.src;
             const ordinalsSrc = image.dataset.ordinals;
 
             if (state.carousel.immersive && diff === 0 && ordinalsSrc) {
@@ -530,6 +550,15 @@ export const setCarouselIndex = (index) => {
 export const findNextLoadedIndex = (direction) => {
     const total = state.carousel.items.length;
     const current = state.carousel.index;
+    const isCompact = window.matchMedia('(max-width: 760px)').matches;
+
+    // On mobile we intentionally render only the focused slide for stability.
+    // Always advance sequentially so navigation never gets trapped in a tiny loaded subset.
+    if (isCompact) {
+        let next = (current + direction) % total;
+        if (next < 0) next += total;
+        return next;
+    }
 
     for (let i = 1; i < total; i++) {
         let index = (current + direction * i) % total;

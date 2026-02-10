@@ -31,23 +31,26 @@ export const setupGallery = () => {
     const allWithPreview = carouselPool
         .map((item) => {
             const status = (item.status || '').toLowerCase();
-            // Use CDN images for all statuses
+            // Keep existing desktop sources, add lighter mobile previews.
             if (item.number) {
                 if (status === 'sealed') {
                     return {
                         ...item,
                         preview: 'https://cdn.lemonhaze.com/assets/assets/SEALED.png',
+                        previewMobile: 'https://bestbefore.space/images/SEALED_800.webp',
                     };
                 } else if (status === 'expired') {
                     return {
                         ...item,
                         preview: 'https://cdn.lemonhaze.com/assets/assets/EXPIRED.png',
+                        previewMobile: 'https://bestbefore.space/images/EXPIRED_800.webp',
                     };
                 } else {
-                    // OPEN - use the specific remote image source
+                    // OPEN uses numbered sources on desktop + mobile-optimized _800 variant.
                     return {
                         ...item,
                         preview: `https://bestbefore.space/images/BESTBEFORE_${item.number}.png`,
+                        previewMobile: `https://bestbefore.space/images/BESTBEFORE_${item.number}_800.webp`,
                     };
                 }
             }
