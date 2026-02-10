@@ -304,6 +304,7 @@ h4,
   width: 100%;
   height: 60vh;
   min-height: 400px;
+  margin-top: 1rem;
   position: relative;
   overflow: visible;
   perspective: 1700px;
@@ -505,14 +506,9 @@ h4,
 
 @media (max-width: 760px) {
   .bb-carousel-control {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 220ms ease;
-  }
-
-  .bb-gallery-stage.is-controls-visible .bb-carousel-control {
-    opacity: 1;
+    opacity: 0.82;
     pointer-events: auto;
+    transition: opacity 220ms ease;
   }
 }
 
@@ -520,13 +516,8 @@ h4,
   color: #ffffff;
 }
 
-/* Subtle shift on hover - keep vertical centering */
-.bb-carousel-control--prev:hover {
-  transform: translateY(-50%) translateX(-4px);
-}
-
-.bb-carousel-control--next:hover {
-  transform: translateY(-50%) translateX(4px);
+.bb-carousel-control.is-flash {
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .bb-carousel-control--prev {
@@ -546,6 +537,7 @@ h4,
   gap: 1rem;
   width: 100%;
   max-width: 800px;
+  min-height: 7.5rem;
   margin: 0 auto;
 }
 
@@ -941,6 +933,7 @@ h4,
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  min-height: 6rem;
 }
 
 .bb-gallery-meta__left h2 {
@@ -1080,45 +1073,6 @@ h4,
 .bb-pagination-btn:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.3);
-}
-
-/* Live Navigation Overrides */
-#bbLivePrev,
-#bbLiveNext {
-  position: fixed !important;
-  bottom: 1.5rem !important;
-  width: 40px !important;
-  height: 40px !important;
-  background: transparent !important;
-  border: none !important;
-  color: rgba(255, 255, 255, 0.4) !important;
-  display: flex !important;
-  align-items: center;
-  justify-content: center !important;
-  cursor: pointer !important;
-  transition: all 0.3s ease !important;
-  z-index: 200 !important;
-  font-size: 1.5rem !important;
-  /* Make text arrows larger/clearer */
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-#bbLivePrev:hover,
-#bbLiveNext:hover {
-  color: #fff !important;
-  background: transparent !important;
-  transform: scale(1.1);
-}
-
-#bbLivePrev {
-  left: 0.7rem !important;
-  right: auto !important;
-}
-
-#bbLiveNext {
-  right: 0.7rem !important;
-  left: auto !important;
 }
 
 /* Ensure current number stays relative */
@@ -2111,7 +2065,6 @@ body.bb-intro-exit .bb-intro {
     width: 38px;
     height: 38px;
     font-size: 1.5rem;
-    bottom: 1rem;
   }
 
   .bb-carousel-control--prev {

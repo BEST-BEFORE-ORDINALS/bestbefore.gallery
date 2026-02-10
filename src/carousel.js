@@ -164,8 +164,8 @@ export const applyHeartbeatScale = (scale) => {
         : Math.min(1.4, 1 + (normalized - 1) * 0.5);
     const centerPad = Math.round(4 * normalized);
 
-    stage.style.setProperty('--hb-thumb-size', `${thumb} px`);
-    stage.style.setProperty('--hb-gap', `${gap} px`);
+    stage.style.setProperty('--hb-thumb-size', `${thumb}px`);
+    stage.style.setProperty('--hb-gap', `${gap}px`);
     stage.style.setProperty('--hb-active-scale', String(activeScale));
     stage.style.setProperty('--hb-center-pad', `${centerPad} px`);
 };
