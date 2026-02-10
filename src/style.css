@@ -29,6 +29,7 @@
 html,
 body {
   margin: 0;
+  height: 100%;
   min-height: 100%;
   color: var(--ink);
   font-family: 'Space Grotesk', 'Avenir Next', 'Helvetica Neue', sans-serif;
@@ -37,11 +38,13 @@ body {
 }
 
 body {
-  overflow: visible;
+  overflow: hidden;
 }
 
 #app {
+  height: 100dvh;
   min-height: 100vh;
+  overflow: hidden;
   background: radial-gradient(1200px 700px at 18% 14%, rgba(255, 255, 255, 0.05), transparent 60%),
     radial-gradient(1000px 700px at 86% 4%, rgba(255, 255, 255, 0.03), transparent 64%),
     linear-gradient(165deg, var(--bg-0), var(--bg-1) 36%, var(--bg-2));
@@ -66,11 +69,13 @@ body {
 
 /* Scroll-based spatial navigation */
 .bb-scroll-container {
-  height: 100vh;
+  height: 100dvh;
   overflow-y: auto;
   overflow-x: hidden;
-  scroll-snap-type: y mandatory;
+  scroll-snap-type: y proximity;
   scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Minimal floating header */
@@ -140,7 +145,7 @@ body {
 .bb-zone {
   min-height: 100vh;
   scroll-snap-align: start;
-  scroll-snap-stop: always;
+  scroll-snap-stop: normal;
   position: relative;
 }
 
@@ -169,329 +174,6 @@ body {
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   PHASE 4: THE VAULT - Archival Aesthetic
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Sub Navigation */
-.bb-sub-nav {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-bottom: 3.5rem;
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.bb-sub-nav__item {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  padding: 0.5rem 0;
-  cursor: pointer;
-  transition: color 0.3s ease;
-  position: relative;
-}
-
-.bb-sub-nav__item:hover {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.bb-sub-nav__item.is-active {
-  color: #fff;
-}
-
-.bb-sub-nav__item.is-active::after {
-  content: '';
-  position: absolute;
-  bottom: -1.5rem;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: #fff;
-}
-
-/* Vault Section Base */
-.bb-vault-section {
-  padding: 1rem 0;
-}
-
-/* Artist Cards */
-.bb-artists-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2.5rem;
-}
-
-.bb-artist-card {
-  display: flex;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.bb-artist-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-}
-
-.bb-artist-avatar {
-  flex-shrink: 0;
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: none;
-  background: #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.bb-artist-avatar img,
-.bb-artist-avatar iframe {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border: none;
-  display: block;
-}
-
-.bb-artist-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.bb-artist-name {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #fff;
-  margin: 0 0 0.25rem;
-  font-family: 'Cormorant Garamond', Georgia, serif;
-}
-
-.bb-artist-role {
-  font-size: 0.7rem;
-  color: var(--muted);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin: 0 0 1rem;
-}
-
-.bb-artist-bio {
-  font-size: 0.85rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.bb-artist-bio p {
-  margin: 0 0 0.75rem;
-}
-
-.bb-artist-bio p:last-child {
-  margin-bottom: 0;
-}
-
-/* Diary Journal */
-.bb-diary-journal {
-  padding: 0;
-  height: 100%;
-}
-
-.bb-diary-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.bb-diary-header h2 {
-  font-size: 1.75rem;
-  font-weight: 300;
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-style: italic;
-  color: #fff;
-  margin: 0 0 0.5rem;
-}
-
-.bb-diary-subtitle {
-  font-size: 0.8rem;
-  color: var(--muted);
-  letter-spacing: 0.1em;
-  margin: 0;
-}
-
-.bb-diary-scroll-snap {
-  height: 70vh;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 3rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-}
-
-.bb-diary-card {
-  scroll-snap-align: start;
-  background: rgba(20, 20, 20, 0.6);
-  border: none;
-  padding: 2.5rem 3rem;
-  border-radius: 2px;
-  position: relative;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  max-width: 800px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.bb-diary-card::before {
-  /* Page turn shadow effect */
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 100px;
-  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.2));
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-.bb-diary-card--chapter {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  text-align: center;
-  padding: 4rem 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.bb-diary-card--chapter::before {
-  display: none;
-}
-
-.bb-diary-chapter-title {
-  font-size: 2.5rem;
-  font-family: 'Cormorant Garamond', serif;
-  font-weight: 300;
-  letter-spacing: 0.05em;
-  color: #fff;
-  text-transform: uppercase;
-  border-bottom: 1px solid #fbbf24;
-  padding-bottom: 1rem;
-}
-
-.bb-diary-section-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #fbbf24;
-  margin-bottom: 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.bb-diary-date {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 1.25rem;
-  color: #fbbf24;
-  margin-bottom: 2rem;
-  padding-bottom: 0;
-  border-bottom: none;
-}
-
-.bb-diary-content p {
-  font-family: 'Inter Tight', sans-serif;
-  font-size: 0.95rem;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 1rem;
-}
-
-.bb-diary-content strong {
-  color: #fff;
-  font-weight: 600;
-}
-
-/* Scrollbar styling */
-.bb-diary-scroll-snap::-webkit-scrollbar {
-  width: 6px;
-}
-
-.bb-diary-scroll-snap::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.bb-diary-scroll-snap::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-}
-
-/* Ledger (Analytics) */
-.bb-ledger-container {
-  padding: 0;
-}
-
-.bb-ledger-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.bb-ledger-header h2 {
-  font-size: 1.75rem;
-  font-weight: 300;
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-style: italic;
-  color: #fff;
-  margin: 0 0 0.5rem;
-}
-
-.bb-ledger-subtitle {
-  font-size: 0.8rem;
-  color: var(--muted);
-  letter-spacing: 0.1em;
-  margin: 0;
-}
-
-.bb-ledger-frame {
-  width: 100%;
-  min-height: 500px;
-  background: rgba(255, 255, 255, 0.02);
-  border: none;
-  border-radius: 12px;
-}
-
-/* Mobile adjustments */
-@media (max-width: 600px) {
-  .bb-sub-nav {
-    gap: 1rem;
-  }
-
-  .bb-sub-nav__item {
-    font-size: 0.6rem;
-  }
-
-  .bb-artist-card {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .bb-artist-avatar {
-    width: 100px;
-    height: 100px;
-  }
 }
 
 /* Scroll hint */
@@ -598,38 +280,11 @@ body {
 }
 
 
-.bb-menu {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.2rem 0.14rem;
-}
-
-.bb-menu__brand-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.52rem;
-}
-
-.bb-menu__brand-copy {
-  display: grid;
-  align-items: start;
-  gap: 0.06rem;
-}
-
-.bb-menu__mark {
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
-}
-
-.bb-menu__mark--uploaded {
+.bb-header__mark--uploaded {
   filter: invert(1) contrast(1.03);
 }
 
 /* Global Typography Overrides */
-/* Reverting brand/headings to original font as requested, keeping Cormorant only for special accents if needed later */
 h1,
 h2,
 h3,
@@ -641,248 +296,9 @@ h4,
   letter-spacing: 0.02em;
 }
 
-/* Specific Element Refinements */
-.bb-menu__brand {
-  border: none;
-  background: transparent;
-  color: var(--ink);
-  font-family: 'Space Grotesk', 'Avenir Next', 'Helvetica Neue', sans-serif;
-  /* Reverted to original */
-  font-size: 1.28rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  /* Reverted spacing */
-  padding: 0;
-  cursor: pointer;
-  line-height: 1;
-  text-transform: uppercase;
-  text-align: left;
-}
-
-.bb-menu__subbrand {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.5);
-  font-family: var(--font-ui);
-  font-size: 0.5rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  line-height: 1.2;
-}
-
-.bb-menu__nav {
-  display: inline-flex;
-  justify-content: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.bb-menu__item {
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  font-family: var(--font-ui);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  padding: 0.5rem 0.2rem;
-  cursor: pointer;
-  transition: all 240ms ease;
-  position: relative;
-}
-
-.bb-menu__item::after {
-  content: '';
-  position: absolute;
-  bottom: 0px;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: center right;
-  transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.bb-menu__item:hover {
-  color: var(--accent);
-}
-
-.bb-menu__item.is-active {
-  color: var(--accent);
-}
-
-.bb-menu__item.is-active::after {
-  transform: scaleX(1);
-  transform-origin: center left;
-}
-
-.bb-menu__toggle {
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 4px;
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  z-index: 1100;
-}
-
-.bb-menu__toggle span {
-  display: block;
-  width: 24px;
-  height: 1.5px;
-  background: var(--ink);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.bb-menu__toggle span:last-child {
-  width: 16px;
-}
-
-.bb-menu__toggle.is-active span:first-child {
-  transform: translateY(2.75px) rotate(45deg);
-  width: 24px;
-}
-
-.bb-menu__toggle.is-active span:last-child {
-  transform: translateY(-2.75px) rotate(-45deg);
-  width: 24px;
-}
-
-.bb-menu__stats {
-  display: inline-flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0.44rem;
-  color: var(--muted);
-  font-size: 0.66rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.bb-content {
-  position: relative;
-  overflow: hidden;
-  min-height: 0;
-}
-
-.bb-view {
-  position: absolute;
-  inset: 0;
-  display: none;
-  background: transparent !important;
-}
-
-.bb-view.is-active {
-  display: block;
-}
-
-.bb-view--open {
-  padding: 0.45rem 0.45rem 0.2rem;
-  height: 100%;
-}
-
-.bb-view--open.is-active {
-  display: flex;
-  flex-direction: column;
-  gap: 0.58rem;
-}
-
-.bb-view[data-view='lifecycle'],
-.bb-view[data-view='diary'] {
-  background: transparent;
-}
-
-.bb-gallery-tools {
-  display: flex;
-  justify-content: center;
-  /* Centered tools for balance */
-  gap: 1.5rem;
-  align-items: center;
-  flex-wrap: wrap;
-  width: 100%;
-  pointer-events: none;
-  /* Let clicks pass through empty space */
-}
-
-/* Enable pointer events for children */
-.bb-gallery-tools>* {
-  pointer-events: auto;
-}
-
-.bb-mode-toggle {
-  display: inline-flex;
-  border: none;
-  background: transparent;
-  gap: 2rem;
-  padding: 0;
-}
-
-.bb-mode-btn {
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  color: var(--muted);
-  font-family: var(--font-ui);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0.4rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  opacity: 0.4;
-}
-
-.bb-mode-btn:hover {
-  opacity: 0.7;
-}
-
-.bb-mode-btn.is-active {
-  color: var(--accent);
-  opacity: 1;
-}
-
-.bb-mode-btn svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
-}
-
-.bb-live-dot {
-  width: 6px;
-  height: 6px;
-  display: inline-block;
-  border-radius: 50%;
-  background: #32d74b;
-  box-shadow: 0 0 12px rgba(50, 215, 75, 0.4);
-  animation: livePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
 
 /* Pulse Zoom fully purged */
 
-
-.bb-gallery-panel {
-  flex: 1;
-  min-height: 0;
-  display: none;
-}
-
-.bb-gallery-panel.is-active {
-  display: flex;
-  flex-direction: column;
-  gap: 0.56rem;
-  background: transparent;
-}
 
 .bb-gallery-stage {
   width: 100%;
@@ -891,12 +307,10 @@ h4,
   position: relative;
   overflow: visible;
   perspective: 1700px;
-  touch-action: none;
+  touch-action: pan-y;
   background: transparent;
 }
 
-.bb-root.is-carousel-immersive .bb-menu,
-.bb-root.is-carousel-immersive .bb-gallery-tools,
 .bb-root.is-carousel-immersive .bb-gallery-meta {
   opacity: 0.12;
   transition: opacity 300ms ease;
@@ -966,6 +380,18 @@ h4,
 .bb-slide.is-focus::before {
   opacity: 0.62;
   transform: translate(-50%, -50%) scale(1);
+}
+
+/* SEALED & EXPIRED are 1:1 — shrink the container and glow to match */
+.bb-slide.is-sealed,
+.bb-slide.is-expired {
+  aspect-ratio: 1 / 1;
+}
+
+.bb-slide.is-sealed::before,
+.bb-slide.is-expired::before {
+  width: 280px;
+  height: 280px;
 }
 
 .bb-slide img {
@@ -1121,10 +547,6 @@ h4,
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-}
-
-.bb-gallery-panel[data-gallery-mode="carousel"].is-active .bb-gallery-meta {
-  display: flex;
 }
 
 .bb-gallery-meta__title {
@@ -2608,16 +2030,6 @@ body.bb-intro-exit .bb-intro {
 }
 
 @media (max-width: 1120px) {
-  .bb-menu {
-    grid-template-columns: 1fr;
-    gap: 0.44rem;
-  }
-
-  .bb-menu__brand-wrap,
-  .bb-menu__stats {
-    justify-content: center;
-  }
-
   .bb-lifecycle {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2626,62 +2038,6 @@ body.bb-intro-exit .bb-intro {
 
 
 @media (max-width: 768px) {
-  .bb-menu {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 0;
-    position: relative;
-    z-index: 1000;
-  }
-
-  .bb-menu__brand-wrap {
-    justify-content: flex-start;
-    z-index: 1100;
-  }
-
-  .bb-menu__stats {
-    display: none;
-  }
-
-  .bb-menu__toggle {
-    display: flex;
-  }
-
-  .bb-menu__nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.95);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-    padding: 2rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.4s cubic-bezier(0.18, 0.76, 0.24, 1);
-    transform: translateY(-20px);
-    z-index: 1000;
-  }
-
-  .bb-menu__nav.is-open {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
-  }
-
-  .bb-menu__item {
-    font-size: 1.5rem;
-    letter-spacing: 0.2em;
-    padding: 1rem;
-  }
-
   .bb-heartbeat-stage {
     display: flex !important;
     flex-direction: column;
@@ -2747,15 +2103,6 @@ body.bb-intro-exit .bb-intro {
 
 /* ═══ Phase 5: Mobile Fixes — Scoped overrides ═══ */
 @media (max-width: 768px) {
-  .bb-gallery-tools {
-    gap: 0.4rem;
-  }
-
-  .bb-mode-btn {
-    font-size: 0.6rem;
-    padding: 0.28rem 0.55rem;
-  }
-
   .bb-slide {
     width: clamp(180px, 52vw, 280px);
   }
@@ -2843,34 +2190,9 @@ body.bb-intro-exit .bb-intro {
     justify-content: flex-start;
   }
 
-  /* Diary container sizing */
-  .bb-diary-scroll-snap {
-    height: calc(100vh - 200px);
-    min-height: 50vh;
-    padding: 1rem;
-  }
-
-  .bb-diary-card {
-    padding: 1.5rem 1.25rem;
-    max-width: 100%;
-  }
-
-  .bb-diary-card--chapter {
-    padding: 2rem 1rem;
-  }
-
-  .bb-diary-chapter-title {
-    font-size: 1.4rem;
-  }
-
   /* Hide header zone indicator on mobile — redundant with sub-nav */
   .bb-header__zone {
     display: none;
-  }
-
-  /* Vault sub-nav readability */
-  .bb-sub-nav__item {
-    font-size: 0.7rem;
   }
 
   /* About stats — 2 columns on mobile */
@@ -3081,30 +2403,6 @@ body.bb-intro-exit .bb-intro {
   /* Fixed: Cover the 9:16 container without stretching */
 }
 
-/* Diary Speaker Styling */
-.bb-diary-speaker {
-  font-weight: 700;
-  color: #fbbf24;
-  /* Amber accent */
-  margin-right: 0.5rem;
-  letter-spacing: 0.05em;
-  font-family: 'Space Grotesk', sans-serif;
-  text-transform: uppercase;
-  font-size: 0.9em;
-}
-
-/* Prelude Title Styling */
-.bb-diary-prelude-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-weight: 600;
-  font-size: 1.8rem;
-  color: #fbbf24;
-  display: block;
-  margin-bottom: 1rem;
-  letter-spacing: 0.02em;
-}
-
 /* ═══════════════════════════════════════════════════════════════
    PHASE 5: MICRO-ANIMATIONS
    ═══════════════════════════════════════════════════════════════ */
@@ -3179,16 +2477,6 @@ body.bb-intro-exit .bb-intro {
 
 .bb-status-badge.is-open {
   animation: breathe 3s ease-in-out infinite;
-}
-
-/* Diary card entrance */
-.bb-diary-card {
-  animation: fadeInUp 0.6s ease both;
-}
-
-/* Chapter title dramatic entrance */
-.bb-diary-card--chapter {
-  animation: fadeInUp 0.8s ease both;
 }
 
 /* About stat entrance when visible */

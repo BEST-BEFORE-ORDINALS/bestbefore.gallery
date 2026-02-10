@@ -1,0 +1,377 @@
+/* ═══════════════════════════════════════════════════════════════
+   VAULT SECTION (Artists / Diary / Ledger)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Sub Navigation */
+.bb-sub-nav {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 3.5rem;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.bb-sub-nav__item {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.bb-sub-nav__item:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.bb-sub-nav__item.is-active {
+  color: #fff;
+}
+
+.bb-sub-nav__item.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1.5rem;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #fff;
+}
+
+/* Vault Section Base */
+.bb-vault-section {
+  padding: 1rem 0;
+}
+
+/* Artist Cards */
+.bb-artists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2.5rem;
+}
+
+.bb-artist-card {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bb-artist-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.bb-artist-avatar {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: none;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bb-artist-avatar img,
+.bb-artist-avatar iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border: none;
+  display: block;
+}
+
+.bb-artist-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bb-artist-name {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #fff;
+  margin: 0 0 0.25rem;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.bb-artist-role {
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0 0 1rem;
+}
+
+.bb-artist-bio {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.bb-artist-bio p {
+  margin: 0 0 0.75rem;
+}
+
+.bb-artist-bio p:last-child {
+  margin-bottom: 0;
+}
+
+/* Diary Journal */
+.bb-diary-journal {
+  padding: 0;
+  height: 100%;
+}
+
+.bb-diary-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.bb-diary-header h2 {
+  font-size: 1.75rem;
+  font-weight: 300;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  color: #fff;
+  margin: 0 0 0.5rem;
+}
+
+.bb-diary-subtitle {
+  font-size: 0.8rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.bb-diary-scroll-snap {
+  height: 70vh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.bb-diary-card {
+  scroll-snap-align: start;
+  background: rgba(20, 20, 20, 0.6);
+  border: none;
+  padding: 2.5rem 3rem;
+  border-radius: 2px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.bb-diary-card::before {
+  /* Page turn shadow effect */
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100px;
+  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.2));
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.bb-diary-card--chapter {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  text-align: center;
+  padding: 4rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bb-diary-card--chapter::before {
+  display: none;
+}
+
+.bb-diary-chapter-title {
+  font-size: 2.5rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  color: #fff;
+  text-transform: uppercase;
+  border-bottom: 1px solid #fbbf24;
+  padding-bottom: 1rem;
+}
+
+.bb-diary-section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fbbf24;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.bb-diary-date {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.25rem;
+  color: #fbbf24;
+  margin-bottom: 2rem;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.bb-diary-content p {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 1rem;
+}
+
+.bb-diary-content strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.bb-diary-scroll-snap::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bb-diary-scroll-snap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bb-diary-scroll-snap::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+/* Ledger (Analytics) */
+.bb-ledger-container {
+  padding: 0;
+}
+
+.bb-ledger-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.bb-ledger-header h2 {
+  font-size: 1.75rem;
+  font-weight: 300;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  color: #fff;
+  margin: 0 0 0.5rem;
+}
+
+.bb-ledger-subtitle {
+  font-size: 0.8rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.bb-ledger-frame {
+  width: 100%;
+  min-height: 500px;
+  background: rgba(255, 255, 255, 0.02);
+  border: none;
+  border-radius: 12px;
+}
+
+/* Diary typography accents */
+.bb-diary-speaker {
+  font-weight: 700;
+  color: #fbbf24;
+  margin-right: 0.5rem;
+  letter-spacing: 0.05em;
+  font-family: 'Space Grotesk', sans-serif;
+  text-transform: uppercase;
+  font-size: 0.9em;
+}
+
+.bb-diary-prelude-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.8rem;
+  color: #fbbf24;
+  display: block;
+  margin-bottom: 1rem;
+  letter-spacing: 0.02em;
+}
+
+/* Diary-specific motion */
+.bb-diary-card {
+  animation: fadeInUp 0.6s ease both;
+}
+
+.bb-diary-card--chapter {
+  animation: fadeInUp 0.8s ease both;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .bb-sub-nav {
+    gap: 1rem;
+  }
+
+  .bb-sub-nav__item {
+    font-size: 0.6rem;
+  }
+
+  .bb-artist-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .bb-artist-avatar {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .bb-diary-scroll-snap {
+    height: calc(100vh - 200px);
+    min-height: 50vh;
+    padding: 1rem;
+  }
+
+  .bb-diary-card {
+    padding: 1.5rem 1.25rem;
+    max-width: 100%;
+  }
+
+  .bb-diary-card--chapter {
+    padding: 2rem 1rem;
+  }
+
+  .bb-diary-chapter-title {
+    font-size: 1.4rem;
+  }
+
+  .bb-sub-nav__item {
+    font-size: 0.7rem;
+  }
+}
