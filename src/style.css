@@ -160,10 +160,12 @@ body {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .bb-zone--about,
 .bb-zone--vault {
+  z-index: 1;
   display: flex;
   flex-direction: column;
   padding: 6rem 2rem 4rem;
@@ -358,7 +360,7 @@ h4,
   place-items: center;
   backface-visibility: hidden;
   transform-style: preserve-3d;
-  contain: layout paint;
+  /* contain: layout paint; Removed to ensure glow isn't clipped */
 }
 
 .bb-slide::before {
@@ -2480,7 +2482,7 @@ body.bb-intro-exit .bb-intro {
 }
 
 .bb-modal-overlay.is-active .bb-modal {
-  transform: scale(1) translateY(0);
+  transform: scale(1) translateY(5vh);
 }
 
 /* Close button */

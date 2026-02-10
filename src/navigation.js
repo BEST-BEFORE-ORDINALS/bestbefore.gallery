@@ -92,11 +92,14 @@ export const initNavigation = () => {
         });
     }
 
-    const vaultHint = document.querySelector('#bbVaultHint');
-    if (vaultHint && scrollContainer) {
-        vaultHint.addEventListener('click', () => {
-            const vaultZone = document.querySelector('#bbZoneVault');
-            scrollToZone(vaultZone);
+    // Use event delegation for the Vault hint since it's rendered dynamically
+    if (scrollContainer) {
+        scrollContainer.addEventListener('click', (e) => {
+            const hint = e.target.closest('#bbVaultHint');
+            if (hint) {
+                const vaultZone = document.querySelector('#bbZoneVault');
+                scrollToZone(vaultZone);
+            }
         });
     }
 

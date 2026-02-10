@@ -142,7 +142,7 @@ export const renderVaultContent = () => {
         </article>
         <article class="bb-artist-card">
           <div class="bb-artist-avatar">
-            <iframe src="https://ordinals.com/content/23ab1013ce5b3745b007125b692191793ad52c2b83252e8e888838686d7e209ai0" title="ORDINALLY" loading="lazy"></iframe>
+            <img src="/assets/ordinally-avatar.png" alt="ORDINALLY" loading="lazy" />
           </div>
           <div class="bb-artist-info">
             <h3 class="bb-artist-name">ORDINALLY</h3>

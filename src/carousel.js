@@ -332,7 +332,8 @@ export const updateCarousel = () => {
     }
 
     const stageWidth = stage.clientWidth;
-    const sampleSlide = slides[0];
+    // Fix: Use the ACTIVE slide for measurement, as slides[0] might be display:none (width=0) due to optimization
+    const sampleSlide = slides[state.carousel.index] || slides[0];
     const slideWidth = sampleSlide ? sampleSlide.offsetWidth : Math.min(350, Math.max(220, stageWidth * 0.22));
     const edgePadding = 10;
     const maxOffset = Math.max(240, stageWidth / 2 - slideWidth / 2 - edgePadding);
@@ -384,6 +385,21 @@ export const updateCarousel = () => {
     slides.forEach((slide, index) => {
         const diff = getRelativeDiff(index, state.carousel.index, total);
         const abs = Math.abs(diff);
+
+        // OPTIMIZATION: Only process visible slides (window of +/- 4)
+        if (abs > 4 && !state.carousel.immersive) {
+            if (slide.style.display !== 'none') {
+                slide.style.display = 'none';
+                slide.style.transform = ''; // Clear potentially heavy transform
+            }
+            return;
+        }
+
+        // Ensure visible slides are shown
+        if (slide.style.display === 'none') {
+            slide.style.display = 'grid';
+        }
+
         const image = slide.querySelector('img');
 
         if (image && abs <= 3 && !state.carousel.loadedIndexes.has(index)) {
@@ -456,6 +472,7 @@ export const updateCarousel = () => {
             zIndex = 12;
             imageOpacity = 0.48;
         } else {
+            // Check for +/- 3 or 4 to show fading out edge
             transform = 'translate3d(-50%, -50%, -760px) scale(0.4)';
             opacity = 0;
             zIndex = 1;
@@ -488,8 +505,8 @@ export const updateCarousel = () => {
         }
     });
 
-    renderCarouselMeta();
-    updateImmersiveHud();
+    // renderCarouselMeta(); // Moved to setCarouselIndex to avoid thrashing
+    // updateImmersiveHud(); // Moved to setCarouselIndex
 };
 
 /* ── Index management ── */
@@ -504,6 +521,10 @@ export const setCarouselIndex = (index) => {
     state.carousel.dragOffset = 0;
     state.carousel.pendingDragOffset = 0;
     updateCarousel();
+
+    // Update metadata only when index changes
+    renderCarouselMeta();
+    updateImmersiveHud();
 };
 
 export const findNextLoadedIndex = (direction) => {

@@ -1,7 +1,7 @@
 /* ═══ Gallery setup — transforms data into carousel items ═══ */
 
 import { state, statusClass } from './state.js';
-import { renderCarouselCards, updateCarousel, initCarouselInteractions, restartMotionTimers } from './carousel.js';
+import { renderCarouselCards, updateCarousel, initCarouselInteractions, restartMotionTimers, renderCarouselMeta, updateImmersiveHud } from './carousel.js';
 
 export const setupGallery = () => {
     /* Define sort helper to reuse */
@@ -15,7 +15,7 @@ export const setupGallery = () => {
         if (b.number === null) {
             return -1;
         }
-        return b.number - a.number;
+        return a.number - b.number;
     };
 
     /* Setup Carousel - Uses ALL artworks from Live Data first, then fallback */
@@ -57,7 +57,8 @@ export const setupGallery = () => {
         .sort(sortItems);
 
     state.carousel.items = allWithPreview;
-    state.carousel.index = 0;
+    // Start at a random position, but ensure it's valid
+    state.carousel.index = Math.floor(Math.random() * allWithPreview.length);
     state.carousel.dragOffset = 0;
     state.carousel.pendingDragOffset = 0;
     state.carousel.loadedIndexes = new Set();
@@ -65,7 +66,12 @@ export const setupGallery = () => {
     document.querySelector('.bb-root')?.classList.remove('is-carousel-immersive');
 
     renderCarouselCards();
+    // Update state first
     updateCarousel();
+    // Render initial metadata since it's no longer in updateCarousel loop
+    renderCarouselMeta();
+    updateImmersiveHud();
+
     initCarouselInteractions();
     restartMotionTimers();
 };
