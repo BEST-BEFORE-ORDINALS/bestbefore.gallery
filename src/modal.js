@@ -42,8 +42,29 @@ export const openArtworkModal = (item) => {
     const status = (item.status || 'unknown').toLowerCase();
 
     const contentUrl = `https://ordinals.com/content/${item.id}`;
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
     const fmtBlocks = (val) => typeof val === 'number' ? numberFormat.format(val) : '—';
+    const firstPresent = (...vals) => vals.find((v) => v !== null && v !== undefined && v !== '');
+    const fmtTimestamp = (value) => {
+        if (value === null || value === undefined || value === '') return '';
+
+        let normalized = value;
+        if (typeof normalized === 'number') {
+            normalized = normalized < 1e12 ? normalized * 1000 : normalized;
+        } else if (typeof normalized === 'string' && /^\d+$/.test(normalized.trim())) {
+            const numeric = Number(normalized);
+            normalized = numeric < 1e12 ? numeric * 1000 : numeric;
+        }
+
+        const parsed = new Date(normalized);
+        if (Number.isNaN(parsed.getTime())) return String(value);
+
+        return new Intl.DateTimeFormat('en-US', {
+            dateStyle: 'medium',
+            timeStyle: 'short',
+        }).format(parsed);
+    };
     const fmtValue = (val) => {
         if (val === null || val === undefined || val === '') return '—';
         return escapeHtml(String(val));
@@ -64,12 +85,19 @@ export const openArtworkModal = (item) => {
 
     let lifespanPct = 0;
     let lifespanClass = '';
+    let remainingValueClass = '';
     if (block.immortal) {
         lifespanPct = 100;
         lifespanClass = 'is-immortal';
     } else if (block.lifespan && block.remaining != null) {
         lifespanPct = Math.max(0, Math.min(100, (block.remaining / block.lifespan) * 100));
-        if (lifespanPct < 15) lifespanClass = 'is-low';
+        if (lifespanPct < 10) {
+            lifespanClass = 'is-critical';
+            remainingValueClass = 'bb-modal__data-value--danger';
+        } else if (lifespanPct < 20) {
+            lifespanClass = 'is-warning';
+            remainingValueClass = 'bb-modal__data-value--warn';
+        }
     }
 
     const badgeClass = block.immortal ? 'is-immortal' : `is-${status}`;
@@ -90,7 +118,7 @@ export const openArtworkModal = (item) => {
             lifespanHtml = `
         <div class="bb-modal__data-row">
           <span class="bb-modal__data-label">Remaining</span>
-          <span class="bb-modal__data-value ${lifespanPct < 15 ? 'bb-modal__data-value--danger' : 'bb-modal__data-value--accent'}">${fmtBlocks(block.remaining)} blocks</span>
+          <span class="bb-modal__data-value${remainingValueClass ? ` ${remainingValueClass}` : ''}">${fmtBlocks(block.remaining)} blocks</span>
         </div>
         <div class="bb-modal__data-row">
           <span class="bb-modal__data-label">Time Left</span>
@@ -128,6 +156,15 @@ export const openArtworkModal = (item) => {
       </div>`;
     }
 
+    const rawSignature = firstPresent(
+        item.signature,
+        item.signatureText,
+        item.sig,
+        item.palette?.signature,
+    );
+    const signatureText = rawSignature ? String(rawSignature) : '';
+    const signatureDisplay = signatureText;
+
     const paletteHtml = (item.palette && paletteColors.length > 0) ? `
     <div class="bb-modal__palette">
       <span class="bb-modal__palette-name">${escapeHtml(item.palette.id || 'Unknown')}</span>
@@ -135,6 +172,12 @@ export const openArtworkModal = (item) => {
         ${paletteColors.map(c => `<span class="bb-modal__palette-dot" style="background: ${c}"></span>`).join('')}
       </div>
     </div>` : '';
+    const signatureHtml = signatureDisplay
+        ? `
+    <div class="bb-modal__signature">
+      <span class="bb-modal__signature-inline">${escapeHtml(signatureDisplay)}</span>
+    </div>`
+        : '';
 
     const truncAddr = item.address
         ? `${item.address.slice(0, 10)}...${item.address.slice(-8)}`
@@ -143,6 +186,53 @@ export const openArtworkModal = (item) => {
         ? `${item.id.slice(0, 12)}...${item.id.slice(-8)}`
         : '—';
     const dimensionsValue = status === 'open' ? '1800 x 3200 px' : item.dimensions;
+    const mobilePreviewUrl = item.previewMobile
+        || (status === 'sealed'
+            ? 'https://bestbefore.space/images/SEALED_800.webp'
+            : status === 'expired'
+                ? 'https://bestbefore.space/images/EXPIRED_800.webp'
+                : item.number
+                    ? `https://bestbefore.space/images/BESTBEFORE_${item.number}_800.webp`
+                    : item.preview
+                        || contentUrl);
+    const fallbackPreviewUrl = item.preview || contentUrl;
+    const artworkMediaHtml = isMobile
+        ? `<img class="bb-modal__image" src="${escapeHtml(mobilePreviewUrl)}" alt="${escapeHtml(item.name)}" loading="eager" decoding="async" onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1';this.src='${escapeHtml(fallbackPreviewUrl)}';}" />`
+        : `<iframe class="bb-modal__iframe" src="${contentUrl}" title="${escapeHtml(item.name)} — Live from chain" sandbox="allow-scripts allow-same-origin" loading="eager"></iframe>`;
+    const satValue = firstPresent(
+        item.sat_name,
+        item.sat,
+        item.satNumber,
+        item.satoshi,
+        item.satpoint,
+    );
+    const activationTimestampValue = firstPresent(
+        item.activationTimestamp,
+        item.activation_timestamp,
+        item.activationTimestampIso,
+        item.activation_timestamp_iso,
+        item.block?.activationTimestamp,
+        item.block?.activation_timestamp,
+        item.activatedAtIso,
+        item.activatedAt,
+        item.openedAtIso,
+        item.openedAt,
+    );
+    const activationTimestampDisplay = fmtTimestamp(activationTimestampValue);
+    const satRowHtml = satValue
+        ? `
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Sat</span>
+            <span class="bb-modal__data-value">${escapeHtml(String(satValue))}</span>
+          </div>`
+        : '';
+    const activationTimestampRowHtml = activationTimestampValue
+        ? `
+          <div class="bb-modal__data-row">
+            <span class="bb-modal__data-label">Activation Timestamp</span>
+            <span class="bb-modal__data-value">${escapeHtml(String(activationTimestampDisplay))}</span>
+          </div>`
+        : '';
 
     const metadataRowsHtml = `
           <div class="bb-modal__data-row">
@@ -169,14 +259,8 @@ export const openArtworkModal = (item) => {
             <span class="bb-modal__data-label">Current Block Height</span>
             <span class="bb-modal__data-value">${fmtBlocks(block.tip)}</span>
           </div>
-          <div class="bb-modal__data-row">
-            <span class="bb-modal__data-label">Sat</span>
-            <span class="bb-modal__data-value">${fmtValue(item.sat)}</span>
-          </div>
-          <div class="bb-modal__data-row">
-            <span class="bb-modal__data-label">Activation Timestamp</span>
-            <span class="bb-modal__data-value">${fmtValue(item.timestampIso || item.timestamp)}</span>
-          </div>`;
+          ${satRowHtml}
+          ${activationTimestampRowHtml}`;
 
     const overlay = document.createElement('div');
     overlay.className = 'bb-modal-overlay';
@@ -189,7 +273,7 @@ export const openArtworkModal = (item) => {
       <button class="bb-modal__close" type="button" aria-label="Close modal">&times;</button>
 
       <div class="bb-modal__artwork">
-        <iframe class="bb-modal__iframe" src="${contentUrl}" title="${escapeHtml(item.name)} — Live from chain" sandbox="allow-scripts allow-same-origin" loading="eager"></iframe>
+        ${artworkMediaHtml}
       </div>
 
       <div class="bb-modal__details">
@@ -203,6 +287,7 @@ export const openArtworkModal = (item) => {
         </div>
 
         ${paletteHtml}
+        ${signatureHtml}
 
         <hr class="bb-modal__detail-divider" />
 

@@ -43,7 +43,10 @@ const renderShell = () => {
       <header class="bb-header">
         <div class="bb-header__brand">
           <img src="/assets/logo/bb-uploaded-logo.jpeg" alt="BB" class="bb-header__mark" />
-          <span class="bb-header__title">BEST BEFORE</span>
+          <div class="bb-header__brand-text">
+            <span class="bb-header__title">BEST BEFORE</span>
+            <span class="bb-header__subtitle">BY LEMONHAZE X ORDINALLY</span>
+          </div>
         </div>
         <div class="bb-header__zone" id="bbZoneIndicator">THE GALLERY</div>
         <div class="bb-header__stats" id="bbMenuStats">Loading...</div>

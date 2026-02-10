@@ -8,26 +8,33 @@ export const renderMenuStats = () => {
     return;
   }
 
-  let total, open, sealed, expired;
+  let total, open, sealed, expired, immortal;
 
   if (state.liveSummary) {
     total = state.liveItems ? state.liveItems.length : 0;
     open = state.liveSummary.open || 0;
     sealed = state.liveSummary.sealed || 0;
     expired = state.liveSummary.expired || 0;
+    immortal = state.liveSummary.immortal || 0;
   } else {
     const summary = state.summary;
     total = summary?.totals?.total ?? state.items.length;
     open = summary?.totals?.open ?? statusCount(state.items, 'open');
     sealed = summary?.totals?.sealed ?? statusCount(state.items, 'sealed');
     expired = summary?.totals?.expired ?? statusCount(state.items, 'expired');
+    immortal = summary?.totals?.immortal ?? 0;
   }
 
   if (menuStats) {
     menuStats.innerHTML = `
-      <span>${open} OPEN</span>
-      <span>${sealed} SEALED</span>
-      <span>${expired} EXPIRED</span>
+      <div class="bb-header__stats-row">
+        <span class="bb-header__stat">${open} OPEN</span>
+        <span class="bb-header__stat">${sealed} SEALED</span>
+      </div>
+      <div class="bb-header__stats-row">
+        <span class="bb-header__stat">${expired} EXPIRED</span>
+        <span class="bb-header__stat">${immortal} IMMORTAL</span>
+      </div>
     `;
   }
 };

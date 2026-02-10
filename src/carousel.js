@@ -301,11 +301,25 @@ export const renderCarouselMeta = () => {
     } else if (item.status === 'sealed') {
         lifespanHtml = '<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__sealed">Awaiting activation</span></div>';
     } else if (item.status === 'expired') {
-        lifespanHtml = '<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__expired">Expired</span></div>';
+        const tip = typeof block.tip === 'number' ? block.tip : null;
+        const expiry = typeof block.expiry === 'number' ? block.expiry : null;
+        const blocksSinceExpiry = tip !== null && expiry !== null ? Math.max(0, tip - expiry) : null;
+
+        if (blocksSinceExpiry !== null) {
+            lifespanHtml = `<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__expired">${formatBlockTime(blocksSinceExpiry)} ago</span></div>`;
+        } else {
+            lifespanHtml = '<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__expired">Time unavailable</span></div>';
+        }
     }
 
+    const maxKnownNumber = state.carousel.items.reduce((max, entry) => {
+        const numeric = Number(entry?.number);
+        return Number.isFinite(numeric) ? Math.max(max, numeric) : max;
+    }, 0);
+    const jumpMax = maxKnownNumber > 0 ? maxKnownNumber : 420;
+
     target.innerHTML = `
-  <div class="bb-gallery-meta__left">
+  <div class="bb-gallery-meta__left is-${item.status}">
     <h2>${escapeHtml(item.name)}</h2>
     <div class="bb-gallery-meta__status">
       <span class="bb-status-badge is-${item.status}">${escapeHtml(statusLabel[item.status] || item.status)}</span>
@@ -318,8 +332,60 @@ export const renderCarouselMeta = () => {
             ? `<a href="${item.ordinalsUrl}" target="_blank" rel="noreferrer">View inscription</a>`
             : ''
         }
+    <div class="bb-carousel-jump">
+      <span class="bb-carousel-jump__label">Jump to #</span>
+      <form class="bb-carousel-jump__form" id="bbCarouselJumpForm" novalidate>
+        <input
+          id="bbCarouselJumpInput"
+          class="bb-carousel-jump__input"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          min="1"
+          max="${jumpMax}"
+          step="1"
+          placeholder="1-${jumpMax}"
+          aria-label="Jump to edition number"
+        />
+        <button class="bb-carousel-jump__btn" type="submit">Go</button>
+      </form>
+      <span class="bb-carousel-jump__feedback" id="bbCarouselJumpFeedback" aria-live="polite"></span>
+    </div>
   </div>
 `;
+
+    const jumpForm = target.querySelector('#bbCarouselJumpForm');
+    const jumpInput = target.querySelector('#bbCarouselJumpInput');
+    const jumpFeedback = target.querySelector('#bbCarouselJumpFeedback');
+    if (!jumpForm || !jumpInput || !jumpFeedback) {
+        return;
+    }
+
+    jumpForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const rawValue = String(jumpInput.value || '').trim();
+        const desiredNumber = Number.parseInt(rawValue, 10);
+        const index = state.carousel.items.findIndex((entry) => Number(entry?.number) === desiredNumber);
+
+        jumpInput.classList.remove('is-invalid');
+        jumpFeedback.textContent = '';
+
+        if (!Number.isFinite(desiredNumber) || desiredNumber < 1 || desiredNumber > jumpMax) {
+            jumpInput.classList.add('is-invalid');
+            jumpFeedback.textContent = `Enter 1-${jumpMax}`;
+            return;
+        }
+
+        if (index === -1) {
+            jumpInput.classList.add('is-invalid');
+            jumpFeedback.textContent = `Nº${desiredNumber} not found`;
+            return;
+        }
+
+        setCarouselIndex(index);
+        restartMotionTimers();
+    });
 };
 
 /* ── Core carousel update ── */
@@ -337,7 +403,12 @@ export const updateCarousel = () => {
     const useMobilePreview = window.matchMedia('(max-width: 760px)').matches;
     // Fix: Use the ACTIVE slide for measurement, as slides[0] might be display:none (width=0) due to optimization
     const sampleSlide = slides[state.carousel.index] || slides[0];
-    const slideWidth = sampleSlide ? sampleSlide.offsetWidth : Math.min(350, Math.max(220, stageWidth * 0.22));
+    const measuredSlideWidth = sampleSlide
+        ? (sampleSlide.getBoundingClientRect().width || sampleSlide.offsetWidth || 0)
+        : 0;
+    const slideWidth = measuredSlideWidth > 1
+        ? measuredSlideWidth
+        : Math.min(350, Math.max(220, stageWidth * 0.22));
     const edgePadding = 10;
     const maxOffset = Math.max(240, stageWidth / 2 - slideWidth / 2 - edgePadding);
     const isDesktop = stageWidth >= 980;
@@ -549,29 +620,13 @@ export const setCarouselIndex = (index) => {
 
 export const findNextLoadedIndex = (direction) => {
     const total = state.carousel.items.length;
-    const current = state.carousel.index;
-    const isCompact = window.matchMedia('(max-width: 760px)').matches;
+    if (total === 0) return 0;
 
-    // On mobile we intentionally render only the focused slide for stability.
-    // Always advance sequentially so navigation never gets trapped in a tiny loaded subset.
-    if (isCompact) {
-        let next = (current + direction) % total;
-        if (next < 0) next += total;
-        return next;
-    }
-
-    for (let i = 1; i < total; i++) {
-        let index = (current + direction * i) % total;
-        if (index < 0) index += total;
-
-        if (state.carousel.fullyLoaded.has(index)) {
-            return index;
-        }
-    }
-
-    let fallback = (current + direction) % total;
-    if (fallback < 0) fallback += total;
-    return fallback;
+    // Always move sequentially; preloading is handled by updateCarousel().
+    // This prevents navigation from getting trapped in a tiny "loaded" subset.
+    let next = (state.carousel.index + direction) % total;
+    if (next < 0) next += total;
+    return next;
 };
 
 export const nextSlide = () => {
