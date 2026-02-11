@@ -30,6 +30,7 @@ The site is hosted on Cloudflare Pages and updated every block. The current cont
 | URL | Description |
 |-----|-------------|
 | `/` | HTML report — the current frontend (single-page, monospace, dark theme) |
+| `/tip` | Plain-text file containing just the current block height (e.g. `936067`). Use this to poll for changes without downloading the full JSON. |
 | `/best-before.json` | Master collection JSON (this document) |
 | `/images/BESTBEFORE_{n}.png` | Rendered inscription image, 1800x3200 PNG (~18 MB). `{n}` is 1-based. |
 | `/images/BESTBEFORE_{n}.webp` | Lossy compressed WebP, 1200px wide (<2 MB) |
@@ -60,7 +61,7 @@ The HTML report at `bestbefore.space` renders these sections, all of which can b
 
 The `analytics` object contains everything needed to reproduce or extend the current report without recomputing anything from the raw inscription data. A typical approach:
 
-1. Fetch `best-before.json` once per block (check `tip` to detect changes).
+1. Poll `/tip` to detect new blocks (tiny plain-text response). Only fetch `best-before.json` when the tip changes.
 2. Use `analytics.*` for all aggregate views, tables, and leaderboards.
 3. Use `inscriptions[]` for per-piece detail views (e.g. individual inscription pages).
 4. Construct image URLs from piece numbers: `https://bestbefore.space/images/BESTBEFORE_{number}.webp`
