@@ -133,6 +133,8 @@ const boot = async () => {
     try {
       const liveResponse = await loadJson('https://bestbefore.space/best-before.json');
       state.liveSummary = liveResponse?.summary || null;
+      state.analytics = liveResponse?.analytics || null;
+      state.liveGeneratedAt = liveResponse?.generated_at || null;
 
       const rawInscriptions = liveResponse?.inscriptions || [];
       state.liveItems = rawInscriptions.map((item) => {
@@ -143,8 +145,16 @@ const boot = async () => {
           number,
           name: `BEST BEFORE Nº${number || '?'}`,
           status: item.phase?.toLowerCase() || 'unknown',
-          palette: item.palette,
-          block: item.block,
+          // Keep the full palette object for modal/carousel compatibility.
+          palette: item.palette || null,
+          palette_id: item.palette?.id || null,
+          palette_colors: item.palette?.colors || [],
+          activation_block: item.block?.activation,
+          lifespan_blocks: item.block?.lifespan,
+          remaining_blocks: item.block?.remaining,
+          immortal: item.block?.immortal || false,
+          // Keep the full block object for modal metadata and live lifespan bars.
+          block: item.block || {},
           preview: `https://ordinals.com/content/${item.id}`,
           ordinalsUrl: `https://ordinals.com/inscription/${item.id}`,
         };
@@ -153,6 +163,8 @@ const boot = async () => {
       console.warn('Failed to load live data, falling back to static content.', e);
       state.liveItems = null;
       state.liveSummary = null;
+      state.analytics = null;
+      state.liveGeneratedAt = null;
     }
 
     const logoAsset = await resolveLogoAsset(summary?.logoAsset);

@@ -37,12 +37,21 @@ export const initNavigation = () => {
         const updateActiveZone = () => {
             const scrollTop = scrollContainer ? scrollContainer.scrollTop : window.scrollY;
             const viewportHeight = scrollContainer ? scrollContainer.clientHeight : window.innerHeight;
-            const probeY = scrollTop + viewportHeight * 0.45;
+            // Lower probe to 60% of viewport to better detect bottom sections like Vault
+            const probeY = scrollTop + viewportHeight * 0.6;
 
+            let containingZone = null;
             let bestZone = null;
             let bestDistance = Infinity;
 
             zones.forEach((zoneEl) => {
+                const zoneTop = zoneEl.offsetTop;
+                const zoneBottom = zoneTop + zoneEl.offsetHeight;
+
+                if (probeY >= zoneTop && probeY < zoneBottom) {
+                    containingZone = zoneEl;
+                }
+
                 const zoneCenter = zoneEl.offsetTop + zoneEl.offsetHeight / 2;
                 const distance = Math.abs(zoneCenter - probeY);
                 if (distance < bestDistance) {
@@ -50,6 +59,10 @@ export const initNavigation = () => {
                     bestZone = zoneEl;
                 }
             });
+
+            if (containingZone) {
+                bestZone = containingZone;
+            }
 
             if (!bestZone) return;
 
@@ -116,12 +129,32 @@ export const initNavigation = () => {
     const vaultZone = document.querySelector('#bbZoneVault');
     if (vaultZone) {
         vaultZone.addEventListener('click', (e) => {
+            const ledgerLink = e.target.closest('.bb-ledger-link[data-bb-number]');
+            if (ledgerLink) {
+                const desiredNumber = Number(ledgerLink.dataset.bbNumber);
+                if (Number.isFinite(desiredNumber) && typeof window.bbOpenItem === 'function') {
+                    e.preventDefault();
+                    window.bbOpenItem(desiredNumber, { immersive: false, scroll: true });
+                    return;
+                }
+            }
+
             const btn = e.target.closest('[data-vault-tab]');
             if (!btn) return;
             if (btn.tagName === 'A') return;
 
             const tab = btn.dataset.vaultTab;
             state.vault.activeTab = tab;
+            state.activeView = 'vault';
+
+            if (zoneIndicator) {
+                zoneIndicator.textContent = zoneNames.vault;
+            }
+
+            if (scrollHint) {
+                scrollHint.style.opacity = '0';
+                scrollHint.style.pointerEvents = 'none';
+            }
 
             vaultZone.querySelectorAll('[data-vault-tab]').forEach((b) => {
                 b.classList.toggle('is-active', b.dataset.vaultTab === tab);

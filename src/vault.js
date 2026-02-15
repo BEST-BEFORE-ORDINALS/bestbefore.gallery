@@ -1,6 +1,7 @@
 /* ═══ Vault — Artists, Diary, Ledger tabs ═══ */
 
 import { state, ARTIST_BIO_LEMONHAZE, ARTIST_BIO_ORDINALLY, escapeHtml } from './state.js';
+import { renderLedger } from './ledger.js';
 
 /* ── Diary content (loaded externally) ── */
 let DIARY_CONTENT = '';
@@ -171,15 +172,11 @@ export const renderVaultContent = () => {
   }
 
   if (state.vault.activeTab === 'analytics') {
-    return `
-      <div class="bb-vault-section bb-ledger-container">
-        <header class="bb-ledger-header">
-          <h2>The Ledger</h2>
-          <p class="bb-ledger-subtitle">On-chain records and analytics</p>
-        </header>
-        <iframe class="bb-ledger-frame" src="https://BESTBEFORE.SPACE" frameborder="0"></iframe>
-      </div>
-    `;
+    // Pass liveItems if available, otherwise fallback to local items
+    const ledgerItems = state.liveItems || state.items;
+    return renderLedger(state.analytics, ledgerItems, {
+      generatedAt: state.liveGeneratedAt,
+    });
   }
 
   return '';

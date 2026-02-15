@@ -3098,9 +3098,11 @@ body.bb-intro-exit .bb-intro {
   }
 
   .bb-modal__close {
-    position: fixed;
-    top: calc(env(safe-area-inset-top, 0px) + 0.65rem);
-    right: calc(env(safe-area-inset-right, 0px) + 0.65rem);
+    position: static;
+    margin-left: auto;
+    margin-right: 0.15rem;
+    margin-top: 0.1rem;
+    margin-bottom: 0.2rem;
     width: 1.9rem;
     height: 1.9rem;
     display: inline-flex;
@@ -3111,7 +3113,7 @@ body.bb-intro-exit .bb-intro {
     background: rgba(0, 0, 0, 0.55);
     border: 1px solid rgba(255, 255, 255, 0.22);
     color: rgba(255, 255, 255, 0.9);
-    z-index: 9100;
+    z-index: 10;
   }
 
   .bb-modal__toggle {

@@ -45,22 +45,6 @@ export const renderAboutFaq = (text) => {
     return;
   }
 
-  // Get live stats for dynamic content — mirror the same source as renderMenuStats
-  let openCount, sealedCount, expiredCount, immortalCount;
-
-  if (state.liveSummary) {
-    openCount = state.liveSummary.open || 0;
-    sealedCount = state.liveSummary.sealed || 0;
-    expiredCount = state.liveSummary.expired || 0;
-    immortalCount = state.liveSummary.immortal || 0;
-  } else {
-    const summary = state.summary;
-    openCount = summary?.totals?.open ?? statusCount(state.items, 'open');
-    sealedCount = summary?.totals?.sealed ?? statusCount(state.items, 'sealed');
-    expiredCount = summary?.totals?.expired ?? statusCount(state.items, 'expired');
-    immortalCount = summary?.totals?.immortal ?? 0;
-  }
-
   // Build dramatic story-first HTML
   aboutFaq.innerHTML = `
     <!-- Hero Question -->
@@ -89,30 +73,8 @@ export const renderAboutFaq = (text) => {
       </p>
     </section>
 
-    <!-- Live Stats -->
-    <section class="bb-about-stats bb-reveal bb-reveal--delay-3">
-      <div class="bb-about-stats__grid">
-        <div class="bb-about-stat bb-about-stat--open">
-          <span class="bb-about-stat__number">${openCount}</span>
-          <span class="bb-about-stat__label">OPEN</span>
-        </div>
-        <div class="bb-about-stat bb-about-stat--sealed">
-          <span class="bb-about-stat__number">${sealedCount}</span>
-          <span class="bb-about-stat__label">SEALED</span>
-        </div>
-        <div class="bb-about-stat bb-about-stat--expired">
-          <span class="bb-about-stat__number">${expiredCount}</span>
-          <span class="bb-about-stat__label">EXPIRED</span>
-        </div>
-        <div class="bb-about-stat bb-about-stat--immortal">
-          <span class="bb-about-stat__number">${immortalCount}</span>
-          <span class="bb-about-stat__label">IMMORTAL</span>
-        </div>
-      </div>
-    </section>
-
     <!-- Collapsible FAQ -->
-    <section class="bb-about-faq bb-reveal bb-reveal--delay-4">
+    <section class="bb-about-faq bb-reveal bb-reveal--delay-3">
       <details class="bb-faq-item">
         <summary class="bb-faq-question">How does it work?</summary>
         <div class="bb-faq-answer">

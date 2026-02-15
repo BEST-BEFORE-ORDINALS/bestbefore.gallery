@@ -1,7 +1,7 @@
 /* ═══ Gallery setup — transforms data into carousel items ═══ */
 
-import { state, statusClass } from './state.js';
-import { renderCarouselCards, updateCarousel, initCarouselInteractions, restartMotionTimers, renderCarouselMeta, updateImmersiveHud } from './carousel.js';
+import { state } from './state.js';
+import { renderCarouselCards, updateCarousel, initCarouselInteractions, restartMotionTimers, renderCarouselMeta, updateImmersiveHud, setCarouselImmersive, setCarouselIndex } from './carousel.js';
 
 export const setupGallery = () => {
     /* Define sort helper to reuse */
@@ -15,7 +15,7 @@ export const setupGallery = () => {
         if (b.number === null) {
             return -1;
         }
-        return a.number - b.number;
+        return (parseInt(a.number, 10) || 0) - (parseInt(b.number, 10) || 0);
     };
 
     /* Setup Carousel - Uses ALL artworks from Live Data first, then fallback */
@@ -59,9 +59,27 @@ export const setupGallery = () => {
         .filter((item) => item.preview)
         .sort(sortItems);
 
+    const findIndexByNumber = (number) =>
+        allWithPreview.findIndex((entry) => Number(entry?.number) === Number(number));
+
+    let requestedNumber = null;
+    try {
+        const queryValue = new URLSearchParams(window.location.search).get('item');
+        const parsed = Number(queryValue);
+        if (Number.isFinite(parsed) && parsed > 0) {
+            requestedNumber = parsed;
+        }
+    } catch {
+        requestedNumber = null;
+    }
+
+    const requestedIndex = requestedNumber !== null ? findIndexByNumber(requestedNumber) : -1;
+
     state.carousel.items = allWithPreview;
-    // Start at a random position, but ensure it's valid
-    state.carousel.index = Math.floor(Math.random() * allWithPreview.length);
+    // Keep deep-link target when provided, otherwise start random.
+    state.carousel.index = requestedIndex >= 0
+        ? requestedIndex
+        : Math.floor(Math.random() * allWithPreview.length);
     state.carousel.dragOffset = 0;
     state.carousel.pendingDragOffset = 0;
     state.carousel.loadedIndexes = new Set();
@@ -78,4 +96,39 @@ export const setupGallery = () => {
 
     initCarouselInteractions();
     restartMotionTimers();
+
+    const openItemFromNumber = (number, options = {}) => {
+        const { immersive = false, scroll = true } = options;
+        const desiredNumber = Number(number);
+        if (!Number.isFinite(desiredNumber)) {
+            return false;
+        }
+
+        const index = state.carousel.items.findIndex((entry) => Number(entry?.number) === desiredNumber);
+        if (index === -1) {
+            return false;
+        }
+
+        setCarouselIndex(index);
+        setCarouselImmersive(Boolean(immersive));
+
+        if (scroll) {
+            const galleryZone = document.querySelector('#bbZoneGallery');
+            if (galleryZone) {
+                galleryZone.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        return true;
+    };
+
+    /* Expose navigation helper for Ledger */
+    window.bbOpenItem = (number, options = {}) => {
+        const { immersive = false, scroll = true } = options;
+        openItemFromNumber(number, { immersive, scroll });
+    };
+
+    if (requestedIndex >= 0) {
+        openItemFromNumber(requestedNumber, { immersive: false, scroll: false });
+    }
 };
