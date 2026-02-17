@@ -79,6 +79,11 @@ export const initNavigation = () => {
                 scrollHint.style.opacity = zone === 'gallery' ? '1' : '0';
                 scrollHint.style.pointerEvents = zone === 'gallery' ? 'auto' : 'none';
             }
+
+            const vaultHint = document.querySelector('#bbVaultHint');
+            if (vaultHint) {
+                vaultHint.classList.toggle('is-hidden', zone !== 'about');
+            }
         };
 
         const requestZoneUpdate = () => {
