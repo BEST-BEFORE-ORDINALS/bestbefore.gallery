@@ -148,7 +148,9 @@ export const renderVaultContent = () => {
             <img src="/assets/ordinally-avatar.png" alt="ORDINALLY" loading="lazy" />
           </div>
           <div class="bb-artist-info">
-            <h3 class="bb-artist-name">ORDINALLY</h3>
+            <h3 class="bb-artist-name">
+              <a class="bb-artist-name-link" href="https://x.com/veryordinally" target="_blank" rel="noreferrer">ORDINALLY</a>
+            </h3>
             <div class="bb-artist-bio">
               <p>${ARTIST_BIO_ORDINALLY.trim().replace(/\n/g, '<br />')}</p>
             </div>
