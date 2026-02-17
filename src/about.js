@@ -76,7 +76,13 @@ export const renderAboutFaq = (text) => {
     <!-- Full Statement (expandable) -->
     <section class="bb-about-statement bb-reveal bb-reveal--delay-3">
       <details class="bb-statement">
-        <summary class="bb-statement__toggle">Read the full statement</summary>
+        <summary class="bb-statement__toggle">
+          <span class="bb-statement__toggle-copy">
+            <span class="bb-statement__title">Read the full statement</span>
+            <span class="bb-statement__teaser">A deeper note on collector agency, time, and expiry</span>
+          </span>
+          <span class="bb-statement__chevron" aria-hidden="true"></span>
+        </summary>
         <div class="bb-statement__body">
 
           <h3 class="bb-statement__heading">The Collector's Role</h3>
@@ -100,23 +106,6 @@ export const renderAboutFaq = (text) => {
             <p>Eight months later, the audience returns. The final block hits. The work expires.</p>
             <p class="bb-statement__curtain">Curtain.</p>
           </div>
-
-          <hr class="bb-statement__rule" />
-
-          <h3 class="bb-statement__heading">Possibilities</h3>
-
-          <p>Vernissage and Finissage - the artwork dictates both opening and closing. Unsealed live at the vernissage, years later the exhibition ends when the piece itself expires - turning off the lights.</p>
-
-          <p>Collector Rituals - collectors announce moments of activation: "I'll unseal at block 888,888." The community gathers. The act becomes folklore.</p>
-
-          <p>Lottery Theater - each birth reveals fate in real time. Two weeks. Ten years. Immortal. Streamed, witnessed, shared - chance as spectacle.</p>
-
-          <p>Festival Format - a stage, an audience. Collectors unseal works live, one by one. Each activation unique, each outcome unknown. The exhibition is the performance.</p>
-
-          <p>Gallery Commitments - a gallery pledges to display a work until it expires - whether that's weeks or decades. The promise itself becomes part of the piece.</p>
-
-          <p>Museum Stewardship - if an immortal emerges, it will be housed indefinitely. The institution becomes caretaker of a work without an end.</p>
-
         </div>
       </details>
     </section>
