@@ -189,17 +189,31 @@ export const renderCarouselCards = () => {
         .map(
             (item, index) => `
       <article class="bb-slide ${statusClass[item.status] || ''}" data-index="${index}" aria-label="${escapeHtml(item.name)}">
-        <img
-          data-src="${item.preview}"
-          data-src-mobile="${item.previewMobile || item.preview}"
-          data-index="${index}"
-          data-ordinals="${item.ordinalsUrl || ''}"
-          alt="${escapeHtml(item.name)}"
-          loading="lazy"
-          decoding="async"
-          onload="state.carousel.fullyLoaded.add(${index}); this.classList.add('is-loaded');"
-          onerror="if(this.dataset.fallback !== '1'){this.dataset.fallback='1'; this.src=this.dataset.src;}"
-        />
+        <div class="bb-slide__media">
+          <img
+            class="bb-slide__img bb-slide__img--low"
+            src="${item.previewMobile || item.preview}"
+            data-src-low="${item.previewMobile || item.preview}"
+            data-index="${index}"
+            alt="${escapeHtml(item.name)}"
+            loading="lazy"
+            decoding="async"
+            onload="state.carousel.fullyLoaded.add(${index}); this.classList.add('is-loaded'); this.dataset.ready='1';"
+            onerror="if(this.dataset.fallback !== '1'){this.dataset.fallback='1'; this.dataset.ready='0'; this.src=this.dataset.srcLow || '';}"
+          />
+          <img
+            class="bb-slide__img bb-slide__img--high"
+            data-src-hd="${item.preview || item.previewMobile || ''}"
+            data-src-ordinals="${item.ordinalsUrl || ''}"
+            data-index="${index}"
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+            onload="this.dataset.ready='1'; this.classList.add('is-loaded');"
+            onerror="if(this.dataset.fallback !== '1'){this.dataset.fallback='1'; this.dataset.ready='0'; if(this.dataset.srcHd){this.dataset.currentSrc=this.dataset.srcHd; this.src=this.dataset.srcHd;}}"
+          />
+        </div>
       </article>
       `,
         )
@@ -388,6 +402,71 @@ export const renderCarouselMeta = () => {
     });
 };
 
+const DESKTOP_HD_PRELOAD_RADIUS = 2;
+const DESKTOP_HD_REFRESH_RADIUS = 3;
+
+const normalizeCarouselIndex = (index, total) => ((index % total) + total) % total;
+
+const queueHdPreload = (index, total, slides) => {
+    if (total === 0) {
+        return;
+    }
+
+    const normalizedIndex = normalizeCarouselIndex(index, total);
+    if (state.carousel.hdLoadedIndexes.has(normalizedIndex) || state.carousel.hdLoadingIndexes.has(normalizedIndex)) {
+        return;
+    }
+
+    const highImage = slides[normalizedIndex]?.querySelector('.bb-slide__img--high');
+    const hdSrc = highImage?.dataset.srcHd;
+    if (!hdSrc) {
+        return;
+    }
+
+    state.carousel.hdLoadingIndexes.add(normalizedIndex);
+
+    const preloader = new Image();
+    preloader.decoding = 'async';
+    preloader.src = hdSrc;
+
+    preloader.onload = async () => {
+        if (typeof preloader.decode === 'function') {
+            try {
+                await preloader.decode();
+            } catch {
+                // Decode can fail on some browsers/cross-origin images even when load succeeds.
+            }
+        }
+
+        state.carousel.hdLoadingIndexes.delete(normalizedIndex);
+        state.carousel.hdLoadedIndexes.add(normalizedIndex);
+
+        const activeTotal = state.carousel.items.length;
+        if (activeTotal === 0) {
+            return;
+        }
+
+        const diff = Math.abs(getRelativeDiff(normalizedIndex, state.carousel.index, activeTotal));
+        if (diff <= DESKTOP_HD_REFRESH_RADIUS && !state.carousel.dragging) {
+            updateCarousel();
+        }
+    };
+
+    preloader.onerror = () => {
+        state.carousel.hdLoadingIndexes.delete(normalizedIndex);
+    };
+};
+
+const preloadDesktopHdWindow = (slides, total) => {
+    if (total === 0) {
+        return;
+    }
+
+    for (let offset = -DESKTOP_HD_PRELOAD_RADIUS; offset <= DESKTOP_HD_PRELOAD_RADIUS; offset += 1) {
+        queueHdPreload(state.carousel.index + offset, total, slides);
+    }
+};
+
 /* ── Core carousel update ── */
 
 export const updateCarousel = () => {
@@ -400,7 +479,7 @@ export const updateCarousel = () => {
     }
 
     const stageWidth = stage.clientWidth;
-    const useMobilePreview = window.matchMedia('(max-width: 760px)').matches;
+    const isMobileViewport = window.matchMedia('(max-width: 760px)').matches;
     // Fix: Use the ACTIVE slide for measurement, as slides[0] might be display:none (width=0) due to optimization
     const sampleSlide = slides[state.carousel.index] || slides[0];
     const measuredSlideWidth = sampleSlide
@@ -415,6 +494,10 @@ export const updateCarousel = () => {
     const isCompact = stageWidth < 760;
     const settleTransformMs = isCompact ? 460 : 720;
     const settleOpacityMs = isCompact ? 320 : 540;
+
+    if (!isMobileViewport) {
+        preloadDesktopHdWindow(slides, total);
+    }
 
     // Keep spacing mathematically consistent:
     // center <-> 1st neighbor gap ~= 1st <-> 2nd neighbor gap.
@@ -461,19 +544,25 @@ export const updateCarousel = () => {
     slides.forEach((slide, index) => {
         const diff = getRelativeDiff(index, state.carousel.index, total);
         const abs = Math.abs(diff);
-        const image = slide.querySelector('img');
-        const previewSrc = useMobilePreview
-            ? (image?.dataset.srcMobile || image?.dataset.src)
-            : image?.dataset.src;
+        const lowImage = slide.querySelector('.bb-slide__img--low');
+        const highImage = slide.querySelector('.bb-slide__img--high');
+        const lowSrc = lowImage?.dataset.srcLow || '';
+        const hdSrc = highImage?.dataset.srcHd || lowSrc;
+        const ordinalsSrc = highImage?.dataset.srcOrdinals || '';
+        const wantsOrdinals = state.carousel.immersive && diff === 0 && Boolean(ordinalsSrc);
+        const targetHighSrc = wantsOrdinals ? ordinalsSrc : hdSrc;
+        const hdReady = !isMobileViewport && state.carousel.hdLoadedIndexes.has(index);
+        const lowReady = Boolean(lowImage && (lowImage.dataset.ready === '1' || lowImage.complete));
 
         // Mobile stability: render only focused slide to prevent hidden OPEN art
         // from bleeding behind square SEALED/EXPIRED pieces.
         if (isCompact && !state.carousel.immersive && diff !== 0) {
-            if (image && abs <= 2 && !state.carousel.loadedIndexes.has(index)) {
-                image.loading = 'eager';
-                image.fetchPriority = 'low';
-                image.src = previewSrc;
-                image.decoding = 'async';
+            if (lowImage && abs <= 2 && !state.carousel.loadedIndexes.has(index)) {
+                lowImage.loading = 'eager';
+                lowImage.fetchPriority = 'low';
+                lowImage.src = lowSrc;
+                lowImage.dataset.currentSrc = lowSrc;
+                lowImage.decoding = 'async';
                 state.carousel.loadedIndexes.add(index);
             }
             if (slide.style.display !== 'none') {
@@ -496,19 +585,37 @@ export const updateCarousel = () => {
             slide.style.display = 'grid';
         }
 
-        if (image && abs <= 3 && !state.carousel.loadedIndexes.has(index)) {
-            image.src = previewSrc;
-            image.decoding = 'async';
+        if (lowImage && abs <= 3 && !state.carousel.loadedIndexes.has(index)) {
+            lowImage.src = lowSrc;
+            lowImage.dataset.currentSrc = lowSrc;
+            lowImage.decoding = 'async';
             state.carousel.loadedIndexes.add(index);
         }
 
-        if (image) {
+        if (lowImage) {
             if (diff === 0 || state.carousel.immersive) {
-                image.loading = 'eager';
-                image.fetchPriority = 'high';
+                lowImage.loading = 'eager';
+                lowImage.fetchPriority = 'high';
             } else {
-                image.loading = 'lazy';
-                image.fetchPriority = 'auto';
+                lowImage.loading = 'lazy';
+                lowImage.fetchPriority = 'auto';
+            }
+        }
+
+        if (!isMobileViewport && highImage && abs <= 3 && targetHighSrc && lowReady) {
+            const currentHighSrc = highImage.dataset.currentSrc || '';
+            if (currentHighSrc !== targetHighSrc) {
+                highImage.dataset.ready = '0';
+                highImage.dataset.fallback = '0';
+                highImage.dataset.currentSrc = targetHighSrc;
+                highImage.src = targetHighSrc;
+                highImage.decoding = 'async';
+
+                if (!wantsOrdinals && hdReady) {
+                    highImage.dataset.ready = '1';
+                }
+            } else if (!wantsOrdinals && hdReady) {
+                highImage.dataset.ready = '1';
             }
         }
 
@@ -584,17 +691,20 @@ export const updateCarousel = () => {
             ? 'none'
             : `transform ${settleTransformMs}ms cubic-bezier(0.18, 0.76, 0.24, 1), opacity ${settleOpacityMs}ms ease`;
 
-        if (image) {
-            const ordinalsSrc = image.dataset.ordinals;
+        const highLoaded = !isMobileViewport
+            && highImage
+            && lowReady
+            && highImage.dataset.currentSrc === targetHighSrc
+            && highImage.dataset.ready === '1';
 
-            if (state.carousel.immersive && diff === 0 && ordinalsSrc) {
-                image.src = ordinalsSrc;
-            } else if (previewSrc) {
-                image.src = previewSrc;
-            }
+        if (lowImage) {
+            lowImage.style.opacity = String(highLoaded ? 0 : imageOpacity);
+            lowImage.style.transition = state.carousel.dragging ? 'none' : 'opacity 420ms ease, filter 420ms ease';
+        }
 
-            image.style.opacity = String(imageOpacity);
-            image.style.transition = state.carousel.dragging ? 'none' : 'opacity 420ms ease, filter 420ms ease';
+        if (highImage) {
+            highImage.style.opacity = String(highLoaded ? imageOpacity : 0);
+            highImage.style.transition = state.carousel.dragging ? 'none' : 'opacity 420ms ease, filter 420ms ease';
         }
     });
 

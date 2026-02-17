@@ -49,6 +49,8 @@ export const state = {
         dragRaf: null,
         loadedIndexes: new Set(),
         fullyLoaded: new Set(),
+        hdLoadedIndexes: new Set(),
+        hdLoadingIndexes: new Set(),
         immersive: false,
     },
     heartbeat: {

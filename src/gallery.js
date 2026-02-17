@@ -65,6 +65,8 @@ export const setupGallery = () => {
     state.carousel.pendingDragOffset = 0;
     state.carousel.loadedIndexes = new Set();
     state.carousel.fullyLoaded = new Set();
+    state.carousel.hdLoadedIndexes = new Set();
+    state.carousel.hdLoadingIndexes = new Set();
     state.carousel.immersive = false;
     document.querySelector('.bb-root')?.classList.remove('is-carousel-immersive');
 
