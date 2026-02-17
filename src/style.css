@@ -209,6 +209,58 @@ body {
   margin: 0 auto;
 }
 
+.bb-footer {
+  position: relative;
+  z-index: 3;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(2, 2, 2, 0.82);
+  backdrop-filter: blur(4px);
+}
+
+.bb-footer__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.35rem 2rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.bb-footer__brand,
+.bb-footer__by {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.bb-footer__links {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.bb-footer__links a {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.76);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.bb-footer__links a:hover,
+.bb-footer__links a:focus-visible {
+  color: #fff;
+  border-bottom-color: rgba(255, 255, 255, 0.45);
+}
+
 /* Scroll hint */
 .bb-scroll-hint {
   position: absolute;
@@ -2573,6 +2625,27 @@ body.bb-intro-exit .bb-intro {
   .bb-header__subtitle {
     font-size: 0.42rem;
     letter-spacing: 0.1em;
+  }
+
+  .bb-footer__inner {
+    padding: 1rem 1rem 1.15rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+  }
+
+  .bb-footer__brand,
+  .bb-footer__by,
+  .bb-footer__links a {
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+  }
+
+  .bb-footer__links {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 0.85rem;
   }
 
   /* About stats — 2 columns on mobile */

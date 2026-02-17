@@ -85,12 +85,6 @@ export const renderAboutFaq = (text) => {
         </summary>
         <div class="bb-statement__body">
 
-          <h3 class="bb-statement__heading">The Collector's Role</h3>
-          <p>You choose when the life of your piece begins. Activation injects the randomness that determines the piece's fate; time and block height write the rest.</p>
-          <p>Some collectors may incubate SEALED works for years. Others may activate early to watch an artwork's life unfold in public. A SEALED work invites patience; an activated work invites attention.</p>
-
-          <hr class="bb-statement__rule" />
-
           <h3 class="bb-statement__heading">Each work is a living system</h3>
           <p>A self-contained performance - ritual, narrative, and time-based artwork in one. Collectors, galleries, museums, and audiences participate in how these works are born, lived, and ended.</p>
           <p>While SEALED, a work exists in suspension. The collector chooses when to activate it. That choice - time, place, context - is already part of the artwork.</p>
@@ -106,6 +100,12 @@ export const renderAboutFaq = (text) => {
             <p>Eight months later, the audience returns. The final block hits. The work expires.</p>
             <p class="bb-statement__curtain">Curtain.</p>
           </div>
+
+          <hr class="bb-statement__rule" />
+
+          <h3 class="bb-statement__heading">The Collector's Role</h3>
+          <p>You choose when the life of your piece begins. Activation injects the randomness that determines the piece's fate; time and block height write the rest.</p>
+          <p>Some collectors may incubate SEALED works for years. Others may activate early to watch an artwork's life unfold in public. A SEALED work invites patience; an activated work invites attention.</p>
         </div>
       </details>
     </section>

@@ -107,6 +107,18 @@ const renderShell = () => {
           </div>
         </section>
       </main>
+
+      <footer class="bb-footer">
+        <div class="bb-footer__inner">
+          <p class="bb-footer__brand">© BEST BEFORE</p>
+          <p class="bb-footer__by">BY LEMONHAZE X ORDINALLY</p>
+          <nav class="bb-footer__links" aria-label="BEST BEFORE links">
+            <a href="https://x.com/ordbestbefore" target="_blank" rel="noreferrer">TWITTER/X</a>
+            <a href="https://magiceden.io/ordinals/marketplace/best-before-by-lemonhaze-x-ordinally" target="_blank" rel="noreferrer">Magic Eden</a>
+            <a href="https://gamma.io/ordinals/collections/best-before/items" target="_blank" rel="noreferrer">Gamma</a>
+          </nav>
+        </div>
+      </footer>
     </div>
   `;
 };

@@ -135,7 +135,9 @@ export const renderVaultContent = () => {
             <img src="https://ordinals.com/content/757c7d19f53501b9f1e11f49f1731622d5d257eed99c721b32af0438d0d1f9cfi0" alt="Lemonhaze" loading="lazy" />
           </div>
           <div class="bb-artist-info">
-            <h3 class="bb-artist-name">Lemonhaze</h3>
+            <h3 class="bb-artist-name">
+              <a class="bb-artist-name-link" href="https://lemonhaze.com" target="_blank" rel="noreferrer">Lemonhaze</a>
+            </h3>
             <div class="bb-artist-bio">
               <p>${ARTIST_BIO_LEMONHAZE.trim().replace(/\n/g, '<br />')}</p>
             </div>
