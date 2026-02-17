@@ -70,12 +70,15 @@ export const state = {
 };
 
 export const ARTIST_BIO_LEMONHAZE = `
-Lemonhaze is a Montreal born and Puerto Escondido based self-taught artist who merges his background in music, entrepreneurship and expressive writing into an explorative digital art journey.
-Continually experimenting with tools like JavaScript, AI, and various digital drawing software, he approaches his work much like music production, often combining multiple tools in a single piece.
-His practice is iterative, spontaneous, and modular — touching a wide range of interests from journaling to physical medium while focusing on his personal code-based paint engine.
-His art acts both as a means of escape and as a tangible memento, often very personal, capturing the essence of his experiences and emotions.
-With a deep appreciation for the lasting nature of the Bitcoin blockchain, he has chosen it as the foundation for his poetic and visual expressions.
-Lemonhaze's singular & offbeat journey as an artist, without the constraints of traditional art education or industry expectations, exudes a raw individuality. Each piece being a modest reflection of his evolving perspective and soul.
+Lemonhaze is a Montreal born and Puerto Escondido based self-taught artist who merges his background in music, entrepreneurship, and expressive writing into an explorative digital art journey.
+
+Continually experimenting with the tools of his time, such as - laptop, JavaScript, AI, and various digital drawing software - Lemonhaze craft moments with pixels.
+
+His practice is iterative, spontaneous, and modular, touching a wide range of interests from journaling to physical mediums, while remaining anchored in the development of his personal code-based paint engine.
+
+His art acts both as a means of escape and as a tangible memento, often deeply personal - capturing fragments of lived experience, emotion, and time. With a deep appreciation for the lasting nature of the Bitcoin blockchain, he has chosen it as the foundation for his poetic and visual expressions.
+
+Lemonhaze's singular and offbeat journey as an artist, without the constraints of traditional art education or industry expectations - exudes a raw individuality, with each piece serving as a modest reflection of his evolving perspective and soul.
 `;
 
 export const ARTIST_BIO_ORDINALLY = `
