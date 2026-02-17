@@ -417,6 +417,8 @@ h4,
   overflow: visible;
   perspective: 1700px;
   touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
   background: transparent;
 }
 

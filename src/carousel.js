@@ -413,6 +413,8 @@ export const updateCarousel = () => {
     const maxOffset = Math.max(240, stageWidth / 2 - slideWidth / 2 - edgePadding);
     const isDesktop = stageWidth >= 980;
     const isCompact = stageWidth < 760;
+    const settleTransformMs = isCompact ? 460 : 720;
+    const settleOpacityMs = isCompact ? 320 : 540;
 
     // Keep spacing mathematically consistent:
     // center <-> 1st neighbor gap ~= 1st <-> 2nd neighbor gap.
@@ -580,7 +582,7 @@ export const updateCarousel = () => {
         slide.classList.toggle('is-focus', diff === 0);
         slide.style.transition = state.carousel.dragging
             ? 'none'
-            : 'transform 720ms cubic-bezier(0.18, 0.76, 0.24, 1), opacity 540ms ease';
+            : `transform ${settleTransformMs}ms cubic-bezier(0.18, 0.76, 0.24, 1), opacity ${settleOpacityMs}ms ease`;
 
         if (image) {
             const ordinalsSrc = image.dataset.ordinals;
@@ -872,23 +874,38 @@ export const initCarouselInteractions = () => {
         }
     };
 
-    const startDrag = (x) => {
+    let dragStartTs = 0;
+    let prevMoveX = 0;
+    let prevMoveTs = 0;
+    let lastMoveX = 0;
+    let lastMoveTs = 0;
+
+    const startDrag = (x, ts = performance.now()) => {
         stopMotionTimers();
         state.carousel.dragStartX = x;
         state.carousel.dragging = true;
         state.carousel.pendingDragOffset = 0;
         state.carousel.dragOffset = 0;
+        dragStartTs = ts;
+        prevMoveX = x;
+        prevMoveTs = ts;
+        lastMoveX = x;
+        lastMoveTs = ts;
 
         if (state.carousel.dragRaf) cancelAnimationFrame(state.carousel.dragRaf);
         state.carousel.dragRaf = requestAnimationFrame(flushDragFrame);
     };
 
-    const moveDrag = (x) => {
+    const moveDrag = (x, ts = performance.now()) => {
         if (!state.carousel.dragging) return;
         state.carousel.pendingDragOffset = x - state.carousel.dragStartX;
+        prevMoveX = lastMoveX;
+        prevMoveTs = lastMoveTs;
+        lastMoveX = x;
+        lastMoveTs = ts;
     };
 
-    const finishDrag = (event) => {
+    const finishDrag = (event, ts = performance.now()) => {
         if (!state.carousel.dragging) return;
 
         if (state.carousel.dragRaf) {
@@ -902,12 +919,26 @@ export const initCarouselInteractions = () => {
         // Get stage width for threshold calculation
         const stageEl = document.querySelector('#bbGalleryStage');
         const stageWidth = stageEl ? stageEl.clientWidth : 800;
-        const threshold = stageWidth < 768 ? Math.max(30, stageWidth * 0.06) : 60;
+        const isMobile = stageWidth < 768;
+        const distanceThreshold = isMobile
+            ? Math.min(42, Math.max(24, stageWidth * 0.055))
+            : 60;
+        const elapsedMs = Math.max(1, ts - dragStartTs);
+        const averageVelocity = finalOffset / elapsedMs;
+        const instantDt = Math.max(1, lastMoveTs - prevMoveTs);
+        const instantVelocity = (lastMoveX - prevMoveX) / instantDt;
+        const velocity = Math.abs(instantVelocity) > 0.01 ? instantVelocity : averageVelocity;
+        const flickVelocityThreshold = isMobile ? 0.42 : 0.5; // px/ms
+        const hasDistanceCommit = Math.abs(finalOffset) >= distanceThreshold;
+        const hasVelocityCommit = Math.abs(velocity) >= flickVelocityThreshold && Math.abs(finalOffset) >= 10;
 
-        if (finalOffset < -threshold) {
-            nextSlide();
-        } else if (finalOffset > threshold) {
-            prevSlide();
+        if (hasDistanceCommit || hasVelocityCommit) {
+            const direction = hasVelocityCommit ? Math.sign(velocity) : Math.sign(finalOffset);
+            if (direction < 0) {
+                nextSlide();
+            } else if (direction > 0) {
+                prevSlide();
+            }
         }
 
         state.carousel.dragOffset = 0;
@@ -916,7 +947,8 @@ export const initCarouselInteractions = () => {
         restartMotionTimers();
 
         // Suppress click after drag
-        if (Math.abs(finalOffset) > 10) {
+        const clickSuppressThreshold = isMobile ? 16 : 10;
+        if (Math.abs(finalOffset) > clickSuppressThreshold) {
             event?.preventDefault?.();
             stage.addEventListener('click', (e) => e.stopPropagation(), { capture: true, once: true });
         }
@@ -926,11 +958,11 @@ export const initCarouselInteractions = () => {
     stage.addEventListener('mousedown', (e) => {
         if (e.button !== 0 || state.carousel.immersive) return;
         e.preventDefault();
-        startDrag(e.clientX);
+        startDrag(e.clientX, e.timeStamp || performance.now());
     });
 
-    document.addEventListener('mousemove', (e) => moveDrag(e.clientX));
-    document.addEventListener('mouseup', (e) => finishDrag(e));
+    document.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.timeStamp || performance.now()));
+    document.addEventListener('mouseup', (e) => finishDrag(e, e.timeStamp || performance.now()));
 
     // Touch events
     let touchStartX = 0;
@@ -954,18 +986,18 @@ export const initCarouselInteractions = () => {
         if (!touchDragActive) {
             if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
             // Let vertical intent pass through to page scrolling.
-            if (Math.abs(dx) <= Math.abs(dy)) return;
+            if (Math.abs(dx) <= Math.abs(dy) * 1.15) return;
             touchDragActive = true;
-            startDrag(touchStartX);
+            startDrag(touchStartX, e.timeStamp || performance.now());
         }
 
-        moveDrag(touch.clientX);
+        moveDrag(touch.clientX, e.timeStamp || performance.now());
         e.preventDefault();
     }, { passive: false });
 
     stage.addEventListener('touchend', (e) => {
         if (touchDragActive) {
-            finishDrag(e);
+            finishDrag(e, e.timeStamp || performance.now());
         }
         touchDragActive = false;
     });
