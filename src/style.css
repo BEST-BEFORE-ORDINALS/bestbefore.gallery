@@ -886,6 +886,113 @@ h4,
   color: #fff;
 }
 
+/* Full Statement (expandable essay) */
+.bb-about-statement {
+  padding: 2.5rem 0 0;
+}
+
+.bb-statement {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.bb-statement__toggle {
+  display: block;
+  padding: 1.5rem 2rem 1.5rem 0;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.bb-statement__toggle:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.bb-statement__toggle::-webkit-details-marker {
+  display: none;
+}
+
+.bb-statement__toggle::after {
+  content: '+';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--muted);
+}
+
+.bb-statement[open] .bb-statement__toggle::after {
+  content: '\2212';
+}
+
+.bb-statement__body {
+  padding: 0.5rem 0 3rem;
+  max-width: 560px;
+}
+
+.bb-statement__body p {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 1rem;
+}
+
+.bb-statement__body p:last-child {
+  margin-bottom: 0;
+}
+
+.bb-statement__body strong {
+  color: #fff;
+  font-weight: 500;
+}
+
+.bb-statement__heading {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #fff;
+  margin: 0 0 1rem;
+  letter-spacing: 0.02em;
+}
+
+.bb-statement__rule {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  margin: 2rem 0;
+}
+
+.bb-statement__phases {
+  margin: 1.5rem 0;
+}
+
+.bb-statement__phases p {
+  margin: 0 0 0.75rem;
+}
+
+.bb-statement__scenario {
+  margin: 2rem 0;
+  padding-left: 1.25rem;
+  border-left: 2px solid rgba(255, 255, 255, 0.06);
+}
+
+.bb-statement__scenario p {
+  margin: 0 0 0.25rem;
+  line-height: 2;
+}
+
+.bb-statement__curtain {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 0.5rem;
+  letter-spacing: 0.08em;
+}
+
 @media (max-width: 600px) {
   .bb-lifecycle-visual {
     gap: 1rem;
@@ -905,6 +1012,10 @@ h4,
   .bb-about-stats__grid {
     grid-template-columns: repeat(2, 1fr);
     max-width: 300px;
+  }
+
+  .bb-statement__body {
+    max-width: 100%;
   }
 }
 

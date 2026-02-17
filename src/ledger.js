@@ -709,10 +709,10 @@ export const renderLedger = (analytics, allItems, meta = {}) => {
       <div class="bb-vault-section bb-ledger-container">
         <header class="bb-ledger-header">
           <h2>The Ledger</h2>
-          <p class="bb-ledger-subtitle">Connecting to node...</p>
+          <p class="bb-ledger-subtitle">Connecting...</p>
         </header>
         <div class="bb-ledger-loading">
-          <p>Synchronizing with Best Before chain state...</p>
+          <p>Reading the chain...</p>
         </div>
       </div>
     `;

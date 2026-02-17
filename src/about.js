@@ -63,7 +63,7 @@ export const renderAboutFaq = (text) => {
     <!-- Core Narrative -->
     <section class="bb-about-narrative bb-reveal bb-reveal--delay-2">
       <p class="bb-about-narrative__lead">
-        Every piece is born SEALED at inscription, waiting in silence.
+        Every piece is born SEALED, waiting in silence.
       </p>
       <p>
         Once OPENED by its collector, the fate is determined and it begins to age on Bitcoin block time until it turns EXPIRED.
@@ -73,43 +73,85 @@ export const renderAboutFaq = (text) => {
       </p>
     </section>
 
+    <!-- Full Statement (expandable) -->
+    <section class="bb-about-statement bb-reveal bb-reveal--delay-3">
+      <details class="bb-statement">
+        <summary class="bb-statement__toggle">Read the full statement</summary>
+        <div class="bb-statement__body">
+
+          <h3 class="bb-statement__heading">The Collector's Role</h3>
+          <p>You choose when the life of your piece begins. Activation injects the randomness that determines the piece's fate; time and block height write the rest.</p>
+          <p>Some collectors may incubate SEALED works for years. Others may activate early to watch an artwork's life unfold in public. A SEALED work invites patience; an activated work invites attention.</p>
+
+          <hr class="bb-statement__rule" />
+
+          <h3 class="bb-statement__heading">Each work is a living system</h3>
+          <p>A self-contained performance - ritual, narrative, and time-based artwork in one. Collectors, galleries, museums, and audiences participate in how these works are born, lived, and ended.</p>
+          <p>While SEALED, a work exists in suspension. The collector chooses when to activate it. That choice - time, place, context - is already part of the artwork.</p>
+          <p>UNSEALING is an act of theater. Whether in private or in public, that single gesture is the moment the work enters time.</p>
+          <p>Once opened, the piece lives. Each Bitcoin block unfolds the performance - measured, irreversible, precise.</p>
+          <p>EXPIRY is not a failure or shutdown, but a conclusion. A real ending that deserves witnessing, marking, and celebration.</p>
+          <p>Bitcoin block time becomes the medium - what tape was to the banana, time itself is here.</p>
+
+          <div class="bb-statement__scenario">
+            <p>Imagine this -</p>
+            <p>A collector activates a piece. In a gallery. A crowd gathers.</p>
+            <p>The block arrives: the work is born. Expiry revealed: eight months.</p>
+            <p>Eight months later, the audience returns. The final block hits. The work expires.</p>
+            <p class="bb-statement__curtain">Curtain.</p>
+          </div>
+
+          <hr class="bb-statement__rule" />
+
+          <h3 class="bb-statement__heading">Possibilities</h3>
+
+          <p>Vernissage and Finissage - the artwork dictates both opening and closing. Unsealed live at the vernissage, years later the exhibition ends when the piece itself expires - turning off the lights.</p>
+
+          <p>Collector Rituals - collectors announce moments of activation: "I'll unseal at block 888,888." The community gathers. The act becomes folklore.</p>
+
+          <p>Lottery Theater - each birth reveals fate in real time. Two weeks. Ten years. Immortal. Streamed, witnessed, shared - chance as spectacle.</p>
+
+          <p>Festival Format - a stage, an audience. Collectors unseal works live, one by one. Each activation unique, each outcome unknown. The exhibition is the performance.</p>
+
+          <p>Gallery Commitments - a gallery pledges to display a work until it expires - whether that's weeks or decades. The promise itself becomes part of the piece.</p>
+
+          <p>Museum Stewardship - if an immortal emerges, it will be housed indefinitely. The institution becomes caretaker of a work without an end.</p>
+
+        </div>
+      </details>
+    </section>
+
     <!-- Collapsible FAQ -->
-    <section class="bb-about-faq bb-reveal bb-reveal--delay-3">
+    <section class="bb-about-faq bb-reveal bb-reveal--delay-4">
       <details class="bb-faq-item">
         <summary class="bb-faq-question">How does it work?</summary>
         <div class="bb-faq-answer">
-          <p>Each BEST BEFORE piece is inscribed on Bitcoin with an unknown lifespan, determined only when the collector "opens" it via a child inscription. Once opened, the clock starts ticking — measured in Bitcoin blocks (~10 min each).</p>
-          <p>Lifespans range from 2 weeks to 90 years, with a 0.69% chance of immortality. 25% expires within 1 month, 50% expires within 3 years.</p>
+          <p>Each BEST BEFORE piece is an inscription - a piece of art permanently embedded in a Bitcoin transaction. It is born with an unknown lifespan, determined only when the collector "opens" it by inscribing a child. Once opened, the clock starts ticking - measured in Bitcoin blocks (~10 min each).</p>
+          <p>Lifespans range from 2 weeks to 90 years, with a 0.69% chance of immortality. 25% expire within 1 month, 50% within 3 years.</p>
         </div>
       </details>
 
       <details class="bb-faq-item">
         <summary class="bb-faq-question">What's the total supply?</summary>
         <div class="bb-faq-answer">
-          <p>420 unique editions, each with its own randomly determined lifespan and palette. Every piece is one-of-a-kind.</p>
+          <p>420 unique editions, each with its own randomly determined lifespan and palette.</p>
         </div>
       </details>
 
       <details class="bb-faq-item">
         <summary class="bb-faq-question">Can I keep it sealed forever?</summary>
         <div class="bb-faq-answer">
-          <p>Yes! A SEALED piece never ages. It remains frozen in potential — a perpetual mystery. Some collectors may never open their pieces, preserving the suspended anticipation indefinitely.</p>
+          <p>Yes. A SEALED piece never ages. It stays frozen in potential - and can be activated years, even decades, from now.</p>
         </div>
       </details>
 
       <details class="bb-faq-item">
         <summary class="bb-faq-question">What happens when it expires?</summary>
         <div class="bb-faq-answer">
-          <p>The artwork transforms visually to its EXPIRED state — a permanent memorial to its lived experience. The generative art remains, but overlaid with the mark of time passed.</p>
+          <p>The artwork displays EXPIRED on a plain black background. The generative art is gone - only the record of its life remains on-chain.</p>
         </div>
       </details>
 
-      <details class="bb-faq-item">
-        <summary class="bb-faq-question">Who are the artists?</summary>
-        <div class="bb-faq-answer">
-          <p><strong>Lemonhaze</strong> and <strong>ORDINALLY</strong></p>
-        </div>
-      </details>
     </section>
 
     <!-- Scroll hint to Vault -->
