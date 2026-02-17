@@ -83,8 +83,11 @@ Lemonhaze's singular and offbeat journey as an artist, without the constraints o
 
 export const ARTIST_BIO_ORDINALLY = `
 ORDINALLY's first scribbles were on IBM 5081 punch cards his dad brought home from work.
+
 That grid sparked a lifelong love of code and a sense that math is not only rigorous but also beautiful, with patterns, recursion, and constraints forming a kind of language.
+
 After years in technology, Ordinals gave him the perfect way back to making by combining generative code, latent space tools, and diffusion workflows with Bitcoin's permanence.
+
 ORDINALLY now balances his own creative work with the behind-the-scenes engineering that helps other artists bring their pieces on chain.
 `;
 
