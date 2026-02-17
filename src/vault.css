@@ -150,47 +150,40 @@
 
 .bb-diary-subtitle {
   font-size: 0.8rem;
-  color: var(--muted);
-  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-family: 'Space Grotesk', sans-serif;
   margin: 0;
 }
 
 .bb-diary-scroll-snap {
   height: 70vh;
   overflow-y: auto;
-  scroll-snap-type: y mandatory;
+  scroll-snap-type: y proximity;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 2rem;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.5) rgba(255, 255, 255, 0.05);
 }
 
 .bb-diary-card {
   scroll-snap-align: start;
-  background: rgba(20, 20, 20, 0.6);
-  border: none;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 2.5rem 3rem;
-  border-radius: 2px;
+  border-radius: 4px;
   position: relative;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
   max-width: 800px;
   margin: 0 auto;
   width: 100%;
 }
 
 .bb-diary-card::before {
-  /* Page turn shadow effect */
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 100px;
-  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.2));
-  pointer-events: none;
-  opacity: 0.5;
+  display: none;
 }
 
 .bb-diary-card--chapter {
@@ -215,27 +208,28 @@
   letter-spacing: 0.05em;
   color: #fff;
   text-transform: uppercase;
-  border-bottom: 1px solid #fbbf24;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   padding-bottom: 1rem;
 }
 
 .bb-diary-section-title {
   font-size: 1.2rem;
-  font-weight: 600;
-  color: #fbbf24;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
   margin-bottom: 1.5rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
+  font-family: 'Space Grotesk', sans-serif;
 }
 
 .bb-diary-date {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 1.25rem;
-  color: #fbbf24;
+  color: rgba(255, 255, 255, 0.84);
   margin-bottom: 2rem;
-  padding-bottom: 0;
-  border-bottom: none;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .bb-diary-content p {
@@ -256,11 +250,11 @@
 }
 
 .bb-diary-scroll-snap::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .bb-diary-scroll-snap::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.5);
   border-radius: 3px;
 }
 
