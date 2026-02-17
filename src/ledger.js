@@ -126,7 +126,7 @@ const renderItemLink = (number, label = null) => {
   if (safeNumber === null) return '—';
 
   const text = label || `Nº${safeNumber}`;
-  return `<a href="/?item=${safeNumber}" data-bb-number="${safeNumber}" class="bb-ledger-link">${escapeHtml(text)}</a>`;
+  return `<a href="/${safeNumber}" data-bb-number="${safeNumber}" class="bb-ledger-link">${escapeHtml(text)}</a>`;
 };
 
 const formatAddress = (addr) => {
@@ -247,7 +247,7 @@ const renderLifetime = (lifetime) => {
   `).join('');
 
   return `
-    <div class="bb-ledger-section">
+    <div class="bb-ledger-section" data-ledger-section="mortal-lifespan">
       <details class="bb-ledger-collapsible--mobile">
         <summary class="bb-ledger-collapsible__summary">Mortal Lifespan Profile</summary>
         <div class="bb-ledger-collapsible__body">
@@ -354,7 +354,7 @@ const renderPalettes = (palettes) => {
     : '';
 
   return `
-    <div class="bb-ledger-section">
+    <div class="bb-ledger-section" data-ledger-section="palette-discovery">
       <details class="bb-ledger-collapsible--mobile">
         <summary class="bb-ledger-collapsible__summary">Palette Discovery</summary>
         <div class="bb-ledger-collapsible__body">
@@ -446,7 +446,7 @@ const renderWalletLeaderboards = (stats, allItems) => {
   }
 
   return `
-    <div class="bb-ledger-section">
+    <div class="bb-ledger-section" data-ledger-section="collector-showcase">
       <details class="bb-ledger-collapsible--mobile">
         <summary class="bb-ledger-collapsible__summary">Collector Showcase</summary>
         <div class="bb-ledger-collapsible__body">
@@ -503,7 +503,7 @@ const renderHallOfFame = (analytics) => {
   if (cards.length === 0) return '';
 
   return `
-    <div class="bb-ledger-section">
+    <div class="bb-ledger-section" data-ledger-section="hall-of-fame">
       <details class="bb-ledger-collapsible--mobile">
         <summary class="bb-ledger-collapsible__summary">Hall of Fame</summary>
         <div class="bb-ledger-collapsible__body">
@@ -652,7 +652,7 @@ const renderActivationLog = (analytics, allItems) => {
   }).join('');
 
   return `
-    <div class="bb-ledger-section">
+    <div class="bb-ledger-section" data-ledger-section="activation-log">
       <details class="bb-ledger-collapsible--mobile bb-ledger-collapsible--log">
         <summary class="bb-ledger-collapsible__summary">Activation Log</summary>
         <div class="bb-ledger-collapsible__body">

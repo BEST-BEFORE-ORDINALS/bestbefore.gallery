@@ -20,6 +20,7 @@ import {
   setCarouselImmersive,
 } from './carousel.js';
 import { setupGallery } from './gallery.js';
+import { initRouting } from './router.js';
 
 /* ── Wire up cross-module dependencies ── */
 injectCarouselImmersive(setCarouselImmersive);
@@ -178,6 +179,7 @@ const boot = async () => {
     renderAboutFaq();
     renderLifecycle();
     setupGallery();
+    initRouting({ renderVaultContent });
 
     // Set up scroll-triggered reveals AFTER content is rendered
     if ('IntersectionObserver' in window) {

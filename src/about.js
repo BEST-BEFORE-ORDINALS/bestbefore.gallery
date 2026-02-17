@@ -75,7 +75,7 @@ export const renderAboutFaq = (text) => {
 
     <!-- Full Statement (expandable) -->
     <section class="bb-about-statement bb-reveal bb-reveal--delay-3">
-      <details class="bb-statement">
+      <details class="bb-statement" data-about-statement>
         <summary class="bb-statement__toggle">
           <span class="bb-statement__toggle-copy">
             <span class="bb-statement__title">Read the full statement</span>
@@ -112,7 +112,7 @@ export const renderAboutFaq = (text) => {
 
     <!-- Collapsible FAQ -->
     <section class="bb-about-faq bb-reveal bb-reveal--delay-4">
-      <details class="bb-faq-item">
+      <details class="bb-faq-item" data-faq-slug="how-does-it-work">
         <summary class="bb-faq-question">How does it work?</summary>
         <div class="bb-faq-answer">
           <p>Each BEST BEFORE piece is an inscription - a piece of art permanently embedded in a Bitcoin transaction. It is born with an unknown lifespan, determined only when the collector "opens" it by inscribing a child. Once opened, the clock starts ticking - measured in Bitcoin blocks (~10 min each).</p>
@@ -120,21 +120,21 @@ export const renderAboutFaq = (text) => {
         </div>
       </details>
 
-      <details class="bb-faq-item">
+      <details class="bb-faq-item" data-faq-slug="whats-the-total-supply">
         <summary class="bb-faq-question">What's the total supply?</summary>
         <div class="bb-faq-answer">
           <p>420 unique editions, each with its own randomly determined lifespan and palette.</p>
         </div>
       </details>
 
-      <details class="bb-faq-item">
+      <details class="bb-faq-item" data-faq-slug="can-i-keep-it-sealed-forever">
         <summary class="bb-faq-question">Can I keep it sealed forever?</summary>
         <div class="bb-faq-answer">
           <p>Yes. A SEALED piece never ages. It stays frozen in potential - and can be activated years, even decades, from now.</p>
         </div>
       </details>
 
-      <details class="bb-faq-item">
+      <details class="bb-faq-item" data-faq-slug="what-happens-when-it-expires">
         <summary class="bb-faq-question">What happens when it expires?</summary>
         <div class="bb-faq-answer">
           <p>The artwork displays EXPIRED on a plain black background. The generative art is gone - only the record of its life remains on-chain.</p>

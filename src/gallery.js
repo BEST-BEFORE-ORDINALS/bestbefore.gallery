@@ -59,27 +59,8 @@ export const setupGallery = () => {
         .filter((item) => item.preview)
         .sort(sortItems);
 
-    const findIndexByNumber = (number) =>
-        allWithPreview.findIndex((entry) => Number(entry?.number) === Number(number));
-
-    let requestedNumber = null;
-    try {
-        const queryValue = new URLSearchParams(window.location.search).get('item');
-        const parsed = Number(queryValue);
-        if (Number.isFinite(parsed) && parsed > 0) {
-            requestedNumber = parsed;
-        }
-    } catch {
-        requestedNumber = null;
-    }
-
-    const requestedIndex = requestedNumber !== null ? findIndexByNumber(requestedNumber) : -1;
-
     state.carousel.items = allWithPreview;
-    // Keep deep-link target when provided, otherwise start random.
-    state.carousel.index = requestedIndex >= 0
-        ? requestedIndex
-        : Math.floor(Math.random() * allWithPreview.length);
+    state.carousel.index = Math.floor(Math.random() * allWithPreview.length);
     state.carousel.dragOffset = 0;
     state.carousel.pendingDragOffset = 0;
     state.carousel.loadedIndexes = new Set();
@@ -125,10 +106,6 @@ export const setupGallery = () => {
     /* Expose navigation helper for Ledger */
     window.bbOpenItem = (number, options = {}) => {
         const { immersive = false, scroll = true } = options;
-        openItemFromNumber(number, { immersive, scroll });
+        return openItemFromNumber(number, { immersive, scroll });
     };
-
-    if (requestedIndex >= 0) {
-        openItemFromNumber(requestedNumber, { immersive: false, scroll: false });
-    }
 };

@@ -74,6 +74,9 @@ export const initNavigation = () => {
 
             state.activeView = zone;
             zoneIndicator.textContent = zoneNames[zone] || zone.toUpperCase();
+            window.dispatchEvent(new CustomEvent('bb:view-change', {
+                detail: { view: zone },
+            }));
 
             if (scrollHint) {
                 scrollHint.style.opacity = zone === 'gallery' ? '1' : '0';

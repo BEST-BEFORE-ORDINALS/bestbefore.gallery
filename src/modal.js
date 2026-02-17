@@ -13,6 +13,8 @@ export const injectStopMotionTimers = (fn) => { _stopMotionTimers = fn; };
 export const closeArtworkModal = () => {
     const overlay = document.querySelector('.bb-modal-overlay');
     if (!overlay) return;
+    if (overlay.dataset.closing === '1') return;
+    overlay.dataset.closing = '1';
 
     if (overlay._escHandler) {
         document.removeEventListener('keydown', overlay._escHandler);
@@ -27,6 +29,7 @@ export const closeArtworkModal = () => {
     }, 450);
 
     document.body.style.overflow = '';
+    window.dispatchEvent(new CustomEvent('bb:modal-close'));
 
     if (_restartMotionTimers) _restartMotionTimers();
 };
@@ -320,6 +323,12 @@ export const openArtworkModal = (item) => {
     });
 
     document.body.style.overflow = 'hidden';
+    window.dispatchEvent(new CustomEvent('bb:modal-open', {
+        detail: {
+            number: item?.number ?? null,
+            id: item?.id ?? null,
+        },
+    }));
 
     overlay.querySelector('.bb-modal__close').addEventListener('click', closeArtworkModal);
 
