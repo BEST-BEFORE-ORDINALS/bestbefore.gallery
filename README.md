@@ -34,6 +34,24 @@ SEALED → OPEN → EXPIRED
 
 ---
 
+## How to Activate a Piece
+
+**Unsealing is an on-chain act.** To move a piece from SEALED to OPEN, the collector must inscribe a child inscription using the SEALED BEST BEFORE piece as its parent.
+
+This is a native Bitcoin/Ordinals mechanism — child inscriptions permanently reference their parent on-chain. The act of creating that child is what triggers activation: the gallery reads the child's existence, determines the lifespan from the parent's seed, and the block countdown begins.
+
+**Step by step:**
+
+1. Hold the SEALED BEST BEFORE inscription in your wallet
+2. Inscribe any content as a child, with the BB inscription set as the parent
+3. The moment that child inscription is confirmed on-chain, the piece is OPEN — lifespan locked, clock running
+
+There is no button, no website transaction, no off-chain trigger. The collector's wallet action is the artwork action. That alignment — between ownership, agency, and permanence — is the point.
+
+Lifespans are revealed at activation, not before. You don't know if your piece will live two weeks or ninety years until you open it.
+
+---
+
 ## The Collection
 
 **420 unique editions** — each a generative HTML inscription, rendered entirely in the browser from a seed determined at activation. No two pieces share the same lifespan, palette, or timing.
