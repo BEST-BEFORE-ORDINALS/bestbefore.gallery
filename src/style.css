@@ -470,38 +470,10 @@ h4,
   /* contain: layout paint; Removed to ensure glow isn't clipped */
 }
 
-.bb-slide::before {
-  content: '';
-  position: absolute;
-  /* True circle glow — fixed size so it works for both 9:16 and 1:1 art */
-  width: 400px;
-  height: 400px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.92);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05) 40%, transparent 65%);
-  opacity: 0;
-  transition: opacity 420ms ease, transform 420ms ease;
-  pointer-events: none;
-  z-index: 0;
-  border-radius: 50%;
-}
-
-.bb-slide.is-focus::before {
-  opacity: 0.62;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-/* SEALED & EXPIRED are 1:1 — shrink the container and glow to match */
+/* SEALED & EXPIRED are 1:1 — shrink the container to match */
 .bb-slide.is-sealed,
 .bb-slide.is-expired {
   aspect-ratio: 1 / 1;
-}
-
-.bb-slide.is-sealed::before,
-.bb-slide.is-expired::before {
-  width: 280px;
-  height: 280px;
 }
 
 .bb-slide__media {
