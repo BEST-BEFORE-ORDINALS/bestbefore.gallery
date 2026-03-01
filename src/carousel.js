@@ -293,11 +293,13 @@ export const renderCarouselMeta = () => {
         const mins = Math.round(blocks * 10);
         if (mins < 60) return `${mins}m`;
         const hours = Math.floor(mins / 60);
-        const remainMins = mins % 60;
-        if (hours < 24) return remainMins > 0 ? `${hours}h ${remainMins}m` : `${hours}h`;
+        if (hours < 24) return `${hours}h`;
         const days = Math.floor(hours / 24);
-        const remainHours = hours % 24;
-        return remainHours > 0 ? `${days}d ${remainHours}h` : `${days}d`;
+        if (days < 30) return `${days}d`;
+        const months = Math.floor(days / 30);
+        if (months < 12) return months === 1 ? '1 month' : `${months} months`;
+        const years = Math.floor(days / 365);
+        return years === 1 ? '1 year' : `${years} years`;
     };
 
     let lifespanHtml = '';
