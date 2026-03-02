@@ -746,7 +746,6 @@ h4,
   color: #fff;
   margin: 0 0 1rem;
   font-style: italic;
-  text-shadow: 0 0 60px rgba(255, 255, 255, 0.15);
 }
 
 .bb-about-hero__tagline {
@@ -807,7 +806,7 @@ h4,
 }
 
 .bb-about-narrative em {
-  color: #fbbf24;
+  color: rgba(255, 255, 255, 0.9);
   font-style: normal;
   font-weight: 500;
 }
@@ -828,8 +827,9 @@ h4,
 .bb-about-stat {
   text-align: center;
   padding: 1.5rem 1rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: none;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .bb-about-stat__number {
@@ -870,7 +870,7 @@ h4,
 }
 
 .bb-faq-item {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .bb-faq-item:last-child {
@@ -935,7 +935,7 @@ h4,
 
 .bb-statement {
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(170deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.008));
+  background: transparent;
   overflow: hidden;
 }
 
