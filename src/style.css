@@ -2777,9 +2777,9 @@ body.bb-intro-exit .bb-intro {
 .bb-palette-swatches span {
   width: 12px;
   height: 12px;
-  border-radius: 50%;
+  border-radius: 0;
   display: block;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .bb-heartbeat-info__actions {
@@ -2892,9 +2892,7 @@ body.bb-intro-exit .bb-intro {
   }
 }
 
-.bb-status-badge.is-open {
-  animation: breathe 3s ease-in-out infinite;
-}
+/* breathe animation removed — badge is a status indicator, not a pulse */
 
 /* About stat entrance when visible */
 .bb-about-stat.is-visible {
@@ -2977,17 +2975,18 @@ body.bb-intro-exit .bb-intro {
 }
 
 .bb-modal__toggle-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.45);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  color: rgba(255, 255, 255, 0.3);
   font-family: var(--font-ui);
   font-size: 0.65rem;
   font-weight: 500;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  padding: 0.4rem 1rem;
+  padding: 0.4rem 1rem 0.35rem;
   cursor: pointer;
-  transition: color 0.25s, background 0.25s, border-color 0.25s;
+  transition: color 0.2s, border-color 0.2s;
 }
 
 .bb-modal__toggle-btn:last-child {
@@ -2995,9 +2994,12 @@ body.bb-intro-exit .bb-intro {
 }
 
 .bb-modal__toggle-btn.is-active {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  border-bottom-color: rgba(255, 255, 255, 0.55);
+}
+
+.bb-modal__toggle-btn:hover:not(.is-active) {
+  color: rgba(255, 255, 255, 0.55);
 }
 
 /* Iframe container */
@@ -3045,10 +3047,14 @@ body.bb-intro-exit .bb-intro {
   width: 320px;
   flex-shrink: 0;
   overflow-y: auto;
+  scrollbar-width: none;
   padding: 1.5rem 0;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1rem;
+}
+.bb-modal__details::-webkit-scrollbar {
+  display: none;
 }
 
 .bb-modal__detail-title {
@@ -3061,12 +3067,11 @@ body.bb-intro-exit .bb-intro {
 }
 
 .bb-modal__detail-edition {
-  font-family: var(--font-ui);
-  font-size: 0.7rem;
-  color: var(--muted);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.1em;
+  margin-top: 0.3rem;
 }
 
 .bb-modal__detail-status {
@@ -3085,23 +3090,23 @@ body.bb-intro-exit .bb-intro {
 }
 
 .bb-modal__status-badge.is-open {
-  color: #4fff9d;
-  background: rgba(79, 255, 157, 0.12);
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
 }
 
 .bb-modal__status-badge.is-sealed {
-  color: #ffeb3b;
-  background: rgba(255, 235, 59, 0.12);
+  color: #9ca3af;
+  background: rgba(156, 163, 175, 0.1);
 }
 
 .bb-modal__status-badge.is-expired {
-  color: #ff4f4f;
-  background: rgba(255, 79, 79, 0.12);
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .bb-modal__status-badge.is-immortal {
   color: #c084fc;
-  background: rgba(192, 132, 252, 0.12);
+  background: rgba(192, 132, 252, 0.1);
 }
 
 .bb-modal__detail-divider {
@@ -3119,10 +3124,10 @@ body.bb-intro-exit .bb-intro {
 }
 
 .bb-modal__palette-name {
-  font-family: var(--font-ui);
-  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
   color: var(--muted);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -3132,10 +3137,10 @@ body.bb-intro-exit .bb-intro {
 }
 
 .bb-modal__palette-dot {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  width: 18px;
+  height: 18px;
+  border-radius: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .bb-modal__signature {
@@ -3186,11 +3191,11 @@ body.bb-intro-exit .bb-intro {
 }
 
 .bb-modal__data-value--warn {
-  color: #ffeb3b;
+  color: #c9982e;
 }
 
 .bb-modal__data-value--danger {
-  color: #ff4f4f;
+  color: #c44040;
 }
 
 .bb-modal__data-value--immortal {
@@ -3228,33 +3233,30 @@ body.bb-intro-exit .bb-intro {
 /* Lifespan bar */
 .bb-modal__lifespan-bar {
   width: 100%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0;
   overflow: hidden;
-  margin-top: 0.3rem;
+  margin-top: 0.5rem;
 }
 
 .bb-modal__lifespan-fill {
   height: 100%;
-  border-radius: 2px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 1));
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.46), 0 0 16px rgba(255, 255, 255, 0.2);
-  transition: width 0.6s ease;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.82);
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .bb-modal__lifespan-fill.is-warning {
-  background: linear-gradient(90deg, #ffe8a3, #ffd164);
-  box-shadow: 0 0 8px rgba(255, 220, 128, 0.5), 0 0 16px rgba(255, 220, 128, 0.24);
+  background: #b8922a;
 }
 
 .bb-modal__lifespan-fill.is-critical {
-  background: linear-gradient(90deg, #ff9a9a, #ff5252);
-  box-shadow: 0 0 8px rgba(255, 100, 100, 0.52), 0 0 16px rgba(255, 100, 100, 0.24);
+  background: #a83232;
 }
 
 .bb-modal__lifespan-fill.is-immortal {
-  background: linear-gradient(90deg, #c084fc, #7c3aed);
+  background: rgba(255, 255, 255, 0.5);
   width: 100% !important;
 }
 
@@ -3266,7 +3268,10 @@ body.bb-intro-exit .bb-intro {
     max-height: 92vh;
     gap: 1rem;
     overflow-y: auto;
+    scrollbar-width: none;
   }
+  .bb-modal { }
+  .bb-modal::-webkit-scrollbar { display: none; }
 
   .bb-modal__artwork {
     width: min(100%, 84vw);
