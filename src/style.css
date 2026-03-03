@@ -813,7 +813,11 @@ h4,
 /* Keep the original slight right-shift feel on desktop only. */
 @media (min-width: 769px) {
   .bb-about-narrative {
-    margin-left: clamp(0.6rem, 1.35vw, 1.35rem);
+    margin-left: 0;
+  }
+
+  .bb-about-narrative p {
+    transform: translateX(clamp(0.9rem, 1.75vw, 1.6rem));
   }
 }
 
