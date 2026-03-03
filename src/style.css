@@ -89,6 +89,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
+  min-height: 60px;
   background: linear-gradient(to bottom, rgba(2, 2, 2, 0.95), rgba(2, 2, 2, 0.7) 70%, transparent);
   pointer-events: none;
 }
@@ -101,6 +102,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  min-height: 28px;
   transition: gap 480ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -110,12 +112,15 @@ body {
   gap: 0.06rem;
   line-height: 1;
   max-width: 17rem;
+  max-height: 2.1rem;
   overflow: hidden;
+  white-space: nowrap;
   opacity: 1;
   transform: translateX(0);
   filter: blur(0);
   transition:
     max-width 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    max-height 420ms ease,
     opacity 420ms ease,
     transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
     filter 420ms ease;
@@ -127,6 +132,7 @@ body {
 
 .bb-header__brand.is-condensed .bb-header__brand-text {
   max-width: 0;
+  max-height: 0;
   opacity: 0;
   transform: translateX(-9px);
   filter: blur(5px);
@@ -141,6 +147,7 @@ body {
 .bb-header__brand.is-condensed:hover .bb-header__brand-text,
 .bb-header__brand.is-condensed:focus-within .bb-header__brand-text {
   max-width: 17rem;
+  max-height: 2.1rem;
   opacity: 1;
   transform: translateX(0);
   filter: blur(0);
@@ -176,6 +183,7 @@ body {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  display: none;
   font-family: var(--font-ui);
   font-size: 0.75rem;
   font-weight: 500;
@@ -800,6 +808,13 @@ h4,
 .bb-about-narrative {
   text-align: center;
   padding: 1.5rem 0 2rem;
+}
+
+/* Keep the original slight right-shift feel on desktop only. */
+@media (min-width: 769px) {
+  .bb-about-narrative {
+    margin-left: clamp(0.6rem, 1.35vw, 1.35rem);
+  }
 }
 
 .bb-about-narrative p {
