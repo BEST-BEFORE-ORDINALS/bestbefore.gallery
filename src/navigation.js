@@ -68,15 +68,19 @@ export const initNavigation = () => {
 
             const zone = bestZone.dataset.zone;
             if (!zone) return;
-            if (zone === state.activeView && zoneIndicator.textContent === (zoneNames[zone] || zone.toUpperCase())) {
-                return;
-            }
+            const zoneLabel = zoneNames[zone] || zone.toUpperCase();
 
-            state.activeView = zone;
-            zoneIndicator.textContent = zoneNames[zone] || zone.toUpperCase();
-            window.dispatchEvent(new CustomEvent('bb:view-change', {
-                detail: { view: zone },
-            }));
+            if (zone === 'gallery') {
+                zoneIndicator.classList.add('is-hidden-in-gallery');
+                zoneIndicator.textContent = zoneLabel;
+                zoneIndicator.style.opacity = '0';
+                zoneIndicator.style.pointerEvents = 'none';
+            } else {
+                zoneIndicator.textContent = zoneLabel;
+                zoneIndicator.classList.remove('is-hidden-in-gallery');
+                zoneIndicator.style.opacity = '1';
+                zoneIndicator.style.pointerEvents = 'auto';
+            }
 
             if (scrollHint) {
                 scrollHint.style.opacity = zone === 'gallery' ? '1' : '0';
@@ -87,6 +91,16 @@ export const initNavigation = () => {
             if (vaultHint) {
                 vaultHint.classList.toggle('is-hidden', zone !== 'about');
             }
+
+            if (zone === state.activeView && zoneIndicator.textContent === zoneLabel) {
+                return;
+            }
+
+            state.activeView = zone;
+            zoneIndicator.textContent = zoneLabel;
+            window.dispatchEvent(new CustomEvent('bb:view-change', {
+                detail: { view: zone },
+            }));
         };
 
         const requestZoneUpdate = () => {
@@ -157,6 +171,9 @@ export const initNavigation = () => {
 
             if (zoneIndicator) {
                 zoneIndicator.textContent = zoneNames.vault;
+                zoneIndicator.classList.remove('is-hidden-in-gallery');
+                zoneIndicator.style.opacity = '1';
+                zoneIndicator.style.pointerEvents = 'auto';
             }
 
             if (scrollHint) {
