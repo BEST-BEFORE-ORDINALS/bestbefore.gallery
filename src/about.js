@@ -40,7 +40,8 @@ export const renderMenuStats = () => {
 // ─────────────────────────────────────────────────────────────────────────────
 const appendChar = (el, char) => {
   if (char === ' ' || char === '\u00A0') {
-    el.appendChild(document.createTextNode('\u00A0'));
+    // Use a normal space so lines can wrap naturally on narrow screens.
+    el.appendChild(document.createTextNode(' '));
   } else {
     const s = document.createElement('span');
     s.className = 'bb-char';
