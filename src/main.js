@@ -33,7 +33,6 @@ window.state = state;
 
 /* ── DOM root ── */
 const app = document.querySelector('#app');
-let headerBrandCollapseTimer = null;
 
 /* ── Shell renderer ── */
 const renderShell = () => {
@@ -124,31 +123,37 @@ const renderShell = () => {
   `;
 };
 
-const initHeaderBrandAutoCollapse = () => {
+const initHeaderBrandScrollCollapse = () => {
   const brand = document.querySelector('.bb-header__brand');
+  const scrollContainer = document.querySelector('.bb-scroll-container');
   if (!brand) return;
 
-  if (headerBrandCollapseTimer) {
-    window.clearTimeout(headerBrandCollapseTimer);
-    headerBrandCollapseTimer = null;
+  // Collapse to icon-only on desktop once user starts scrolling.
+  const canHoverPrecisely = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (!canHoverPrecisely) {
+    brand.classList.remove('is-condensed');
+    return;
   }
 
-  brand.classList.remove('is-condensed');
+  const getScrollTop = () => (scrollContainer ? scrollContainer.scrollTop : window.scrollY || 0);
+  const updateCondensedState = () => {
+    brand.classList.toggle('is-condensed', getScrollTop() > 2);
+  };
 
-  // Collapse to icon-only on desktop; touch devices keep full text visible.
-  const canHoverPrecisely = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  if (!canHoverPrecisely) return;
+  if (scrollContainer) {
+    scrollContainer.addEventListener('scroll', updateCondensedState, { passive: true });
+  } else {
+    window.addEventListener('scroll', updateCondensedState, { passive: true });
+  }
 
-  headerBrandCollapseTimer = window.setTimeout(() => {
-    brand.classList.add('is-condensed');
-  }, 5000);
+  updateCondensedState();
 };
 
 /* ═══ Boot sequence ═══ */
 
 const boot = async () => {
   renderShell();
-  initHeaderBrandAutoCollapse();
+  initHeaderBrandScrollCollapse();
   document.body.classList.add('bb-intro-complete');
   initNavigation();
 
