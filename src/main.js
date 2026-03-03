@@ -128,13 +128,6 @@ const initHeaderBrandScrollCollapse = () => {
   const scrollContainer = document.querySelector('.bb-scroll-container');
   if (!brand) return;
 
-  // Collapse to icon-only on desktop once user starts scrolling.
-  const canHoverPrecisely = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  if (!canHoverPrecisely) {
-    brand.classList.remove('is-condensed');
-    return;
-  }
-
   const getScrollTop = () => (scrollContainer ? scrollContainer.scrollTop : window.scrollY || 0);
   const updateCondensedState = () => {
     brand.classList.toggle('is-condensed', getScrollTop() > 2);
