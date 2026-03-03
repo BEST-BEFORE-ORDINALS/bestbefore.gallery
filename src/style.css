@@ -101,6 +101,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  transition: gap 480ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .bb-header__brand-text {
@@ -108,6 +109,42 @@ body {
   flex-direction: column;
   gap: 0.06rem;
   line-height: 1;
+  max-width: 17rem;
+  overflow: hidden;
+  opacity: 1;
+  transform: translateX(0);
+  filter: blur(0);
+  transition:
+    max-width 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 420ms ease,
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 420ms ease;
+}
+
+.bb-header__brand.is-condensed {
+  gap: 0;
+}
+
+.bb-header__brand.is-condensed .bb-header__brand-text {
+  max-width: 0;
+  opacity: 0;
+  transform: translateX(-9px);
+  filter: blur(5px);
+  pointer-events: none;
+}
+
+.bb-header__brand.is-condensed:hover,
+.bb-header__brand.is-condensed:focus-within {
+  gap: 0.6rem;
+}
+
+.bb-header__brand.is-condensed:hover .bb-header__brand-text,
+.bb-header__brand.is-condensed:focus-within .bb-header__brand-text {
+  max-width: 17rem;
+  opacity: 1;
+  transform: translateX(0);
+  filter: blur(0);
+  pointer-events: auto;
 }
 
 .bb-header__mark {
