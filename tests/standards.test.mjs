@@ -23,9 +23,12 @@ test("quality scripts exist", () => {
 });
 
 test("deployment baseline exists", () => {
-  const hasWranglerToml = existsSync(new URL("../wrangler.toml", import.meta.url));
-  const hasCloudflareTempDir = existsSync(new URL("../.wrangler", import.meta.url));
-  assert.equal(hasWranglerToml || hasCloudflareTempDir, true);
+  const hasCiWorkflow = existsSync(
+    new URL("../.github/workflows/ci.yml", import.meta.url)
+  );
+  const hasBuildScript = typeof packageJson.scripts?.build === "string";
+  const hasPreviewScript = typeof packageJson.scripts?.preview === "string";
+  assert.equal(hasCiWorkflow && hasBuildScript && hasPreviewScript, true);
 });
 
 test("core project structure exists", () => {
