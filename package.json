@@ -2,6 +2,9 @@
   "name": "bb",
   "private": true,
   "version": "0.0.0",
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
   "scripts": {
     "prepare:data": "node scripts/prepare-best-before-data.mjs",

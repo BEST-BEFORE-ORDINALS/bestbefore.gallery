@@ -9,6 +9,7 @@ dist-ssr/
 coverage/
 *.tsbuildinfo
 .eslintcache
+.wrangler/
 
 # Generated assets (large render outputs)
 public/assets/outputs/

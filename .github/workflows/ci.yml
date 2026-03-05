@@ -14,13 +14,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .nvmrc
+          cache: npm
 
       - name: Install
         run: npm ci
 
-      - name: Build
-        run: node node_modules/vite/bin/vite.js build
-
-      - name: Tests
-        run: node --test tests/*.test.mjs
+      - name: Verify
+        run: npm run verify

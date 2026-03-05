@@ -99,12 +99,45 @@ The site pulls from a live API that reflects the current Bitcoin block height:
 - Vite
 - Cloudflare Pages
 
+## Documentation
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- [`docs/DATA-SOURCES.md`](docs/DATA-SOURCES.md)
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
+
 ## Engineering Baseline
 
 - License: MIT (`LICENSE`)
-- Verification:
-  - `node node_modules/vite/bin/vite.js build`
-  - `node --test tests/*.test.mjs`
+- Node: 22 (`.nvmrc`)
+- Verification: `npm run verify`
+- CI: GitHub Actions build + standards checks
+
+## Local Development
+
+```bash
+nvm use
+npm ci
+npm run dev
+```
+
+Build and verify:
+
+```bash
+npm run verify
+```
+
+If local source text or image material changed, regenerate the browser-served data:
+
+```bash
+npm run prepare:data
+```
+
+## Deploy
+
+```bash
+npm run verify
+npx wrangler pages deploy dist --project-name=bestbefore-gallery
+```
 
 ---
 
