@@ -99,6 +99,13 @@ The site pulls from a live API that reflects the current Bitcoin block height:
 - Vite
 - Cloudflare Pages
 
+## Engineering Baseline
+
+- License: MIT (`LICENSE`)
+- Verification:
+  - `node node_modules/vite/bin/vite.js build`
+  - `node --test tests/*.test.mjs`
+
 ---
 
 ## Artists
