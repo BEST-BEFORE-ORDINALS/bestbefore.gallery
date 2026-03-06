@@ -136,7 +136,7 @@ npm run prepare:data
 
 ```bash
 npm run verify
-npx wrangler pages deploy dist --project-name=bestbefore-gallery
+npx wrangler pages deploy dist --project-name=best-before
 ```
 
 ---
