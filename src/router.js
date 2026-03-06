@@ -70,20 +70,84 @@ const navigateToPath = (path, { replace = false, behavior = 'smooth' } = {}) => 
   applyRoute(route, { behavior });
 };
 
-const parseRoute = (rawPathname = window.location.pathname) => {
+const createRoute = () => ({
+  view: 'gallery',
+  tab: null,
+  section: null,
+  part: null,
+  item: null,
+  modal: false,
+  statement: false,
+  faq: null,
+  canonicalPath: '/',
+});
+
+const parseItemRoute = (first, segments, route) => {
+  if (!/^\d+$/.test(first) || segments.length !== 1) {
+    return false;
+  }
+
+  route.view = 'gallery';
+  route.item = Number(first);
+  route.modal = true;
+  route.canonicalPath = `/${route.item}`;
+  return true;
+};
+
+const parseAboutRoute = (route, second, third) => {
+  route.view = 'about';
+
+  if (second === 'statement') {
+    route.statement = true;
+    route.canonicalPath = '/about/statement';
+    return route;
+  }
+
+  if (second === 'faq' && FAQ_SLUGS.has(String(third || ''))) {
+    route.faq = third;
+    route.canonicalPath = `/about/faq/${third}`;
+    return route;
+  }
+
+  route.canonicalPath = '/about';
+  return route;
+};
+
+const parseDiaryRoute = (route, second) => {
+  route.view = 'vault';
+  route.tab = 'diary';
+
+  if (/^\d+$/.test(String(second || ''))) {
+    const part = Number(second);
+    if (part >= 1 && part <= 6) {
+      route.part = part;
+      route.canonicalPath = `/diary/${part}`;
+      return route;
+    }
+  }
+
+  route.canonicalPath = '/diary';
+  return route;
+};
+
+const parseLedgerRoute = (route, second) => {
+  route.view = 'vault';
+  route.tab = 'analytics';
+
+  if (LEDGER_SECTIONS.has(String(second || ''))) {
+    route.section = second;
+    route.canonicalPath = `/ledger/${second}`;
+    return route;
+  }
+
+  route.canonicalPath = '/ledger';
+  return route;
+};
+
+export const parseRoute = (rawPathname = window.location.pathname) => {
   const pathname = normalizePath(rawPathname);
   const segments = pathname === '/' ? [] : pathname.slice(1).split('/').filter(Boolean);
-  const route = {
-    view: 'gallery',
-    tab: null,
-    section: null,
-    part: null,
-    item: null,
-    modal: false,
-    statement: false,
-    faq: null,
-    canonicalPath: '/',
-  };
+  const route = createRoute();
 
   if (segments.length === 0) {
     route.canonicalPath = '/';
@@ -92,79 +156,35 @@ const parseRoute = (rawPathname = window.location.pathname) => {
 
   const [first, second, third] = segments;
 
-  if (/^\d+$/.test(first) && segments.length === 1) {
-    route.view = 'gallery';
-    route.item = Number(first);
-    route.modal = true;
-    route.canonicalPath = `/${route.item}`;
+  if (parseItemRoute(first, segments, route)) {
     return route;
   }
 
-  if (first === 'gallery') {
-    route.view = 'gallery';
-    route.canonicalPath = '/gallery';
-    return route;
-  }
-
-  if (first === 'about') {
-    route.view = 'about';
-    if (second === 'statement') {
-      route.statement = true;
-      route.canonicalPath = '/about/statement';
+  switch (first) {
+    case 'gallery':
+      route.view = 'gallery';
+      route.canonicalPath = '/gallery';
       return route;
-    }
-    if (second === 'faq' && FAQ_SLUGS.has(String(third || ''))) {
-      route.faq = third;
-      route.canonicalPath = `/about/faq/${third}`;
+    case 'about':
+      return parseAboutRoute(route, second, third);
+    case 'vault':
+      route.view = 'vault';
+      route.tab = 'artists';
+      route.canonicalPath = '/vault';
       return route;
-    }
-    route.canonicalPath = '/about';
-    return route;
-  }
-
-  if (first === 'vault') {
-    route.view = 'vault';
-    route.tab = 'artists';
-    route.canonicalPath = '/vault';
-    return route;
-  }
-
-  if (first === 'artists') {
-    route.view = 'vault';
-    route.tab = 'artists';
-    route.canonicalPath = '/artists';
-    return route;
-  }
-
-  if (first === 'diary') {
-    route.view = 'vault';
-    route.tab = 'diary';
-    if (/^\d+$/.test(String(second || ''))) {
-      const part = Number(second);
-      if (part >= 1 && part <= 6) {
-        route.part = part;
-        route.canonicalPath = `/diary/${part}`;
-        return route;
-      }
-    }
-    route.canonicalPath = '/diary';
-    return route;
-  }
-
-  if (first === 'ledger') {
-    route.view = 'vault';
-    route.tab = 'analytics';
-    if (LEDGER_SECTIONS.has(String(second || ''))) {
-      route.section = second;
-      route.canonicalPath = `/ledger/${second}`;
+    case 'artists':
+      route.view = 'vault';
+      route.tab = 'artists';
+      route.canonicalPath = '/artists';
       return route;
-    }
-    route.canonicalPath = '/ledger';
-    return route;
+    case 'diary':
+      return parseDiaryRoute(route, second);
+    case 'ledger':
+      return parseLedgerRoute(route, second);
+    default:
+      route.canonicalPath = '/';
+      return route;
   }
-
-  route.canonicalPath = '/';
-  return route;
 };
 
 const getZoneElement = (view) => {
@@ -366,74 +386,87 @@ const bindInteractionRouting = () => {
 
   });
 
+  const getOpenLedgerSection = () => {
+    const openDetails = document.querySelector('[data-ledger-section] details.bb-ledger-collapsible--mobile[open]');
+    const openSection = openDetails?.closest('[data-ledger-section]')?.getAttribute('data-ledger-section');
+    return openSection && LEDGER_SECTIONS.has(openSection) ? openSection : null;
+  };
+
+  const getOpenFaqSlug = () => {
+    const openFaq = document.querySelector('.bb-faq-item[data-faq-slug][open]');
+    const slug = openFaq?.getAttribute('data-faq-slug');
+    return slug && FAQ_SLUGS.has(slug) ? slug : null;
+  };
+
+  const handleLedgerToggle = (target) => {
+    if (!target.matches('details.bb-ledger-collapsible--mobile')) {
+      return false;
+    }
+
+    const section = target.closest('[data-ledger-section]')?.getAttribute('data-ledger-section');
+    if (!section || !LEDGER_SECTIONS.has(section)) {
+      return true;
+    }
+
+    const fallbackSection = getOpenLedgerSection();
+    pushPath(target.open ? `/ledger/${section}` : (fallbackSection ? `/ledger/${fallbackSection}` : '/ledger'));
+    return true;
+  };
+
+  const handleStatementToggle = (target) => {
+    if (!target.matches('details[data-about-statement]')) {
+      return false;
+    }
+
+    const fallbackSlug = getOpenFaqSlug();
+    pushPath(target.open ? '/about/statement' : (fallbackSlug ? `/about/faq/${fallbackSlug}` : '/about'));
+    return true;
+  };
+
+  const closeOtherFaqs = (target) => {
+    document.querySelectorAll('.bb-faq-item[data-faq-slug]').forEach((faq) => {
+      if (faq !== target) {
+        faq.open = false;
+      }
+    });
+
+    const statement = document.querySelector('details[data-about-statement]');
+    if (statement) {
+      statement.open = false;
+    }
+  };
+
+  const handleFaqToggle = (target) => {
+    if (!target.matches('.bb-faq-item[data-faq-slug]')) {
+      return false;
+    }
+
+    const slug = target.getAttribute('data-faq-slug');
+    if (!slug || !FAQ_SLUGS.has(slug)) {
+      return true;
+    }
+
+    if (target.open) {
+      withSuppressedSync(() => {
+        closeOtherFaqs(target);
+      });
+      pushPath(`/about/faq/${slug}`);
+      return true;
+    }
+
+    const openSlug = getOpenFaqSlug();
+    pushPath(openSlug ? `/about/faq/${openSlug}` : '/about');
+    return true;
+  };
+
   document.addEventListener('toggle', (event) => {
     if (suppressRouteSync > 0) return;
 
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
-
-    if (target.matches('details.bb-ledger-collapsible--mobile')) {
-      const section = target.closest('[data-ledger-section]')?.getAttribute('data-ledger-section');
-      if (!section || !LEDGER_SECTIONS.has(section)) return;
-
-      if (target.open) {
-        pushPath(`/ledger/${section}`);
-      } else {
-        const openDetails = document.querySelector('[data-ledger-section] details.bb-ledger-collapsible--mobile[open]');
-        const openSection = openDetails?.closest('[data-ledger-section]')?.getAttribute('data-ledger-section');
-        if (openSection && LEDGER_SECTIONS.has(openSection)) {
-          pushPath(`/ledger/${openSection}`);
-        } else {
-          pushPath('/ledger');
-        }
-      }
-      return;
-    }
-
-    if (target.matches('details[data-about-statement]')) {
-      if (target.open) {
-        pushPath('/about/statement');
-      } else {
-        const openFaq = document.querySelector('.bb-faq-item[data-faq-slug][open]');
-        const slug = openFaq?.getAttribute('data-faq-slug');
-        if (slug && FAQ_SLUGS.has(slug)) {
-          pushPath(`/about/faq/${slug}`);
-        } else {
-          pushPath('/about');
-        }
-      }
-      return;
-    }
-
-    if (target.matches('.bb-faq-item[data-faq-slug]')) {
-      const slug = target.getAttribute('data-faq-slug');
-      if (!slug || !FAQ_SLUGS.has(slug)) return;
-
-      if (target.open) {
-        withSuppressedSync(() => {
-          document.querySelectorAll('.bb-faq-item[data-faq-slug]').forEach((faq) => {
-            if (faq !== target) {
-              faq.open = false;
-            }
-          });
-          const statement = document.querySelector('details[data-about-statement]');
-          if (statement) {
-            statement.open = false;
-          }
-        });
-        pushPath(`/about/faq/${slug}`);
-      } else {
-        const stillOpen = document.querySelector('.bb-faq-item[data-faq-slug][open]');
-        if (stillOpen) {
-          const openSlug = stillOpen.getAttribute('data-faq-slug');
-          if (openSlug && FAQ_SLUGS.has(openSlug)) {
-            pushPath(`/about/faq/${openSlug}`);
-            return;
-          }
-        }
-        pushPath('/about');
-      }
-    }
+    if (handleLedgerToggle(target)) return;
+    if (handleStatementToggle(target)) return;
+    handleFaqToggle(target);
   }, true);
 
   window.addEventListener('bb:view-change', (event) => {

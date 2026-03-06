@@ -3,7 +3,7 @@
 ## Production Target
 
 - Platform: Cloudflare Pages
-- Project name: `bestbefore-gallery`
+- Project name: `best-before`
 - Config: `wrangler.toml`
 - Build output: `dist`
 - Compatibility date: `2024-09-23`
@@ -58,7 +58,7 @@ Then deploy:
 
 ```bash
 npm run verify
-npx wrangler pages deploy dist --project-name=bestbefore-gallery
+npx wrangler pages deploy dist --project-name=best-before
 ```
 
 ## Routing

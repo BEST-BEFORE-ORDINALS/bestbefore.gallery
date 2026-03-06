@@ -2,7 +2,7 @@
 
 > *What if art could expire?*
 
-Living artworks with a BEST BEFORE date — 420 unique HTML pieces inscribed on Bitcoin, each with a lifespan measured in blocks.
+Living artworks with a BEST BEFORE date — 420 unique HTML pieces inscribed on Bitcoin, each with a lifespan measured in Bitcoin blocks.
 
 **[bestbefore.gallery](https://bestbefore.gallery)**
 
@@ -136,7 +136,7 @@ npm run prepare:data
 
 ```bash
 npm run verify
-npx wrangler pages deploy dist --project-name=bestbefore-gallery
+npx wrangler pages deploy dist --project-name=best-before
 ```
 
 ---

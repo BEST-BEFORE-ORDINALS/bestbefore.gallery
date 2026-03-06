@@ -68,6 +68,56 @@ const isKnownHeight = (value) => {
   return typeof value === 'string' && /^\d+$/.test(value.trim());
 };
 
+export const splitProvenanceParts = (value) =>
+  String(value || '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+export const resolveBestBeforeStatus = ({ id, number, openNumberMap, expiredNumbers }) => {
+  let status = id === 'SEALED' ? 'sealed' : 'open';
+
+  if (number !== null && openNumberMap.has(number)) {
+    status = 'open';
+  }
+
+  if (number !== null && expiredNumbers.has(number)) {
+    status = 'expired';
+  }
+
+  return status;
+};
+
+export const buildPreparedItem = (item, { openNumberMap, expiredNumbers, previewMap, previewThumbMap }) => {
+  const number = numberFromName(item.name);
+  const knownHeight = isKnownHeight(item.height);
+  const id = item.id || 'SEALED';
+  const contentSizeBytes = parseNumeric(item.content_size);
+  const feeSat = parseNumeric(item.fee);
+  const status = resolveBestBeforeStatus({ id, number, openNumberMap, expiredNumbers });
+
+  return {
+    number,
+    name: item.name,
+    status,
+    id,
+    ordinalsUrl: id === 'SEALED' ? null : `https://ordinals.com/content/${id}`,
+    preview: number !== null && previewMap.has(number) ? previewMap.get(number) : null,
+    previewThumb: number !== null && previewThumbMap.has(number) ? previewThumbMap.get(number) : null,
+    artworkType: item.artwork_type || null,
+    dimensions: item.dimensions || null,
+    timestamp: item.timestamp || null,
+    timestampIso: parseTimestampToIso(item.timestamp),
+    contentType: item.content_type || null,
+    contentSizeBytes,
+    feeSat,
+    sat: item.sat || null,
+    height: item.height || null,
+    knownHeight,
+    provenanceParts: splitProvenanceParts(item.provenance),
+  };
+};
+
 const extractBestBeforeDiary = (fullText) => {
   const lines = fullText.split(/\r?\n/);
   const markers = /best before|part 1 \(the logo\)|deconstructed g1|ordinally/i;
@@ -310,48 +360,7 @@ const build = async () => {
   }
 
   const items = allBestBeforeItems
-    .map((item) => {
-      const number = numberFromName(item.name);
-      const knownHeight = isKnownHeight(item.height);
-      const id = item.id || 'SEALED';
-      const contentSizeBytes = parseNumeric(item.content_size);
-      const feeSat = parseNumeric(item.fee);
-      const provenanceParts = String(item.provenance || '')
-        .split(',')
-        .map((part) => part.trim())
-        .filter(Boolean);
-
-      let status = id === 'SEALED' ? 'sealed' : 'open';
-
-      if (number !== null && openNumberMap.has(number)) {
-        status = 'open';
-      }
-
-      if (number !== null && expiredNumbers.has(number)) {
-        status = 'expired';
-      }
-
-      return {
-        number,
-        name: item.name,
-        status,
-        id,
-        ordinalsUrl: id === 'SEALED' ? null : `https://ordinals.com/content/${id}`,
-        preview: number !== null && previewMap.has(number) ? previewMap.get(number) : null,
-        previewThumb: number !== null && previewThumbMap.has(number) ? previewThumbMap.get(number) : null,
-        artworkType: item.artwork_type || null,
-        dimensions: item.dimensions || null,
-        timestamp: item.timestamp || null,
-        timestampIso: parseTimestampToIso(item.timestamp),
-        contentType: item.content_type || null,
-        contentSizeBytes,
-        feeSat,
-        sat: item.sat || null,
-        height: item.height || null,
-        knownHeight,
-        provenanceParts,
-      };
-    })
+    .map((item) => buildPreparedItem(item, { openNumberMap, expiredNumbers, previewMap, previewThumbMap }))
     .sort((a, b) => {
       if (a.number === null && b.number === null) {
         return 0;
@@ -446,7 +455,9 @@ const build = async () => {
   process.stdout.write(`Prepared BEST BEFORE dataset: ${totals.total} items, ${totals.open} open, ${totals.expired} expired.\n`);
 };
 
-build().catch((error) => {
-  process.stderr.write(`${error?.stack || error}\n`);
-  process.exit(1);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  build().catch((error) => {
+    process.stderr.write(`${error?.stack || error}\n`);
+    process.exit(1);
+  });
+}

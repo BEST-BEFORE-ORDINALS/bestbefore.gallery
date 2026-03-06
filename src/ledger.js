@@ -604,7 +604,9 @@ const renderActivationLog = (analytics, allItems) => {
   if (entries.length === 0) return '';
 
   const rows = entries.map((entry, index) => {
-    const paletteBadges = entry.first_palette ? '<span class="bb-ledger-badge">FIRST</span>' : '';
+    const paletteBadges = entry.first_palette
+      ? '<span class="bb-ledger-badges"><span class="bb-ledger-badge">FIRST</span></span>'
+      : '';
 
     return `
       <tr>
@@ -628,7 +630,9 @@ const renderActivationLog = (analytics, allItems) => {
   }).join('');
 
   const mobileRows = entries.map((entry, index) => {
-    const paletteBadges = entry.first_palette ? '<span class="bb-ledger-badge">FIRST</span>' : '';
+    const paletteBadges = entry.first_palette
+      ? '<span class="bb-ledger-badges"><span class="bb-ledger-badge">FIRST</span></span>'
+      : '';
 
     return `
       <article class="bb-ledger-log-mobile-item">
