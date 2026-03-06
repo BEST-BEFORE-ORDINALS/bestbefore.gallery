@@ -266,75 +266,100 @@ export const setCarouselImmersive = (enabled) => {
 
 /* ── Carousel meta (below carousel) ── */
 
-export const renderCarouselMeta = () => {
-    const target = document.querySelector('#bbGalleryMeta');
+export const formatCarouselMetaBlockTime = (blocks) => {
+    if (!blocks || blocks <= 0) return '0m';
+    const mins = Math.round(blocks * 10);
+    if (mins < 60) return `${mins}m`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days}d`;
+    const months = Math.floor(days / 30);
+    if (months < 12) return months === 1 ? '1 month' : `${months} months`;
+    const years = Math.floor(days / 365);
+    return years === 1 ? '1 year' : `${years} years`;
+};
 
-    if (state.carousel.items.length === 0) {
-        target.innerHTML = '<p>Carousel unavailable.</p>';
-        return;
+const formatCarouselMetaBlocks = (value) => (typeof value === 'number' ? numberFormat.format(value) : '0');
+
+const buildCarouselPaletteHtml = (item) => {
+    const paletteColors = item.palette?.colors || [];
+    if (item.status !== 'open' || paletteColors.length === 0) {
+        return '';
     }
 
-    const item = state.carousel.items[state.carousel.index];
-    const block = item.block || {};
-    const paletteColors = item.palette?.colors || [];
-
-    const paletteHtml = (item.status === 'open' && paletteColors.length > 0)
-        ? `<div class="bb-palette-list">
+    return `<div class="bb-palette-list">
         <span class="bb-palette-name">${escapeHtml(item.palette?.id || 'Unknown')}</span>
         <div class="bb-palette-swatches">
           ${paletteColors.map(c => `<span class="bb-palette-dot" style="background: ${c}"></span>`).join('')}
         </div>
-      </div>`
-        : '';
+      </div>`;
+};
 
-    const formattedBlocks = (val) => typeof val === 'number' ? numberFormat.format(val) : '0';
-    const formatBlockTime = (blocks) => {
-        if (!blocks || blocks <= 0) return '0m';
-        const mins = Math.round(blocks * 10);
-        if (mins < 60) return `${mins}m`;
-        const hours = Math.floor(mins / 60);
-        if (hours < 24) return `${hours}h`;
-        const days = Math.floor(hours / 24);
-        if (days < 30) return `${days}d`;
-        const months = Math.floor(days / 30);
-        if (months < 12) return months === 1 ? '1 month' : `${months} months`;
-        const years = Math.floor(days / 365);
-        return years === 1 ? '1 year' : `${years} years`;
-    };
+export const buildCarouselLifespanHtml = (item) => {
+    const block = item.block || {};
 
-    let lifespanHtml = '';
     if (item.status === 'open') {
         if (block.immortal) {
-            lifespanHtml = '<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__immortal">IMMORTAL — Lives Forever</span></div>';
-        } else if (block.remaining) {
-            lifespanHtml = `
+            return '<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__immortal">IMMORTAL — Lives Forever</span></div>';
+        }
+
+        if (block.remaining) {
+            return `
         <div class="bb-meta-lifespan">
-          <span class="bb-meta-lifespan__remaining">${formattedBlocks(block.remaining)} blocks</span>
-          <span class="bb-meta-lifespan__time">${formatBlockTime(block.remaining)} remaining</span>
+          <span class="bb-meta-lifespan__remaining">${formatCarouselMetaBlocks(block.remaining)} blocks</span>
+          <span class="bb-meta-lifespan__time">${formatCarouselMetaBlockTime(block.remaining)} remaining</span>
         </div>
       `;
         }
-    } else if (item.status === 'sealed') {
-        lifespanHtml = '<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__sealed">Awaiting activation</span></div>';
-    } else if (item.status === 'expired') {
-        const tip = typeof block.tip === 'number' ? block.tip : null;
-        const expiry = typeof block.expiry === 'number' ? block.expiry : null;
-        const blocksSinceExpiry = tip !== null && expiry !== null ? Math.max(0, tip - expiry) : null;
 
-        if (blocksSinceExpiry !== null) {
-            lifespanHtml = `<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__expired">${formatBlockTime(blocksSinceExpiry)} ago</span></div>`;
-        } else {
-            lifespanHtml = '<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__expired">Time unavailable</span></div>';
-        }
+        return '';
     }
 
-    const maxKnownNumber = state.carousel.items.reduce((max, entry) => {
+    if (item.status === 'sealed') {
+        return '<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__sealed">Awaiting activation</span></div>';
+    }
+
+    if (item.status !== 'expired') {
+        return '';
+    }
+
+    const tip = typeof block.tip === 'number' ? block.tip : null;
+    const expiry = typeof block.expiry === 'number' ? block.expiry : null;
+    const blocksSinceExpiry = tip !== null && expiry !== null ? Math.max(0, tip - expiry) : null;
+
+    if (blocksSinceExpiry !== null) {
+        return `<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__expired">${formatCarouselMetaBlockTime(blocksSinceExpiry)} ago</span></div>`;
+    }
+
+    return '<div class="bb-meta-lifespan"><span class="bb-meta-lifespan__expired">Time unavailable</span></div>';
+};
+
+export const getCarouselJumpMax = (items) => {
+    const maxKnownNumber = items.reduce((max, entry) => {
         const numeric = Number(entry?.number);
         return Number.isFinite(numeric) ? Math.max(max, numeric) : max;
     }, 0);
-    const jumpMax = maxKnownNumber > 0 ? maxKnownNumber : 420;
 
-    target.innerHTML = `
+    return maxKnownNumber > 0 ? maxKnownNumber : 420;
+};
+
+export const resolveCarouselJumpTarget = (rawValue, items, jumpMax = getCarouselJumpMax(items)) => {
+    const desiredNumber = Number.parseInt(String(rawValue || '').trim(), 10);
+
+    if (!Number.isFinite(desiredNumber) || desiredNumber < 1 || desiredNumber > jumpMax) {
+        return { error: `Enter 1-${jumpMax}`, index: -1 };
+    }
+
+    const index = items.findIndex((entry) => Number(entry?.number) === desiredNumber);
+    if (index === -1) {
+        return { error: `Nº${desiredNumber} not found`, index: -1 };
+    }
+
+    return { error: '', index };
+};
+
+const buildCarouselMetaMarkup = (item, jumpMax, paletteHtml, lifespanHtml) => `
   <div class="bb-gallery-meta__left is-${item.status}">
     <h2>${escapeHtml(item.name)}</h2>
     <div class="bb-gallery-meta__status">
@@ -345,9 +370,9 @@ export const renderCarouselMeta = () => {
   </div>
   <div class="bb-gallery-meta__right">
     ${item.ordinalsUrl
-            ? `<a href="${item.ordinalsUrl}" target="_blank" rel="noreferrer">View inscription</a>`
-            : ''
-        }
+        ? `<a href="${item.ordinalsUrl}" target="_blank" rel="noreferrer">View inscription</a>`
+        : ''
+    }
     <div class="bb-carousel-jump">
       <span class="bb-carousel-jump__label">Jump to #</span>
       <form class="bb-carousel-jump__form" id="bbCarouselJumpForm" novalidate>
@@ -370,6 +395,7 @@ export const renderCarouselMeta = () => {
   </div>
 `;
 
+const bindCarouselJumpForm = (target, jumpMax) => {
     const jumpForm = target.querySelector('#bbCarouselJumpForm');
     const jumpInput = target.querySelector('#bbCarouselJumpInput');
     const jumpFeedback = target.querySelector('#bbCarouselJumpFeedback');
@@ -380,28 +406,39 @@ export const renderCarouselMeta = () => {
     jumpForm.addEventListener('submit', (event) => {
         event.preventDefault();
 
-        const rawValue = String(jumpInput.value || '').trim();
-        const desiredNumber = Number.parseInt(rawValue, 10);
-        const index = state.carousel.items.findIndex((entry) => Number(entry?.number) === desiredNumber);
-
+        const result = resolveCarouselJumpTarget(jumpInput.value, state.carousel.items, jumpMax);
         jumpInput.classList.remove('is-invalid');
         jumpFeedback.textContent = '';
 
-        if (!Number.isFinite(desiredNumber) || desiredNumber < 1 || desiredNumber > jumpMax) {
+        if (result.error) {
             jumpInput.classList.add('is-invalid');
-            jumpFeedback.textContent = `Enter 1-${jumpMax}`;
+            jumpFeedback.textContent = result.error;
             return;
         }
 
-        if (index === -1) {
-            jumpInput.classList.add('is-invalid');
-            jumpFeedback.textContent = `Nº${desiredNumber} not found`;
-            return;
-        }
-
-        setCarouselIndex(index);
+        setCarouselIndex(result.index);
         restartMotionTimers();
     });
+};
+
+export const renderCarouselMeta = () => {
+    const target = document.querySelector('#bbGalleryMeta');
+    if (!target) {
+        return;
+    }
+
+    if (state.carousel.items.length === 0) {
+        target.innerHTML = '<p>Carousel unavailable.</p>';
+        return;
+    }
+
+    const item = state.carousel.items[state.carousel.index];
+    const jumpMax = getCarouselJumpMax(state.carousel.items);
+    const paletteHtml = buildCarouselPaletteHtml(item);
+    const lifespanHtml = buildCarouselLifespanHtml(item);
+
+    target.innerHTML = buildCarouselMetaMarkup(item, jumpMax, paletteHtml, lifespanHtml);
+    bindCarouselJumpForm(target, jumpMax);
 };
 
 const DESKTOP_HD_PRELOAD_RADIUS = 2;
@@ -469,6 +506,306 @@ const preloadDesktopHdWindow = (slides, total) => {
     }
 };
 
+export const getCarouselShiftLayout = ({ stageWidth, slideWidth, maxOffset, isDesktop, isCompact }) => {
+    if (isDesktop) {
+        const centerVisualWidth = slideWidth * 1.02;
+        const firstVisualWidth = slideWidth * 0.8;
+        const secondVisualWidth = slideWidth * 0.46;
+        const nearSpan = (centerVisualWidth + firstVisualWidth) / 2;
+        const farSpan = (firstVisualWidth + secondVisualWidth) / 2;
+        const arrowCenterInset = 11 + 20;
+        const arrowLanePadding = 8;
+        const targetFarShift = stageWidth / 2 - (secondVisualWidth / 2 + arrowCenterInset + arrowLanePadding);
+        const minGap = 30;
+        const maxGap = 112;
+        const minFarShift = nearSpan + farSpan + minGap * 2;
+        const maxFarShift = maxOffset + 200;
+        const constrainedFarShift = Math.max(minFarShift, Math.min(targetFarShift, maxFarShift));
+        const equalGap = Math.min(maxGap, Math.max(minGap, (constrainedFarShift - nearSpan - farSpan) / 2));
+        const sideShift = nearSpan + equalGap;
+        return {
+            sideShift,
+            farShift: sideShift + farSpan + equalGap,
+        };
+    }
+
+    let sideShift = Math.max(228, slideWidth * 0.94 + 10);
+    sideShift = Math.min(sideShift, maxOffset * 0.8);
+
+    let farShift = Math.max(sideShift + 168, sideShift * 1.36);
+    farShift = Math.min(farShift, maxOffset + (isCompact ? 30 : 44));
+    if (farShift < sideShift + 132) {
+        farShift = sideShift + 132;
+    }
+
+    return { sideShift, farShift };
+};
+
+export const getCarouselSlidePresentation = ({ immersive, diff, isCompact, drag, sideShift, farShift }) => {
+    if (immersive) {
+        if (diff === 0) {
+            return {
+                transform: 'translate3d(-50%, -50%, 0px) scale(1.28)',
+                opacity: 1,
+                zIndex: 60,
+                imageOpacity: 1,
+                pointerEvents: 'auto',
+            };
+        }
+
+        return {
+            transform: 'translate3d(-50%, -50%, -320px) scale(0.8)',
+            opacity: 0,
+            zIndex: 1,
+            imageOpacity: 0,
+            pointerEvents: 'none',
+        };
+    }
+
+    if (diff === 0) {
+        return {
+            transform: `translate3d(calc(-50% + ${drag}px), -50%, 0px) scale(1.02)`,
+            opacity: 1,
+            zIndex: 40,
+            imageOpacity: 1,
+            pointerEvents: 'auto',
+        };
+    }
+
+    if (isCompact) {
+        return {
+            transform: 'translate3d(-50%, -50%, -320px) scale(0.6)',
+            opacity: 0,
+            zIndex: 1,
+            imageOpacity: 0,
+            pointerEvents: 'none',
+        };
+    }
+
+    if (diff === -1) {
+        return {
+            transform: `translate3d(calc(-50% - ${sideShift - drag * 0.18}px), -50%, -150px) scale(0.8) rotateY(5deg)`,
+            opacity: 0.78,
+            zIndex: 24,
+            imageOpacity: 0.84,
+            pointerEvents: 'auto',
+        };
+    }
+
+    if (diff === 1) {
+        return {
+            transform: `translate3d(calc(-50% + ${sideShift + drag * 0.18}px), -50%, -150px) scale(0.8) rotateY(-5deg)`,
+            opacity: 0.78,
+            zIndex: 24,
+            imageOpacity: 0.84,
+            pointerEvents: 'auto',
+        };
+    }
+
+    if (diff === -2) {
+        return {
+            transform: `translate3d(calc(-50% - ${farShift - drag * 0.05}px), -50%, -280px) scale(0.46) rotateY(1.5deg)`,
+            opacity: 0.36,
+            zIndex: 12,
+            imageOpacity: 0.48,
+            pointerEvents: 'none',
+        };
+    }
+
+    if (diff === 2) {
+        return {
+            transform: `translate3d(calc(-50% + ${farShift + drag * 0.05}px), -50%, -280px) scale(0.46) rotateY(-1.5deg)`,
+            opacity: 0.36,
+            zIndex: 12,
+            imageOpacity: 0.48,
+            pointerEvents: 'none',
+        };
+    }
+
+    return {
+        transform: 'translate3d(-50%, -50%, -760px) scale(0.4)',
+        opacity: 0,
+        zIndex: 1,
+        imageOpacity: 0,
+        pointerEvents: 'none',
+    };
+};
+
+const hideCarouselSlide = (slide, { clearTransform = false } = {}) => {
+    if (slide.style.display !== 'none') {
+        slide.style.display = 'none';
+    }
+
+    if (clearTransform) {
+        slide.style.transform = '';
+    }
+};
+
+const primeCompactNeighborSlide = ({ lowImage, abs, index, lowSrc }) => {
+    if (!lowImage || abs > 2 || state.carousel.loadedIndexes.has(index)) {
+        return;
+    }
+
+    lowImage.loading = 'eager';
+    lowImage.fetchPriority = 'low';
+    lowImage.src = lowSrc;
+    lowImage.dataset.currentSrc = lowSrc;
+    lowImage.decoding = 'async';
+    state.carousel.loadedIndexes.add(index);
+};
+
+const ensureCarouselSlideVisible = (slide) => {
+    if (slide.style.display === 'none') {
+        slide.style.display = 'grid';
+    }
+};
+
+const ensureCarouselLowImage = ({ lowImage, abs, index, lowSrc }) => {
+    if (!lowImage || abs > 3 || state.carousel.loadedIndexes.has(index)) {
+        return;
+    }
+
+    lowImage.src = lowSrc;
+    lowImage.dataset.currentSrc = lowSrc;
+    lowImage.decoding = 'async';
+    state.carousel.loadedIndexes.add(index);
+};
+
+const syncCarouselLowImagePriority = ({ lowImage, diff, immersive }) => {
+    if (!lowImage) {
+        return;
+    }
+
+    if (diff === 0 || immersive) {
+        lowImage.loading = 'eager';
+        lowImage.fetchPriority = 'high';
+        return;
+    }
+
+    lowImage.loading = 'lazy';
+    lowImage.fetchPriority = 'auto';
+};
+
+const syncCarouselHighImage = ({ highImage, abs, isMobileViewport, targetHighSrc, lowReady, wantsOrdinals, hdReady }) => {
+    if (isMobileViewport || !highImage || abs > 3 || !targetHighSrc || !lowReady) {
+        return;
+    }
+
+    const currentHighSrc = highImage.dataset.currentSrc || '';
+    if (currentHighSrc !== targetHighSrc) {
+        highImage.dataset.ready = '0';
+        highImage.dataset.fallback = '0';
+        highImage.dataset.currentSrc = targetHighSrc;
+        highImage.src = targetHighSrc;
+        highImage.decoding = 'async';
+
+        if (!wantsOrdinals && hdReady) {
+            highImage.dataset.ready = '1';
+        }
+        return;
+    }
+
+    if (!wantsOrdinals && hdReady) {
+        highImage.dataset.ready = '1';
+    }
+};
+
+const applyCarouselSlidePresentation = ({ slide, presentation, dragging, settleTransformMs, settleOpacityMs, diff }) => {
+    slide.style.transform = presentation.transform;
+    slide.style.opacity = String(presentation.opacity);
+    slide.style.zIndex = String(presentation.zIndex);
+    slide.style.filter = 'none';
+    slide.style.pointerEvents = presentation.pointerEvents;
+    slide.classList.toggle('is-focus', diff === 0);
+    slide.style.transition = dragging
+        ? 'none'
+        : `transform ${settleTransformMs}ms cubic-bezier(0.18, 0.76, 0.24, 1), opacity ${settleOpacityMs}ms ease`;
+};
+
+const syncCarouselSlideImageOpacity = ({ lowImage, highImage, highLoaded, imageOpacity, dragging }) => {
+    if (lowImage) {
+        lowImage.style.opacity = String(highLoaded ? 0 : imageOpacity);
+        lowImage.style.transition = dragging ? 'none' : 'opacity 420ms ease, filter 420ms ease';
+    }
+
+    if (highImage) {
+        highImage.style.opacity = String(highLoaded ? imageOpacity : 0);
+        highImage.style.transition = dragging ? 'none' : 'opacity 420ms ease, filter 420ms ease';
+    }
+};
+
+const updateCarouselSlide = ({
+    slide,
+    index,
+    total,
+    isCompact,
+    isMobileViewport,
+    sideShift,
+    farShift,
+    drag,
+    settleTransformMs,
+    settleOpacityMs,
+}) => {
+    const diff = getRelativeDiff(index, state.carousel.index, total);
+    const abs = Math.abs(diff);
+    const lowImage = slide.querySelector('.bb-slide__img--low');
+    const highImage = slide.querySelector('.bb-slide__img--high');
+    const lowSrc = lowImage?.dataset.srcLow || '';
+    const hdSrc = highImage?.dataset.srcHd || lowSrc;
+    const ordinalsSrc = highImage?.dataset.srcOrdinals || '';
+    const wantsOrdinals = state.carousel.immersive && diff === 0 && Boolean(ordinalsSrc);
+    const targetHighSrc = wantsOrdinals ? ordinalsSrc : hdSrc;
+    const hdReady = !isMobileViewport && state.carousel.hdLoadedIndexes.has(index);
+    const lowReady = Boolean(lowImage && (lowImage.dataset.ready === '1' || lowImage.complete));
+
+    if (isCompact && !state.carousel.immersive && diff !== 0) {
+        primeCompactNeighborSlide({ lowImage, abs, index, lowSrc });
+        hideCarouselSlide(slide);
+        return;
+    }
+
+    if (abs > 4 && !state.carousel.immersive) {
+        hideCarouselSlide(slide, { clearTransform: true });
+        return;
+    }
+
+    ensureCarouselSlideVisible(slide);
+    ensureCarouselLowImage({ lowImage, abs, index, lowSrc });
+    syncCarouselLowImagePriority({ lowImage, diff, immersive: state.carousel.immersive });
+    syncCarouselHighImage({ highImage, abs, isMobileViewport, targetHighSrc, lowReady, wantsOrdinals, hdReady });
+
+    const presentation = getCarouselSlidePresentation({
+        immersive: state.carousel.immersive,
+        diff,
+        isCompact,
+        drag,
+        sideShift,
+        farShift,
+    });
+    applyCarouselSlidePresentation({
+        slide,
+        presentation,
+        dragging: state.carousel.dragging,
+        settleTransformMs,
+        settleOpacityMs,
+        diff,
+    });
+
+    const highLoaded = !isMobileViewport
+        && highImage
+        && lowReady
+        && highImage.dataset.currentSrc === targetHighSrc
+        && highImage.dataset.ready === '1';
+
+    syncCarouselSlideImageOpacity({
+        lowImage,
+        highImage,
+        highLoaded,
+        imageOpacity: presentation.imageOpacity,
+        dragging: state.carousel.dragging,
+    });
+};
+
 /* ── Core carousel update ── */
 
 export const updateCarousel = () => {
@@ -501,213 +838,22 @@ export const updateCarousel = () => {
         preloadDesktopHdWindow(slides, total);
     }
 
-    // Keep spacing mathematically consistent:
-    // center <-> 1st neighbor gap ~= 1st <-> 2nd neighbor gap.
-    let sideShift;
-    let farShift;
-
-    if (isDesktop) {
-        const centerVisualWidth = slideWidth * 1.02;
-        const firstVisualWidth = slideWidth * 0.8;
-        const secondVisualWidth = slideWidth * 0.46;
-
-        const nearSpan = (centerVisualWidth + firstVisualWidth) / 2;
-        const farSpan = (firstVisualWidth + secondVisualWidth) / 2;
-
-        // Push ±2 cards toward arrow lanes for a wider stage feel.
-        const arrowCenterInset = 11 + 20; // left/right: 0.7rem + (40px / 2)
-        const arrowLanePadding = 8;
-        const targetFarShift = stageWidth / 2 - (secondVisualWidth / 2 + arrowCenterInset + arrowLanePadding);
-
-        const minGap = 30;
-        const maxGap = 112;
-        const minFarShift = nearSpan + farSpan + minGap * 2;
-        const maxFarShift = maxOffset + 200;
-
-        farShift = Math.max(minFarShift, Math.min(targetFarShift, maxFarShift));
-
-        const equalGap = Math.min(maxGap, Math.max(minGap, (farShift - nearSpan - farSpan) / 2));
-        sideShift = nearSpan + equalGap;
-        farShift = sideShift + farSpan + equalGap;
-    } else {
-        sideShift = Math.max(228, slideWidth * 0.94 + 10);
-        sideShift = Math.min(sideShift, maxOffset * 0.8);
-
-        farShift = Math.max(sideShift + 168, sideShift * 1.36);
-        farShift = Math.min(farShift, maxOffset + (isCompact ? 30 : 44));
-
-        if (farShift < sideShift + 132) {
-            farShift = sideShift + 132;
-        }
-    }
-
+    const { sideShift, farShift } = getCarouselShiftLayout({ stageWidth, slideWidth, maxOffset, isDesktop, isCompact });
     const drag = state.carousel.dragOffset;
 
     slides.forEach((slide, index) => {
-        const diff = getRelativeDiff(index, state.carousel.index, total);
-        const abs = Math.abs(diff);
-        const lowImage = slide.querySelector('.bb-slide__img--low');
-        const highImage = slide.querySelector('.bb-slide__img--high');
-        const lowSrc = lowImage?.dataset.srcLow || '';
-        const hdSrc = highImage?.dataset.srcHd || lowSrc;
-        const ordinalsSrc = highImage?.dataset.srcOrdinals || '';
-        const wantsOrdinals = state.carousel.immersive && diff === 0 && Boolean(ordinalsSrc);
-        const targetHighSrc = wantsOrdinals ? ordinalsSrc : hdSrc;
-        const hdReady = !isMobileViewport && state.carousel.hdLoadedIndexes.has(index);
-        const lowReady = Boolean(lowImage && (lowImage.dataset.ready === '1' || lowImage.complete));
-
-        // Mobile stability: render only focused slide to prevent hidden OPEN art
-        // from bleeding behind square SEALED/EXPIRED pieces.
-        if (isCompact && !state.carousel.immersive && diff !== 0) {
-            if (lowImage && abs <= 2 && !state.carousel.loadedIndexes.has(index)) {
-                lowImage.loading = 'eager';
-                lowImage.fetchPriority = 'low';
-                lowImage.src = lowSrc;
-                lowImage.dataset.currentSrc = lowSrc;
-                lowImage.decoding = 'async';
-                state.carousel.loadedIndexes.add(index);
-            }
-            if (slide.style.display !== 'none') {
-                slide.style.display = 'none';
-            }
-            return;
-        }
-
-        // OPTIMIZATION: Only process visible slides (window of +/- 4)
-        if (abs > 4 && !state.carousel.immersive) {
-            if (slide.style.display !== 'none') {
-                slide.style.display = 'none';
-                slide.style.transform = ''; // Clear potentially heavy transform
-            }
-            return;
-        }
-
-        // Ensure visible slides are shown
-        if (slide.style.display === 'none') {
-            slide.style.display = 'grid';
-        }
-
-        if (lowImage && abs <= 3 && !state.carousel.loadedIndexes.has(index)) {
-            lowImage.src = lowSrc;
-            lowImage.dataset.currentSrc = lowSrc;
-            lowImage.decoding = 'async';
-            state.carousel.loadedIndexes.add(index);
-        }
-
-        if (lowImage) {
-            if (diff === 0 || state.carousel.immersive) {
-                lowImage.loading = 'eager';
-                lowImage.fetchPriority = 'high';
-            } else {
-                lowImage.loading = 'lazy';
-                lowImage.fetchPriority = 'auto';
-            }
-        }
-
-        if (!isMobileViewport && highImage && abs <= 3 && targetHighSrc && lowReady) {
-            const currentHighSrc = highImage.dataset.currentSrc || '';
-            if (currentHighSrc !== targetHighSrc) {
-                highImage.dataset.ready = '0';
-                highImage.dataset.fallback = '0';
-                highImage.dataset.currentSrc = targetHighSrc;
-                highImage.src = targetHighSrc;
-                highImage.decoding = 'async';
-
-                if (!wantsOrdinals && hdReady) {
-                    highImage.dataset.ready = '1';
-                }
-            } else if (!wantsOrdinals && hdReady) {
-                highImage.dataset.ready = '1';
-            }
-        }
-
-        let transform = 'translate3d(-50%, -50%, -760px) scale(0.52)';
-        let opacity = 0;
-        let zIndex = 1;
-        let imageOpacity = 0.22;
-        let pointerEvents = 'none';
-
-        if (state.carousel.immersive) {
-            if (diff === 0) {
-                transform = 'translate3d(-50%, -50%, 0px) scale(1.28)';
-                opacity = 1;
-                zIndex = 60;
-                imageOpacity = 1;
-                pointerEvents = 'auto';
-            } else {
-                transform = 'translate3d(-50%, -50%, -320px) scale(0.8)';
-                opacity = 0;
-                zIndex = 1;
-                imageOpacity = 0;
-            }
-        } else if (diff === 0) {
-            transform = `translate3d(calc(-50% + ${drag}px), -50%, 0px) scale(1.02)`;
-            opacity = 1;
-            zIndex = 40;
-            imageOpacity = 1;
-            pointerEvents = 'auto';
-        } else if (isCompact) {
-            transform = 'translate3d(-50%, -50%, -320px) scale(0.6)';
-            opacity = 0;
-            zIndex = 1;
-            imageOpacity = 0;
-            pointerEvents = 'none';
-        } else if (diff === -1) {
-            transform = `translate3d(calc(-50% - ${sideShift - drag * 0.18}px), -50%, -150px) scale(0.8) rotateY(5deg)`;
-            opacity = 0.78;
-            zIndex = 24;
-            imageOpacity = 0.84;
-            pointerEvents = 'auto';
-        } else if (diff === 1) {
-            transform = `translate3d(calc(-50% + ${sideShift + drag * 0.18}px), -50%, -150px) scale(0.8) rotateY(-5deg)`;
-            opacity = 0.78;
-            zIndex = 24;
-            imageOpacity = 0.84;
-            pointerEvents = 'auto';
-        } else if (diff === -2) {
-            transform = `translate3d(calc(-50% - ${farShift - drag * 0.05}px), -50%, -280px) scale(0.46) rotateY(1.5deg)`;
-            opacity = 0.36;
-            zIndex = 12;
-            imageOpacity = 0.48;
-        } else if (diff === 2) {
-            transform = `translate3d(calc(-50% + ${farShift + drag * 0.05}px), -50%, -280px) scale(0.46) rotateY(-1.5deg)`;
-            opacity = 0.36;
-            zIndex = 12;
-            imageOpacity = 0.48;
-        } else {
-            // Check for +/- 3 or 4 to show fading out edge
-            transform = 'translate3d(-50%, -50%, -760px) scale(0.4)';
-            opacity = 0;
-            zIndex = 1;
-            imageOpacity = 0;
-            pointerEvents = 'none';
-        }
-
-        slide.style.transform = transform;
-        slide.style.opacity = String(opacity);
-        slide.style.zIndex = String(zIndex);
-        slide.style.filter = 'none';
-        slide.style.pointerEvents = pointerEvents;
-        slide.classList.toggle('is-focus', diff === 0);
-        slide.style.transition = state.carousel.dragging
-            ? 'none'
-            : `transform ${settleTransformMs}ms cubic-bezier(0.18, 0.76, 0.24, 1), opacity ${settleOpacityMs}ms ease`;
-
-        const highLoaded = !isMobileViewport
-            && highImage
-            && lowReady
-            && highImage.dataset.currentSrc === targetHighSrc
-            && highImage.dataset.ready === '1';
-
-        if (lowImage) {
-            lowImage.style.opacity = String(highLoaded ? 0 : imageOpacity);
-            lowImage.style.transition = state.carousel.dragging ? 'none' : 'opacity 420ms ease, filter 420ms ease';
-        }
-
-        if (highImage) {
-            highImage.style.opacity = String(highLoaded ? imageOpacity : 0);
-            highImage.style.transition = state.carousel.dragging ? 'none' : 'opacity 420ms ease, filter 420ms ease';
-        }
+        updateCarouselSlide({
+            slide,
+            index,
+            total,
+            isCompact,
+            isMobileViewport,
+            sideShift,
+            farShift,
+            drag,
+            settleTransformMs,
+            settleOpacityMs,
+        });
     });
 
     // renderCarouselMeta(); // Moved to setCarouselIndex to avoid thrashing
@@ -788,6 +934,135 @@ export const centerHeartbeatNode = (node, behavior = 'smooth') => {
     wrap.scrollTo({ left: targetLeft, behavior });
 };
 
+export const getHeartbeatNodeWidth = (thumbSize, activeScale, isFocus) => (
+    isFocus ? Math.round(thumbSize * activeScale) : thumbSize
+);
+
+export const buildHeartbeatLifespanHtml = (item) => {
+    const block = item.block || {};
+
+    if (item.status === 'open') {
+        if (block.immortal) {
+            return '<span class="bb-hb-lifespan is-immortal">IMMORTAL</span>';
+        }
+
+        if (block.remaining) {
+            return `<span class="bb-hb-lifespan">${formatCarouselMetaBlocks(block.remaining)} blocks remaining</span>`;
+        }
+
+        return '';
+    }
+
+    if (item.status === 'sealed') {
+        return '<span class="bb-hb-lifespan is-sealed">Awaiting activation</span>';
+    }
+
+    if (item.status === 'expired') {
+        return '<span class="bb-hb-lifespan is-expired">Expired</span>';
+    }
+
+    return '';
+};
+
+const getHeartbeatLayout = (stage) => {
+    const styles = getComputedStyle(stage);
+    const thumbSize = parseInt(styles.getPropertyValue('--hb-thumb-size'), 10) || 68;
+    const activeScale = parseFloat(styles.getPropertyValue('--hb-active-scale')) || 1.4;
+    return { thumbSize, activeScale };
+};
+
+const buildHeartbeatTrackHtml = (items, index, thumbSize, activeScale) => (
+    items.map((entry, itemIndex) => {
+        const isFocus = itemIndex === index;
+        const status = (entry.status || '').toLowerCase();
+        const width = getHeartbeatNodeWidth(thumbSize, activeScale, isFocus);
+        return `<div class="bb-hb-node ${statusClass[status] || ''} ${isFocus ? 'is-focus' : ''}"
+                   data-index="${itemIndex}"
+                   style="width:${width}px;height:${thumbSize}px"
+                   title="${escapeHtml(entry.name)}">
+                <img src="${entry.preview || ''}" alt="${escapeHtml(entry.name)}" loading="lazy" decoding="async" />
+              </div>`;
+    }).join('')
+);
+
+const updateHeartbeatTrackFocus = (track, index, thumbSize, activeScale) => {
+    track.querySelectorAll('.bb-hb-node').forEach((node, itemIndex) => {
+        const isFocus = itemIndex === index;
+        node.classList.toggle('is-focus', isFocus);
+        node.style.width = `${getHeartbeatNodeWidth(thumbSize, activeScale, isFocus)}px`;
+    });
+};
+
+const syncHeartbeatTrack = ({ track, items, index, thumbSize, activeScale, rebuild }) => {
+    if (rebuild || !state.heartbeat.initialized) {
+        track.innerHTML = buildHeartbeatTrackHtml(items, index, thumbSize, activeScale);
+        state.heartbeat.initialized = true;
+
+        requestAnimationFrame(() => {
+            const focusNode = track.querySelector('.is-focus');
+            if (focusNode) {
+                centerHeartbeatNode(focusNode, 'instant');
+            }
+        });
+        return;
+    }
+
+    updateHeartbeatTrackFocus(track, index, thumbSize, activeScale);
+    const focusNode = track.querySelector('.is-focus');
+    if (focusNode) {
+        centerHeartbeatNode(focusNode);
+    }
+};
+
+const buildHeartbeatPaletteHtml = (item) => {
+    const paletteColors = item.palette?.colors || [];
+    if (paletteColors.length === 0) {
+        return '';
+    }
+
+    return `<div class="bb-hb-palette">
+        <span class="bb-hb-palette-name">${escapeHtml(item.palette?.id || '')}</span>
+        <div class="bb-hb-palette-dots">
+          ${paletteColors.map(c => `<span class="bb-hb-dot" style="background:${c}"></span>`).join('')}
+        </div>
+      </div>`;
+};
+
+const buildHeartbeatInfoMarkup = (item) => `
+    <h3 class="bb-hb-title">${escapeHtml(item.name)}</h3>
+    <span class="bb-status-badge is-${item.status}">${escapeHtml(statusLabel[item.status] || item.status)}</span>
+    ${buildHeartbeatPaletteHtml(item)}
+    ${buildHeartbeatLifespanHtml(item)}
+    ${item.ordinalsUrl ? `<a class="bb-hb-link" href="${item.ordinalsUrl}" target="_blank" rel="noreferrer">Ordinals ↗</a>` : ''}
+  `;
+
+const wireHeartbeatNodeClicks = (track) => {
+    track.querySelectorAll('.bb-hb-node').forEach(node => {
+        if (node._hbClick) return;
+        node._hbClick = true;
+        node.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const nextIdx = parseInt(node.dataset.index, 10);
+            setHeartbeatIndex(nextIdx);
+            restartMotionTimers();
+        });
+    });
+};
+
+const bindHeartbeatControl = (selector, delta) => {
+    const button = document.querySelector(selector);
+    if (!button || button._hbWired) {
+        return;
+    }
+
+    button._hbWired = true;
+    button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        setHeartbeatIndex(state.heartbeat.index + delta);
+        restartMotionTimers();
+    });
+};
+
 export const renderHeartbeat = ({ rebuild = false } = {}) => {
     const track = document.querySelector('#bbHeartbeatTrack');
     const info = document.querySelector('#bbHeartbeatInfo');
@@ -804,127 +1079,13 @@ export const renderHeartbeat = ({ rebuild = false } = {}) => {
 
     const index = state.heartbeat.index;
     const item = items[index];
-    const block = item.block || {};
+    const { thumbSize, activeScale } = getHeartbeatLayout(stage);
 
-    /* Utility: pretty-print large numbers */
-    const formattedBlocks = (val) => typeof val === 'number' ? numberFormat.format(val) : '—';
-
-    /* Layout constants – read from CSS custom properties */
-    const cs = getComputedStyle(stage);
-    const thumbSize = parseInt(cs.getPropertyValue('--hb-thumb-size'), 10) || 68;
-    const gap = parseInt(cs.getPropertyValue('--hb-gap'), 10) || 6;
-
-    /* Rebuild the track nodes only when needed */
-    if (rebuild || !state.heartbeat.initialized) {
-        const getVisualWidth = (i, isFocus) => {
-            if (isFocus) {
-                const activeScale = parseFloat(cs.getPropertyValue('--hb-active-scale')) || 1.4;
-                return Math.round(thumbSize * activeScale);
-            }
-            return thumbSize;
-        };
-
-        const trackHtml = items.map((it, i) => {
-            const isFocus = i === index;
-            const st = (it.status || '').toLowerCase();
-            const cls = statusClass[st] || '';
-            const w = getVisualWidth(i, isFocus);
-            return `<div class="bb-hb-node ${cls} ${isFocus ? 'is-focus' : ''}"
-                   data-index="${i}"
-                   style="width:${w}px;height:${thumbSize}px"
-                   title="${escapeHtml(it.name)}">
-                <img src="${it.preview || ''}" alt="${escapeHtml(it.name)}" loading="lazy" decoding="async" />
-              </div>`;
-        }).join('');
-        track.innerHTML = trackHtml;
-        state.heartbeat.initialized = true;
-
-        /* Center the focus node on first paint */
-        requestAnimationFrame(() => {
-            const focusNode = track.querySelector('.is-focus');
-            if (focusNode) centerHeartbeatNode(focusNode, 'instant');
-        });
-    } else {
-        /* Just update focus state */
-        const nodes = track.querySelectorAll('.bb-hb-node');
-        const activeScale = parseFloat(cs.getPropertyValue('--hb-active-scale')) || 1.4;
-        nodes.forEach((node, i) => {
-            const isFocus = i === index;
-            node.classList.toggle('is-focus', isFocus);
-            node.style.width = `${isFocus ? Math.round(thumbSize * activeScale) : thumbSize}px`;
-        });
-
-        /* Scroll to center the active node */
-        const focusNode = track.querySelector('.is-focus');
-        if (focusNode) centerHeartbeatNode(focusNode);
-    }
-
-    /* Update info panel */
-    const paletteColors = item.palette?.colors || [];
-    const paletteHtml = paletteColors.length > 0
-        ? `<div class="bb-hb-palette">
-        <span class="bb-hb-palette-name">${escapeHtml(item.palette?.id || '')}</span>
-        <div class="bb-hb-palette-dots">
-          ${paletteColors.map(c => `<span class="bb-hb-dot" style="background:${c}"></span>`).join('')}
-        </div>
-      </div>`
-        : '';
-
-    let lifespanHtml = '';
-    if (item.status === 'open') {
-        if (block.immortal) {
-            lifespanHtml = '<span class="bb-hb-lifespan is-immortal">IMMORTAL</span>';
-        } else if (block.remaining) {
-            lifespanHtml = `<span class="bb-hb-lifespan">${formattedBlocks(block.remaining)} blocks remaining</span>`;
-        }
-    } else if (item.status === 'sealed') {
-        lifespanHtml = '<span class="bb-hb-lifespan is-sealed">Awaiting activation</span>';
-    } else if (item.status === 'expired') {
-        lifespanHtml = '<span class="bb-hb-lifespan is-expired">Expired</span>';
-    }
-
-    info.innerHTML = `
-    <h3 class="bb-hb-title">${escapeHtml(item.name)}</h3>
-    <span class="bb-status-badge is-${item.status}">${escapeHtml(statusLabel[item.status] || item.status)}</span>
-    ${paletteHtml}
-    ${lifespanHtml}
-    ${item.ordinalsUrl ? `<a class="bb-hb-link" href="${item.ordinalsUrl}" target="_blank" rel="noreferrer">Ordinals ↗</a>` : ''}
-  `;
-
-    /* Wire up click on the track to navigate */
-    track.querySelectorAll('.bb-hb-node').forEach(node => {
-        if (node._hbClick) return; // Avoid doubling
-        node._hbClick = true;
-        node.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const nextIdx = parseInt(node.dataset.index, 10);
-            setHeartbeatIndex(nextIdx);
-            restartMotionTimers();
-        });
-    });
-
-    /* Prev/Next buttons */
-    const prevBtn = document.querySelector('#bbHeartbeatPrev');
-    const nextBtn = document.querySelector('#bbHeartbeatNext');
-    if (prevBtn && !prevBtn._hbWired) {
-        prevBtn._hbWired = true;
-        prevBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const prevIdx = (state.heartbeat.index - 1 + total) % total;
-            setHeartbeatIndex(prevIdx);
-            restartMotionTimers();
-        });
-    }
-    if (nextBtn && !nextBtn._hbWired) {
-        nextBtn._hbWired = true;
-        nextBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const nextIdx = (state.heartbeat.index + 1) % total;
-            setHeartbeatIndex(nextIdx);
-            restartMotionTimers();
-        });
-    }
-
+    syncHeartbeatTrack({ track, items, index, thumbSize, activeScale, rebuild });
+    info.innerHTML = buildHeartbeatInfoMarkup(item);
+    wireHeartbeatNodeClicks(track);
+    bindHeartbeatControl('#bbHeartbeatPrev', -1);
+    bindHeartbeatControl('#bbHeartbeatNext', 1);
 };
 
 /* ── Carousel interactions (drag, click, keyboard) ── */

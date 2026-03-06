@@ -548,6 +548,8 @@ h4,
 
 .bb-slide__img--low {
   z-index: 1;
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
 }
 
 .bb-slide__img--high {
@@ -732,10 +734,10 @@ h4,
   transform: translateX(-50%);
   width: 100%;
   max-width: 1400px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 1rem 2rem;
+  display: grid;
+  gap: 0.42rem;
+  justify-items: center;
+  padding: 0 1rem;
   z-index: 20;
   margin: 0;
   text-align: center;
@@ -778,6 +780,11 @@ h4,
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
+  color: #dddddd;
+  font-family: 'Space Grotesk', 'Avenir Next', 'Helvetica Neue', sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.56;
+  letter-spacing: 0.01em;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1375,7 +1382,7 @@ h4,
 .bb-palette-swatches {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 2px;
 }
 
 .bb-palette-name {
@@ -1820,6 +1827,7 @@ h4,
 
 .bb-heartbeat-node--live {
   aspect-ratio: 9/16 !important;
+  overflow: hidden;
 }
 
 .bb-heartbeat-node--sealed .bb-heartbeat-node__thumb img,
@@ -1832,10 +1840,6 @@ h4,
   transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
-}
-
-.bb-heartbeat-node--live {
-  aspect-ratio: 9/16 !important;
 }
 
 .bb-heartbeat-node__thumb {
@@ -1895,14 +1899,6 @@ h4,
   filter: none;
 }
 
-.bb-heartbeat-info {
-  /* Positioning handled above */
-  padding: 0 1rem;
-  display: grid;
-  gap: 0.42rem;
-  justify-items: center;
-}
-
 .bb-heartbeat-info__meta {
   display: grid;
   gap: 0.2rem;
@@ -1945,9 +1941,10 @@ h4,
 
 .bb-heartbeat-info__actions {
   display: flex;
-  gap: 0.32rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
   justify-content: center;
+  margin-top: 0.5rem;
 }
 
 .bb-heartbeat-info__actions button,
@@ -1989,14 +1986,6 @@ h4,
   background: transparent;
   backdrop-filter: none;
   padding: 0.82rem;
-}
-
-.bb-about-rich {
-  color: #dddddd;
-  font-family: 'Space Grotesk', 'Avenir Next', 'Helvetica Neue', sans-serif;
-  font-size: 0.82rem;
-  line-height: 1.56;
-  letter-spacing: 0.01em;
 }
 
 .bb-about-rich p {
@@ -2061,8 +2050,12 @@ h4,
 }
 
 .bb-about-heading--faq {
-  margin-top: 0;
+  margin-top: 2rem;
   margin-bottom: 0.9rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+  font-size: 1.4rem;
+  color: var(--accent);
 }
 
 .bb-faq__list {
@@ -2077,9 +2070,9 @@ h4,
 }
 
 .bb-faq__q {
-  margin: 0 0 0.34rem;
-  color: #f3f3f3;
-  font-size: 0.84rem;
+  margin: 1.2rem 0 0.4rem;
+  color: #fff;
+  font-size: 0.95rem;
   font-family: 'Space Grotesk', 'Avenir Next', 'Helvetica Neue', sans-serif;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -2087,7 +2080,7 @@ h4,
 
 .bb-faq__a {
   margin: 0;
-  color: #d8d8d8;
+  color: var(--muted);
   font-size: 0.79rem;
   line-height: 1.5;
 }
@@ -2602,12 +2595,6 @@ body.bb-intro-exit .bb-intro {
   }
 }
 
-/* Mobile Carousel Loading State */
-.bb-slide__img--low {
-  opacity: 0;
-  transition: opacity 0.4s ease-in-out;
-}
-
 .bb-slide__img--low.is-loaded {
   opacity: 1 !important;
 }
@@ -2940,25 +2927,6 @@ body.bb-intro-exit .bb-intro {
   }
 }
 
-.bb-about-heading--faq {
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--line);
-  font-size: 1.4rem;
-  color: var(--accent);
-}
-
-.bb-faq__q {
-  color: #fff;
-  margin: 1.2rem 0 0.4rem;
-  font-size: 0.95rem;
-}
-
-.bb-faq__a {
-  color: var(--muted);
-  line-height: 1.5;
-}
-
 .bb-heartbeat-node--sealed,
 .bb-heartbeat-node--expired {
   background: transparent !important;
@@ -3076,11 +3044,6 @@ body.bb-intro-exit .bb-intro {
   gap: 0.3rem;
 }
 
-.bb-palette-swatches {
-  display: flex;
-  gap: 2px;
-}
-
 .bb-palette-swatches span {
   width: 12px;
   height: 12px;
@@ -3089,21 +3052,7 @@ body.bb-intro-exit .bb-intro {
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.bb-heartbeat-info__actions {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
 /* Live Artwork Processing */
-.bb-heartbeat-node--live {
-  aspect-ratio: 9/16;
-  overflow: hidden;
-  /* Ensure zoom crops correctly */
-}
-
 .bb-heartbeat-node--live .bb-heartbeat-node__thumb {
   overflow: hidden;
   border-radius: inherit;
@@ -3577,7 +3526,6 @@ body.bb-intro-exit .bb-intro {
     overflow-y: auto;
     scrollbar-width: none;
   }
-  .bb-modal { }
   .bb-modal::-webkit-scrollbar { display: none; }
 
   .bb-modal__artwork {
