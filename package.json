@@ -15,6 +15,6 @@
     "verify": "node node_modules/vite/bin/vite.js build && node --test tests/*.test.mjs"
   },
   "devDependencies": {
-    "vite": "^7.2.4"
+    "vite": "^7.3.2"
   }
 }
