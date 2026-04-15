@@ -17,7 +17,7 @@
 | Live collection state | `https://bestbefore.space/best-before.json` | Current phase, palette, activation/expiry block data, analytics, generation timestamp |
 | Collection preview images | `https://bestbefore.space/images/*` | Numbered open/live preview images |
 | On-chain content | `https://ordinals.com/content/<id>` | Direct inscription rendering |
-| Collection roster context | `https://magiceden.io/ordinals/marketplace/best-before-by-lemonhaze-x-ordinally` | Linked marketplace reference from the UI |
+| Collection marketplace link | `https://gamma.io/ordinals/collections/best-before/items` | Official marketplace reference linked from the UI |
 
 ## Local Preparation Pipeline
 
