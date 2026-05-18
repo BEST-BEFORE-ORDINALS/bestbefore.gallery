@@ -115,6 +115,7 @@ const renderShell = () => {
           <nav class="bb-footer__links" aria-label="BEST BEFORE links">
             <a href="https://x.com/ordbestbefore" target="_blank" rel="noreferrer">TWITTER/X</a>
             <a href="https://gamma.io/ordinals/collections/best-before/items" target="_blank" rel="noreferrer">Gamma</a>
+            <a href="https://ord.net/collection/best-before-by-lemonhaze-x-ordinally" target="_blank" rel="noreferrer">Ord.net</a>
           </nav>
         </div>
       </footer>
