@@ -13,6 +13,7 @@ const LEDGER_SECTIONS = new Set([
 
 const FAQ_SLUGS = new Set([
   'how-does-it-work',
+  'how-to-activate-a-piece',
   'whats-the-total-supply',
   'can-i-keep-it-sealed-forever',
   'what-happens-when-it-expires',
