@@ -133,8 +133,8 @@ export const renderAboutFaq = () => {
       <details class="bb-faq-item bb-about-unfold" data-faq-slug="how-to-activate-a-piece">
         <summary class="bb-faq-question">How to activate a piece?</summary>
         <div class="bb-faq-answer">
-          <p>To activate a SEALED BEST BEFORE piece, you must inscribe a new child inscription and use the SEALED piece itself as the parent of that child. That parent-child link becomes part of the piece's Ordinals provenance on Bitcoin.</p>
-          <p>Once the child inscription is confirmed on-chain, the parent piece is unsealed, its lifespan is revealed, and its countdown begins. If you want a simple place to do this, you can inscribe the child directly with <a href="https://inscribe.dev/" target="_blank" rel="noreferrer">inscribe.dev</a>.</p>
+          <p>To activate a BEST BEFORE piece, you must inscribe a new child inscription and use the SEALED piece itself as the parent of that child.</p>
+          <p>Once the child inscription is confirmed on-chain, the parent piece is unsealed, its fate (lifespan, color palette etc.) is determined, and its countdown begins. You can inscribe the child directly with <a href="https://inscribe.dev/" target="_blank" rel="noreferrer">inscribe.dev</a>.</p>
         </div>
       </details>
       <details class="bb-faq-item bb-about-unfold" data-faq-slug="whats-the-total-supply">

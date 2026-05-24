@@ -140,9 +140,9 @@ No. The only way to participate in the mint is by backing the project via Signal
 
 **How to activate a piece?**
 
-To activate a SEALED BEST BEFORE piece, inscribe a new child inscription and use the SEALED piece itself as the parent of that child. That parent-child link becomes part of the piece's Ordinals provenance on Bitcoin.
+To activate a BEST BEFORE piece, you must inscribe a new child inscription and use the SEALED piece itself as the parent of that child.
 
-Once the child inscription is confirmed on-chain, the parent piece is unsealed, its lifespan is revealed, and its countdown begins. If you want a simple place to do this, you can inscribe the child directly with https://inscribe.dev/.
+Once the child inscription is confirmed on-chain, the parent piece is unsealed, its fate (lifespan, color palette etc.) is determined, and its countdown begins. You can inscribe the child directly with https://inscribe.dev/.
 
 **What are “Keys”?**
 
