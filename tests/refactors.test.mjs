@@ -40,6 +40,7 @@ test("parseRoute normalizes supported deep links", () => {
   assert.equal(parseRoute("/42").modal, true);
   assert.equal(parseRoute("/about/statement").statement, true);
   assert.equal(parseRoute("/about/faq/how-does-it-work").faq, "how-does-it-work");
+  assert.equal(parseRoute("/about/faq/how-to-activate-a-piece").faq, "how-to-activate-a-piece");
   assert.equal(parseRoute("/diary/6").part, 6);
   assert.equal(parseRoute("/diary/9").canonicalPath, "/diary");
   assert.equal(parseRoute("/ledger/hall-of-fame").section, "hall-of-fame");
