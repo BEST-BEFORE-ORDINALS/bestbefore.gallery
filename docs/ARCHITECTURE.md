@@ -42,6 +42,7 @@ This document is the high-level engineering map for `bestbefore.gallery`:
 - Preview media is selected by current status:
   - `SEALED` and `EXPIRED` use fixed visual states
   - live/open items use numbered collection preview images
+- On desktop, the individual artwork view embeds the live inscription in a sandboxed iframe. Its `allow-downloads` permission lets the inscription's **S** shortcut export a PNG; click the artwork first to give it keyboard focus. Mobile continues to use a preview image.
 
 ### About
 
