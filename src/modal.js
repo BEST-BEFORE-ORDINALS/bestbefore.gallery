@@ -204,7 +204,7 @@ const getModalPreviewUrls = (item, status, contentUrl) => {
 
 const buildModalArtworkMediaHtml = (item, status, isMobile, contentUrl) => {
     if (!isMobile) {
-        return `<iframe class="bb-modal__iframe" src="${contentUrl}" title="${escapeHtml(item.name)} — Live from chain" sandbox="allow-scripts allow-same-origin" loading="eager"></iframe>`;
+        return `<iframe class="bb-modal__iframe" src="${contentUrl}" title="${escapeHtml(item.name)} — Live from chain" sandbox="allow-scripts allow-same-origin allow-downloads" loading="eager"></iframe>`;
     }
 
     const { mobilePreviewUrl, fallbackPreviewUrl } = getModalPreviewUrls(item, status, contentUrl);
