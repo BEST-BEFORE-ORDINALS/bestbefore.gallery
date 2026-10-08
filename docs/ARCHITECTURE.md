@@ -42,7 +42,8 @@ This document is the high-level engineering map for `bestbefore.gallery`:
 - Preview media is selected by current status:
   - `SEALED` and `EXPIRED` use fixed visual states
   - live/open items use numbered collection preview images
-- On desktop, the individual artwork view embeds the live inscription in a sandboxed iframe. Its `allow-downloads` permission lets the inscription's **S** shortcut export a PNG; click the artwork first to give it keyboard focus. Mobile continues to use a preview image.
+- On desktop, the individual artwork view embeds the original live inscription in a sandboxed iframe with `allow-downloads`. A 9:16 viewport clips the document's surrounding background; `src/artwork-frame.js` compensates for the OPEN artwork's 90% inset without changing either canvas or its native resolution. The inner document keeps a 900 × 1600 viewport so narrow displays do not disable its WebGL animation. SEALED/EXPIRED views do not receive the inset compensation. Mobile continues to use a portrait preview image.
+- The artwork frame receives keyboard focus on opening and after switching Solo/Details, so **S** reaches the inscription's PNG export handler. Its existing clickable S control remains accessible in the artwork's information popup. The frame fitting observer and listeners are removed on close/replacement.
 
 ### About
 

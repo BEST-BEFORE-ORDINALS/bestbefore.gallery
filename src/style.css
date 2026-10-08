@@ -3188,8 +3188,8 @@ body.bb-intro-exit .bb-intro {
   display: flex;
   align-items: stretch;
   gap: 2rem;
-  width: 90vw;
-  max-width: 1200px;
+  width: max-content;
+  max-width: 90vw;
   max-height: 88vh;
   transform: scale(0.94) translateY(12px);
   transition: transform 0.45s cubic-bezier(0.18, 0.76, 0.24, 1);
@@ -3259,15 +3259,26 @@ body.bb-intro-exit .bb-intro {
 }
 
 /* Iframe container */
+.bb-modal__save-hint {
+  align-self: center;
+  margin-left: 1rem;
+  color: rgba(255, 255, 255, 0.5);
+  font: 0.6rem var(--font-ui);
+  white-space: nowrap;
+}
+
 .bb-modal__artwork {
-  flex: 1;
+  position: relative;
+  flex: 0 0 auto;
+  width: min(45vh, calc(90vw - 352px));
   min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   background: #000;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 9 / 16;
+  align-self: flex-start;
   max-height: 80vh;
 }
 
@@ -3290,7 +3301,7 @@ body.bb-intro-exit .bb-intro {
 
 /* Solo mode — artwork fills more space */
 .bb-modal.is-solo .bb-modal__artwork {
-  max-width: 80vh;
+  width: min(45vh, 90vw);
   margin: 0 auto;
 }
 
@@ -3531,7 +3542,7 @@ body.bb-intro-exit .bb-intro {
   .bb-modal__artwork {
     width: min(100%, 84vw);
     max-width: 460px;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 9 / 16;
     max-height: none;
     flex: 0 0 auto;
     margin: 0 auto;
@@ -3542,6 +3553,8 @@ body.bb-intro-exit .bb-intro {
     max-width: 460px;
     max-height: none;
   }
+
+  .bb-modal__save-hint { display: none; }
 
   .bb-modal__details {
     width: 100%;
