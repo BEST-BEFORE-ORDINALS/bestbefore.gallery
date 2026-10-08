@@ -1,6 +1,7 @@
 /* ═══ Artwork Modal — Live from Chain ═══ */
 
 import { statusLabel, numberFormat, escapeHtml } from './state.js';
+import { fitBestBeforeFrame } from './artwork-frame.js';
 
 /** @type {() => void} */
 let _restartMotionTimers;
@@ -303,6 +304,7 @@ const buildModalMarkup = ({
       <div class="bb-modal__toggle">
         <button class="bb-modal__toggle-btn" data-modal-view="solo" type="button">Solo</button>
         <button class="bb-modal__toggle-btn is-active" data-modal-view="details" type="button">Details</button>
+        <span class="bb-modal__save-hint">Press S to save PNG</span>
       </div>
       <button class="bb-modal__close" type="button" aria-label="Close modal">&times;</button>
 
@@ -352,6 +354,7 @@ export const closeArtworkModal = () => {
     if (!overlay) return;
     if (overlay.dataset.closing === '1') return;
     overlay.dataset.closing = '1';
+    overlay._artworkFrame?.destroy();
 
     if (overlay._escHandler) {
         document.removeEventListener('keydown', overlay._escHandler);
@@ -375,7 +378,11 @@ export const openArtworkModal = (item) => {
     if (_stopMotionTimers) _stopMotionTimers();
 
     const existing = document.querySelector('.bb-modal-overlay');
-    if (existing) existing.remove();
+    if (existing) {
+        existing._artworkFrame?.destroy();
+        if (existing._escHandler) document.removeEventListener('keydown', existing._escHandler);
+        existing.remove();
+    }
 
     const block = item.block || {};
     const status = (item.status || 'unknown').toLowerCase();
@@ -406,6 +413,12 @@ export const openArtworkModal = (item) => {
     });
 
     document.body.appendChild(overlay);
+    const frame = overlay.querySelector('.bb-modal__iframe');
+    if (frame) {
+        overlay._artworkFrame = fitBestBeforeFrame(frame, overlay.querySelector('.bb-modal__artwork'), {
+            phase: status, focusOnLoad: true,
+        });
+    }
 
     requestAnimationFrame(() => {
         overlay.classList.add('is-active');
@@ -442,6 +455,7 @@ export const openArtworkModal = (item) => {
             overlay.querySelectorAll('[data-modal-view]').forEach(b => {
                 b.classList.toggle('is-active', b.dataset.modalView === view);
             });
+            overlay._artworkFrame?.focus();
         });
     });
 };
