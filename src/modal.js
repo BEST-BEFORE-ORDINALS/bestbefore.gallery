@@ -1,7 +1,7 @@
 /* ═══ Artwork Modal — Live from Chain ═══ */
 
 import { statusLabel, numberFormat, escapeHtml } from './state.js';
-import { fitBestBeforeFrame } from './artwork-frame.js';
+import { createBestBeforePlayer } from './best-before-player.js';
 
 /** @type {() => void} */
 let _restartMotionTimers;
@@ -186,31 +186,7 @@ const buildModalSignatureHtml = (signatureDisplay) => (
         : ''
 );
 
-const getModalPreviewUrls = (item, status, contentUrl) => {
-    const mobilePreviewUrl = item.previewMobile
-        || (status === 'sealed'
-            ? 'https://bestbefore.space/images/SEALED_800.webp'
-            : status === 'expired'
-                ? 'https://bestbefore.space/images/EXPIRED_800.webp'
-                : item.number
-                    ? `https://bestbefore.space/images/BESTBEFORE_${item.number}_800.webp`
-                    : item.preview
-                        || contentUrl);
-
-    return {
-        mobilePreviewUrl,
-        fallbackPreviewUrl: item.preview || contentUrl,
-    };
-};
-
-const buildModalArtworkMediaHtml = (item, status, isMobile, contentUrl) => {
-    if (!isMobile) {
-        return `<iframe class="bb-modal__iframe" src="${contentUrl}" title="${escapeHtml(item.name)} — Live from chain" sandbox="allow-scripts allow-same-origin allow-downloads" loading="eager"></iframe>`;
-    }
-
-    const { mobilePreviewUrl, fallbackPreviewUrl } = getModalPreviewUrls(item, status, contentUrl);
-    return `<img class="bb-modal__image" src="${escapeHtml(mobilePreviewUrl)}" alt="${escapeHtml(item.name)}" loading="eager" decoding="async" onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1';this.src='${escapeHtml(fallbackPreviewUrl)}';}" />`;
-};
+const buildModalArtworkMediaHtml = (item) => `<iframe class="bb-modal__iframe" title="${escapeHtml(item.name)} — Live from chain" sandbox="allow-scripts allow-downloads"></iframe>`;
 
 const buildModalSatRowHtml = (item) => {
     const satValue = firstPresent(
@@ -300,18 +276,22 @@ const buildModalMarkup = ({
     metadataRowsHtml,
     truncAddr,
 }) => `
-    <div class="bb-modal" id="bbArtworkModal">
+    <div class="bb-modal" id="bbArtworkModal" role="dialog" aria-modal="true" aria-label="Artwork viewer">
+      <header class="bb-modal__bar">
+      <span class="bb-modal__viewer-title">${escapeHtml(item.name)}</span>
       <div class="bb-modal__toggle">
-        <button class="bb-modal__toggle-btn" data-modal-view="solo" type="button">Solo</button>
-        <button class="bb-modal__toggle-btn is-active" data-modal-view="details" type="button">Details</button>
-        <span class="bb-modal__save-hint">Press S to save PNG</span>
+        <button class="bb-modal__toggle-btn" data-modal-view="solo" aria-pressed="false" type="button">Solo</button>
+        <button class="bb-modal__toggle-btn is-active" data-modal-view="details" aria-pressed="true" type="button">Details</button>
       </div>
       <button class="bb-modal__close" type="button" aria-label="Close modal">&times;</button>
+      </header>
+      <div class="bb-modal__stage">
 
       <div class="bb-modal__artwork">
         ${artworkMediaHtml}
       </div>
 
+      </div>
       <div class="bb-modal__details">
         <div>
           <h2 class="bb-modal__detail-title">${escapeHtml(item.name)}</h2>
@@ -324,6 +304,7 @@ const buildModalMarkup = ({
 
         ${paletteHtml}
         ${signatureHtml}
+        <div class="bb-modal__capture"></div>
 
         <hr class="bb-modal__detail-divider" />
 
@@ -386,13 +367,11 @@ export const openArtworkModal = (item) => {
 
     const block = item.block || {};
     const status = (item.status || 'unknown').toLowerCase();
-    const contentUrl = `https://ordinals.com/content/${item.id}`;
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
     const badgeClass = block.immortal ? 'is-immortal' : `is-${status}`;
     const badgeLabel = block.immortal ? 'IMMORTAL' : statusLabel[status] || status.toUpperCase();
     const paletteHtml = buildModalPaletteHtml(item);
     const signatureHtml = buildModalSignatureHtml(getModalSignatureDisplay(item));
-    const artworkMediaHtml = buildModalArtworkMediaHtml(item, status, isMobile, contentUrl);
+    const artworkMediaHtml = buildModalArtworkMediaHtml(item);
     const lifespanHtml = buildModalLifespanHtml(status, block);
     const metadataRowsHtml = buildModalMetadataRowsHtml(item, status, block);
     const truncAddr = truncateValue(item.address, 10, 8);
@@ -415,8 +394,9 @@ export const openArtworkModal = (item) => {
     document.body.appendChild(overlay);
     const frame = overlay.querySelector('.bb-modal__iframe');
     if (frame) {
-        overlay._artworkFrame = fitBestBeforeFrame(frame, overlay.querySelector('.bb-modal__artwork'), {
-            phase: status, focusOnLoad: true,
+        overlay._artworkFrame = createBestBeforePlayer({
+            frame, viewport: overlay.querySelector('.bb-modal__artwork'),
+            controls: overlay.querySelector('.bb-modal__capture'), id: item.id, onClose: closeArtworkModal,
         });
     }
 
@@ -454,8 +434,8 @@ export const openArtworkModal = (item) => {
             modal.classList.toggle('is-solo', view === 'solo');
             overlay.querySelectorAll('[data-modal-view]').forEach(b => {
                 b.classList.toggle('is-active', b.dataset.modalView === view);
+                b.setAttribute('aria-pressed', String(b.dataset.modalView === view));
             });
-            overlay._artworkFrame?.focus();
         });
     });
 };

@@ -34,6 +34,12 @@ SEALED → OPEN → EXPIRED
 
 ---
 
+## Viewing and exporting
+
+Open an individual artwork in Details to find its palette, lifecycle information, **Save PNG**, and **Record MP4** in the sidebar. Choose **15, 30, or 60 seconds** to record an OPEN work at its native **1800 × 3200** resolution. The export contains only the artwork canvas. MP4 recording requires a browser with MP4 MediaRecorder support; keep the tab visible during capture, or cancel from the same button.
+
+Solo provides a centered, immersive view with the sidebar hidden. Press **S** to save a PNG and **Escape** to close the viewer.
+
 ## How to Activate a Piece
 
 **Unsealing is an on-chain act.** To move a piece from SEALED to OPEN, the collector must inscribe a child inscription using the SEALED BEST BEFORE piece as its parent.
