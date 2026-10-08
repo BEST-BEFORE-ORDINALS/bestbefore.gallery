@@ -109,7 +109,6 @@ export function buildBestBeforeDocument(source, id, token) {
         html,body { background: transparent !important; }
         #artwork-wrapper { transform: none !important; position: absolute !important; inset: 0 !important; width:100% !important; height:100% !important; }
         #artwork-canvas,#gl-layer { left:0 !important; top:0 !important; width:100% !important; height:100% !important; border:0 !important; }
-        body > div:not(#artwork-wrapper), #artwork-popup, #bb-tooltip { display:none !important; }
     </style><script>
         const chainFetch = window.fetch.bind(window);
         window.fetch = (input, init) => chainFetch(typeof input === 'string' ? new URL(input, ${JSON.stringify(url)}).href : input, init);
