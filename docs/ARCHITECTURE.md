@@ -42,7 +42,7 @@ This document is the high-level engineering map for `bestbefore.gallery`:
 - Preview media is selected by current status:
   - `SEALED` and `EXPIRED` use fixed visual states
   - live/open items use numbered collection preview images
-- On desktop, the individual artwork view embeds the original live inscription in a sandboxed iframe with `allow-downloads`. A 9:16 viewport clips the document's surrounding background; `src/artwork-frame.js` compensates for the OPEN artwork's 90% inset without changing either canvas or its native resolution. The inner document keeps a 900 × 1600 viewport so narrow displays do not disable its WebGL animation. SEALED/EXPIRED views do not receive the inset compensation. Mobile continues to use a portrait preview image.
+- The individual artwork viewer uses the sandboxed Best Before player on desktop and mobile; see “Best Before player and recording” below.
 - The artwork frame receives keyboard focus on opening and after switching Solo/Details, so **S** reaches the inscription's PNG export handler. Its existing clickable S control remains accessible in the artwork's information popup. The frame fitting observer and listeners are removed on close/replacement.
 
 ### About
@@ -96,3 +96,12 @@ This means the site is intentionally hybrid:
 - The frontend must degrade gracefully when live APIs are unavailable.
 - The prep script assumes local source files outside this repo exist in the broader workspace and writes sanitized outputs into `public/data/` and `public/assets/`.
 - There are no Cloudflare Functions in this repo today; deployment is static-only.
+
+
+### Best Before player and recording
+
+The individual viewer fetches the original on-chain HTML and runs it in a `srcdoc` iframe with an opaque origin (`allow-scripts allow-downloads`, without `allow-same-origin`). The adapter preserves the inscription ID and real chain lookups, removes the renderer’s page background and inset, and aligns both canvas layers to a 900 × 1600 display viewport without changing their native 1800 × 3200 resolution. The bounded source adaptation fails visibly if the renderer version changes.
+
+A per-instance token and source-window checks authenticate messages between viewer and frame. PNG uses the renderer’s own save function. MP4 composites the base and WebGL canvases at 30 fps and records 15, 30, or 60 seconds using an available MP4 MediaRecorder codec. Unsupported browsers show an unavailable state rather than downloading a different container with an MP4 extension. Recording is enabled only for fully rendered OPEN works. Cancellation, hidden-tab changes, and modal teardown stop capture; closing the viewer also removes listeners, observers, and the embedded document.
+
+The gallery viewer separates the toolbar, artwork stage, and scrollable details. Export controls live in the right details sidebar alongside the palette on both sites. Solo hides that sidebar against an opaque background, leaving the artwork unobstructed. Lemonhaze retains its existing viewer palette. Deep-link startup adopts any prerendered wrapper and replaces serialized capture controls before initializing a fresh player.
