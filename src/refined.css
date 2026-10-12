@@ -113,3 +113,5 @@ em{font-style:normal;color:#aaaF9c}h1,h2,h3,p,blockquote{overflow-wrap:break-wor
 /* Fit the portrait to both available axes; never stretch a Solo viewport. */
 .bb-modal__stage{container-type:size}
 .bb-modal__artwork{width:min(100cqw,calc(100cqh * 9 / 16));height:auto;max-height:none;aspect-ratio:9/16}
+
+.origin-credit{color:#606859;margin-top:22px}.diary-authorship{font-size:12px;line-height:1.8;color:var(--muted);max-width:690px;margin:24px 0 0}
