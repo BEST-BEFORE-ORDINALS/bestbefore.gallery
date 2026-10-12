@@ -6,9 +6,9 @@ loading, mobile Lighthouse, and the gallery's URL architecture.
 
 ## Findings addressed in this release
 
-- Pre-render 435 documents with readable content before JavaScript. Main sections,
+- Pre-render 436 documents with readable content before JavaScript. Main sections,
   seven diary chapters and all 420 works have independent paths. The optional
-  canvas is noindex; all other 434 URLs appear in the generated sitemap.
+  canvas is noindex; all other 435 URLs appear in the generated sitemap.
 - Use crawlable anchors and History API navigation. Preserve old hash bookmarks
   and redirect numeric work paths to their new canonical URLs.
 - Supply unique title/description/canonical and Open Graph/Twitter metadata per

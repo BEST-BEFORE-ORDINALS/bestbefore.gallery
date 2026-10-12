@@ -34,3 +34,19 @@ test('each diary page contains its own full chapter and only chapter two has the
     assert.equal(document.querySelectorAll('.diary-index a[data-diary-part]').length,7);
   }
 });
+
+test('FAQ is a clean indexable route with sixteen readable disclosures',async()=>{
+  const {renderFaq,faqGroups}=await import('../src/faq.js');
+  assert.equal(parseCollectionRoute('/faq').view,'faq');
+  const meta=pageMetadata(parseCollectionRoute('/faq'));
+  assert.equal(meta.url,'https://bestbefore.gallery/faq');
+  assert.equal(meta.noindex,false);
+  const {document}=parseHTML(renderFaq());
+  assert.equal(document.querySelectorAll('details').length,16);
+  assert.equal(document.querySelectorAll('summary').length,16);
+  assert.equal(faqGroups.flatMap(g=>g.items).length,16);
+  assert.equal(document.querySelector('#faq-activate').hasAttribute('open'),true);
+  assert.match(document.querySelector('#faq-who').textContent,/control of the parent inscription/);
+  assert.equal(document.querySelector('#faq-activate a').href,'https://inscribe.dev/');
+  assert.ok(statSync(new URL('../public/assets/social/faq.jpg',import.meta.url)).size<500000);
+});

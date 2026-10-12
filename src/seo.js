@@ -1,6 +1,7 @@
 import { escapeHtml } from './state.js';
 import { imageMarkup, phase } from './collection.js';
 export const sectionMeta={
+  faq:['How it works / FAQ','How to activate a BEST BEFORE artwork, who can open it, how its lifespan works, and what remains after expiry. Brief answers for collectors and visitors.'],
   grid:['What if art could expire?','420 living generative artworks by Lemonhaze × Ordinally, inscribed on Bitcoin. Explore a collection whose lives are measured in blocks.'],
   rooms:['A room for every palette','Explore BEST BEFORE by palette. Shared colours, separate lives: discover living generative artworks by Lemonhaze × Ordinally.'],
   diary:['The diary','Read the conversations and experiments behind BEST BEFORE, from the first idea to a summer of making living generative art.'],
