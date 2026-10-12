@@ -47,6 +47,9 @@ and tiered loading as a secondary route.
 139 (Balance) and 402 (SOLSTICE); Process uses 233 (Horizon) and 133 (Punch), with
 233 as its live playback link. Both exhibition studies use 189 (Ocean).
 The original BB logo and Space Grotesk/JetBrains Mono remain self-hosted.
+Tab and Apple touch icons use self-contained 32px/180px PNGs derived from the
+original BB mark; the legacy SVG embeds its image rather than fetching an
+external resource, which browsers block in SVG image contexts.
 
 `diary.js` preserves the original source and serves one full chapter per path,
 with a chapter index and next-chapter link. Only Part 2 carries the existing LLM
