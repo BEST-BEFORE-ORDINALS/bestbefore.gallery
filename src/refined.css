@@ -115,3 +115,7 @@ em{font-style:normal;color:#aaaF9c}h1,h2,h3,p,blockquote{overflow-wrap:break-wor
 .bb-modal__artwork{width:min(100cqw,calc(100cqh * 9 / 16));height:auto;max-height:none;aspect-ratio:9/16}
 
 .origin-credit{color:#606859;margin-top:22px}
+
+/* Static work pages remain complete and readable without JavaScript. */
+.work-page-body{display:grid;grid-template-columns:minmax(200px,450px) 1fr;gap:8%;align-items:center;padding:55px 0}.work-page-body picture,.work-page-body img{display:block;width:100%;height:auto}.work-page-body p{line-height:1.8;max-width:500px;color:var(--muted)}.work-page-nav{display:flex;justify-content:space-between;gap:24px;border-top:1px solid var(--line);padding:28px 0}.work-card{display:block}.editorial-work,.room-work{display:block}.work-page-body h2{font-weight:400;font-size:36px}
+@media(max-width:700px){.work-page-body{grid-template-columns:1fr;gap:25px;padding:30px 0}.work-page-body>a{max-width:80%;margin:auto}.work-page-nav{font-size:12px}}

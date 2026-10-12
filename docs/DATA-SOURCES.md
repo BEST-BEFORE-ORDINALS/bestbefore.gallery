@@ -94,3 +94,11 @@ quality 40. It prefers the original cached images in `../image-cache/` and can
 fall back to the committed 800px WebP previews. `<picture>` selects AVIF on
 supported browsers and preserves the existing WebP fallback. Regenerate these
 alongside the WebP tiers whenever the thumbnail manifest is updated.
+
+## Search and social snapshots
+
+The build pre-renders section, diary and work documents from `collection.json`
+and `bb-diary.txt`. `prepare:social` uses the same saved collection identities and
+local 800px previews for individual share cards. Sealed/expired works retain their
+state images; no unrevealed artwork is exposed. Refresh cards after updating
+preview data. Runtime block counts and the original inscription remain live.

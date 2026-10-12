@@ -3,16 +3,16 @@ import { escapeHtml } from './state.js';
 export function createGrid(root, open, pagination) {
   const initialLimit=12;
   let filtered=[], limit=initialLimit, key='';
-  const card = (item) => `<button class="work-card" data-work="${item.number}">
+  const card = (item) => `<a class="work-card" href="/work/${item.number}" data-work="${item.number}">
     <div class="work-card__image ${item.status}">${imageMarkup(item,'(max-width: 700px) 44vw, (max-width: 1100px) 23vw, 15vw')}<span class="work-card__enter" aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 19 19 5M5 5h14v14"/></svg></span></div>
     <div class="work-card__heading"><span>Nº ${numberLabel(item.number)}</span>${statusChip(item)}</div>
     <div class="work-card__caption"><span>${escapeHtml(item.palette?.id || (item.status === 'sealed' ? 'Unrevealed' : 'Expired'))}</span><span>${timeLeft(item)}</span></div>
-  </button>`;
+  </a>`;
   function paint(){
     root.innerHTML = filtered.length ? filtered.slice(0,limit).map(card).join('') : '<p class="empty-state">No works in this state yet.</p>';
     if(pagination)pagination.innerHTML=`<span role="status">${Math.min(limit,filtered.length)} of ${filtered.length} works</span>${limit<filtered.length?'<button class="text-link" data-more>Show 24 more <span aria-hidden="true">↓</span></button><button class="quiet-link" data-all>Show all works</button>':'<span class="eyebrow">YOU’VE SEEN EVERY WORK IN THIS VIEW</span>'}${limit>initialLimit&&filtered.length>initialLimit?'<button class="quiet-link" data-less>Show less <span aria-hidden="true">↑</span></button>':''}`;
   }
-  root.addEventListener('click', event => { const card = event.target.closest('[data-work]'); if (card) open(Number(card.dataset.work)); });
+  root.addEventListener('click', event => { const card = event.target.closest('[data-work]'); if(card&&!event.metaKey&&!event.ctrlKey&&!event.shiftKey&&!event.altKey){event.preventDefault();open(Number(card.dataset.work));} });
   pagination?.addEventListener('click',event=>{
     const more=event.target.closest('[data-more]'),all=event.target.closest('[data-all]'),less=event.target.closest('[data-less]');if(!more&&!all&&!less)return;
     if(less){
