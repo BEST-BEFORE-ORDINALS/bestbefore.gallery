@@ -1,239 +1,105 @@
-/* ═══════════════════════════════════════════════════════════════
-   BEST BEFORE — Gallery Application
-   Entry point. Imports modules and orchestrates boot sequence.
-   ═══════════════════════════════════════════════════════════════ */
+import './gallery.css';
+import './refined.css';
+import './ledger-artists.css';
+import { state, loadJson } from './state.js';
+import { normalizeItems, phase, setThumbnailManifest } from './collection.js';
+import { createGrid } from './grid.js';
+import { createCanvas } from './canvas.js';
+import { openArtworkModal, closeArtworkModal, updateArtworkModal } from './modal.js';
+import { initCollectionRouting } from './router.js';
+import { renderLedger } from './ledger.js';
+import { renderDiary } from './diary.js';
+import { renderProcess, renderExhibition, exhibitionMoment, renderHomeWorks, renderArtists } from './editorial.js';
+import { createRooms } from './rooms.js';
+import { createLiveStudies } from './live-study.js';
+let routing, route={}, renderKey='', revision=0, browseItems=[];
+const $=s=>document.querySelector(s);
+const grid=createGrid($('#grid'),n=>routing.openWork(n),$('#grid-pagination'));
+const rooms=createRooms($('#information'),n=>routing.openWork(n),hash=>routing.navigate(hash));
+const board=createCanvas($('#canvas'),n=>routing.openWork(n));
+const studies=createLiveStudies(()=>state.items);
+let canvasArrangement='', gridScroll=0;
+function render(next){
+  studies.setSuspended(location.hash.startsWith('#/work/'));
+  const previous=route.view;route=next;
+  const key=JSON.stringify(next)+revision;if(key===renderKey)return;renderKey=key;
+  if(previous==='grid'&&next.view!=='grid')gridScroll=window.scrollY;
+  const isCanvas=next.view==='canvas',isCollection=['grid','canvas'].includes(next.view);
+  renderShell(next,previous);
+  renderCollection(next,previous,isCanvas);
+  renderInformation(next,previous,isCollection);
+  studies.refresh();
+}
 
-import './style.css';
-import './vault.css';
-
-import { state, loadJson, loadText, renderLoadError } from './state.js';
-import { initNavigation, injectCarouselImmersive, injectRenderVaultContent } from './navigation.js';
-import { renderMenuStats, renderAboutFaq, renderLifecycle } from './about.js';
-import { renderVaultContent, renderDiary } from './vault.js';
-import { injectRestartMotionTimers, injectStopMotionTimers } from './modal.js';
-import {
-  stopMotionTimers,
-  restartMotionTimers,
-  resolveLogoAsset,
-  applyLogoToInterface,
-  applyInvertedFavicon,
-  setCarouselImmersive,
-} from './carousel.js';
-import { setupGallery } from './gallery.js';
-import { initRouting } from './router.js';
-
-/* ── Wire up cross-module dependencies ── */
-injectCarouselImmersive(setCarouselImmersive);
-injectRenderVaultContent(renderVaultContent);
-injectRestartMotionTimers(restartMotionTimers);
-injectStopMotionTimers(stopMotionTimers);
-
-/* ── Expose state globally for inline onload handlers ── */
-window.state = state;
-
-/* ── DOM root ── */
-const app = document.querySelector('#app');
-
-/* ── Shell renderer ── */
-const renderShell = () => {
-  app.innerHTML = `
-    <div class="bb-root bb-scroll-container">
-      <div class="bb-grain" aria-hidden="true"></div>
-
-      <!-- Minimal floating header -->
-      <header class="bb-header">
-        <div class="bb-header__brand">
-          <img src="/assets/logo/bb-uploaded-logo.jpeg" alt="BB" class="bb-header__mark" />
-          <div class="bb-header__brand-text">
-            <span class="bb-header__title">BEST BEFORE</span>
-            <span class="bb-header__subtitle">BY LEMONHAZE X ORDINALLY</span>
-          </div>
-        </div>
-        <div class="bb-header__zone" id="bbZoneIndicator">THE GALLERY</div>
-        <div class="bb-header__stats" id="bbMenuStats">Loading...</div>
-      </header>
-
-      <main class="bb-experience">
-        <!-- Zone 1: The Gallery -->
-        <section class="bb-zone bb-zone--gallery" id="bbZoneGallery" data-zone="gallery">
-          <div class="bb-gallery-stage" id="bbGalleryStage">
-            <button class="bb-carousel-control bb-carousel-control--prev" id="bbPrevBtn" type="button" aria-label="Previous slide">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-            </button>
-            <div class="bb-carousel" id="bbCarousel" aria-live="polite"></div>
-            <div class="bb-immersive-hud" id="bbImmersiveHud" aria-hidden="true">
-              <p class="bb-immersive-hud__label" id="bbImmersiveLabel"></p>
-              <a id="bbImmersiveLink" href="#" target="_blank" rel="noreferrer">View inscription</a>
-              <button id="bbImmersiveClose" type="button">Close</button>
-            </div>
-            <button class="bb-carousel-control bb-carousel-control--next" id="bbNextBtn" type="button" aria-label="Next slide">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </button>
-          </div>
-          <div class="bb-gallery-meta" id="bbGalleryMeta"></div>
-          
-          <!-- Scroll hint -->
-          <button class="bb-scroll-hint" id="bbScrollHint" type="button" aria-label="Scroll to learn more">
-            <span class="bb-scroll-hint__text">ABOUT</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </button>
-        </section>
-
-        <!-- Zone 2: About -->
-        <section class="bb-zone bb-zone--about" id="bbZoneAbout" data-zone="about">
-          <div class="bb-zone__content">
-            <div class="bb-about-rich" id="bbAboutFaq">Loading project description...</div>
-          </div>
-        </section>
-
-        <!-- Zone 3: The Vault -->
-        <section class="bb-zone bb-zone--vault" id="bbZoneVault" data-zone="vault">
-          <div class="bb-zone__content">
-            <nav class="bb-sub-nav">
-              <button class="bb-sub-nav__item ${state.vault.activeTab === 'artists' ? 'is-active' : ''}" data-vault-tab="artists" type="button">ARTISTS</button>
-              <button class="bb-sub-nav__item ${state.vault.activeTab === 'diary' ? 'is-active' : ''}" data-vault-tab="diary" type="button">DIARY</button>
-              <button class="bb-sub-nav__item ${state.vault.activeTab === 'analytics' ? 'is-active' : ''}" data-vault-tab="analytics" type="button">LEDGER</button>
-            </nav>
-
-            <div class="bb-vault-content" id="bbVaultContent">
-              ${renderVaultContent()}
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer class="bb-footer">
-        <div class="bb-footer__inner">
-          <p class="bb-footer__brand">© BEST BEFORE</p>
-          <p class="bb-footer__by">BY LEMONHAZE X ORDINALLY</p>
-          <nav class="bb-footer__links" aria-label="BEST BEFORE links">
-            <a href="https://x.com/ordbestbefore" target="_blank" rel="noreferrer">TWITTER/X</a>
-            <a href="https://gamma.io/ordinals/collections/best-before/items" target="_blank" rel="noreferrer">Gamma</a>
-            <a href="https://ord.net/collection/best-before-by-lemonhaze-x-ordinally" target="_blank" rel="noreferrer">Ord.net</a>
-          </nav>
-        </div>
-      </footer>
-    </div>
-  `;
-};
-
-const initHeaderBrandScrollCollapse = () => {
-  const brand = document.querySelector('.bb-header__brand');
-  const scrollContainer = document.querySelector('.bb-scroll-container');
-  if (!brand) return;
-
-  const getScrollTop = () => (scrollContainer ? scrollContainer.scrollTop : window.scrollY || 0);
-  const updateCondensedState = () => {
-    brand.classList.toggle('is-condensed', getScrollTop() > 2);
-  };
-
-  if (scrollContainer) {
-    scrollContainer.addEventListener('scroll', updateCondensedState, { passive: true });
-  } else {
-    window.addEventListener('scroll', updateCondensedState, { passive: true });
-  }
-
-  updateCondensedState();
-};
-
-/* ═══ Boot sequence ═══ */
-
-const boot = async () => {
-  renderShell();
-  initHeaderBrandScrollCollapse();
-  document.body.classList.add('bb-intro-complete');
-  initNavigation();
-
-  try {
-    // Load critical local data first.
-    const [summary, items, diaryText] = await Promise.all([
-      loadJson('/data/best-before-summary.json'),
-      loadJson('/data/best-before-items.json'),
-      loadText('/data/bb-diary.txt'),
-    ]);
-
-    state.summary = summary;
-    state.items = items;
-    state.storyAssets = summary?.storyAssets || {};
-
-    // Attempt to load live data, but don't block the app if it fails.
-    try {
-      const liveResponse = await loadJson('https://bestbefore.space/best-before.json');
-      state.liveSummary = liveResponse?.summary || null;
-      state.analytics = liveResponse?.analytics || null;
-      state.liveGeneratedAt = liveResponse?.generated_at || null;
-
-      const rawInscriptions = liveResponse?.inscriptions || [];
-      state.liveItems = rawInscriptions.map((item) => {
-        const idMatch = item.id?.match(/i(\d+)$/);
-        const number = idMatch ? parseInt(idMatch[1], 10) + 1 : null;
-        return {
-          ...item,
-          number,
-          name: `BEST BEFORE Nº${number || '?'}`,
-          status: item.phase?.toLowerCase() || 'unknown',
-          // Keep the full palette object for modal/carousel compatibility.
-          palette: item.palette || null,
-          palette_id: item.palette?.id || null,
-          palette_colors: item.palette?.colors || [],
-          activation_block: item.block?.activation,
-          lifespan_blocks: item.block?.lifespan,
-          remaining_blocks: item.block?.remaining,
-          immortal: item.block?.immortal || false,
-          // Keep the full block object for modal metadata and live lifespan bars.
-          block: item.block || {},
-          preview: `https://ordinals.com/content/${item.id}`,
-          ordinalsUrl: `https://ordinals.com/inscription/${item.id}`,
-        };
-      });
-    } catch (e) {
-      console.warn('Failed to load live data, falling back to static content.', e);
-      state.liveItems = null;
-      state.liveSummary = null;
-      state.analytics = null;
-      state.liveGeneratedAt = null;
-    }
-
-    const logoAsset = await resolveLogoAsset(summary?.logoAsset);
-    if (logoAsset) {
-      applyLogoToInterface(logoAsset);
-      applyInvertedFavicon(logoAsset);
-    }
-
-    renderMenuStats();
-    renderDiary(diaryText);
-    renderAboutFaq();
-    renderLifecycle();
-    setupGallery();
-    initRouting({ renderVaultContent });
-
-    // Set up scroll-triggered reveals AFTER content is rendered
-    if ('IntersectionObserver' in window) {
-      const scrollRoot = document.querySelector('.bb-scroll-container');
-      const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            revealObserver.unobserve(entry.target);
-          }
-        });
-      }, {
-        root: scrollRoot || null,
-        threshold: 0.15,
-        rootMargin: '0px 0px -40px 0px',
-      });
-
-      document.querySelectorAll('.bb-reveal').forEach(el => revealObserver.observe(el));
-    }
-  } catch (error) {
-    renderLoadError(`Data load issue: ${error.message}`);
-  }
-};
-
+function renderShell(next,previous){
+  const isCanvas=next.view==='canvas',isCollection=['grid','canvas'].includes(next.view);
+  document.body.classList.toggle('canvas-mode',isCanvas);
+  document.body.dataset.page=next.view;
+  const titles={grid:'What if art could expire?',rooms:'Colour rooms',process:'The process',exhibition:'Exhibition & performance',diary:'The diary',about:'The project',artists:'The artists',ledger:'Collection ledger',canvas:'Canvas'};
+  document.title=`BEST BEFORE — ${titles[next.view]||titles.grid}`;
+  $('#home-editorial').hidden=next.view!=='grid';$('#grid-pagination').hidden=isCanvas;
+  if(previous && previous!==next.view && next.view!=='grid')window.scrollTo(0,0);
+  $('#hero').hidden=next.view!=='grid';$('#diary-feature').hidden=next.view!=='grid';$('#information').dataset.view=next.view;$('#collection').hidden=!isCollection;$('#information').hidden=isCollection;
+  $('#grid').hidden=isCanvas;$('#canvas').hidden=!isCanvas;
+  $('.site-footer').hidden=isCanvas;
+  $('[data-nav="grid"]').classList.toggle('active',isCollection||next.view==='rooms');
+  for(const name of ['ledger','diary','process','exhibition'])$(`[data-nav="${name}"]`).classList.toggle('active',next.view===name);
+  document.querySelectorAll('[data-nav]').forEach(a=>{if(a.classList.contains('active'))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+  document.querySelectorAll('[data-view]').forEach(a=>{a.classList.toggle('active',a.dataset.view===next.view);a.setAttribute('aria-current',a.dataset.view===next.view?'page':'false');});
+  document.querySelectorAll('[data-status]').forEach(b=>{b.classList.toggle('active',b.dataset.status===next.status);b.setAttribute('aria-pressed',String(b.dataset.status===next.status));});
+  $('.status-filters').hidden=isCanvas;$('#sort-label').textContent=isCanvas?'Arrange by':'Sort by';
+  $('#sort-select').setAttribute('aria-label',isCanvas?'Arrange works':'Sort works');
+  $('#sort-select').innerHTML=(isCanvas?[['number','Number'],['palette','Palette'],['lifespan','Lifespan']]:[['number','Number'],['time','Time left'],['palette','Palette']]).map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
+  $('#sort-select').value=isCanvas?next.arrange:next.sort;
+}
+function renderCollection(next,previous,isCanvas){
+  if(next.view==='grid'){browseItems=grid.render(state.items,next);$('#result-count').textContent=`${browseItems.length} works`;if(previous&&previous!=='grid')window.scrollTo(0,gridScroll);}
+  if(isCanvas){browseItems=state.items;$('#result-count').textContent='420 works · drag to explore';if(canvasArrangement!==next.arrange+revision){board.render(state.items,next.arrange);canvasArrangement=next.arrange+revision;}}
+  board.setActive(isCanvas);
+}
+function renderInformation(next,previous,isCollection){
+  $('#information').classList.toggle('information--diary',next.view==='diary');
+  if(!isCollection && next.view!=='rooms')browseItems=state.items;
+  if(next.view==='rooms')browseItems=rooms.render(state.items,next.palette);
+  if(next.view==='process')$('#information').innerHTML=renderProcess(state.items);
+  if(next.view==='exhibition' && (previous!=='exhibition'||!$('#information').querySelector('.exhibition-page')))$('#information').innerHTML=renderExhibition();
+  if(next.view==='diary')renderDiary($('#information'),next.part);
+  if(next.view==='artists')$('#information').innerHTML=renderArtists();
+  if(next.view==='ledger')renderLedgerPage(previous);
+  if(next.view==='about')$('#information').innerHTML=`<span class="eyebrow">THE PROJECT</span><h1>Forever on-chain.<br>Only briefly alive.</h1><p>BEST BEFORE is a collection of 420 generative HTML works by Lemonhaze × Ordinally, inscribed on Bitcoin at 1800 × 3200 pixels. Each starts sealed. Activation reveals its palette and starts its lifespan, measured in Bitcoin blocks.</p><div class="about-states"><article><i class="sealed"></i><h2>Sealed</h2><p>A possibility, waiting to be opened.</p></article><article><i class="open"></i><h2>Open</h2><p>A living work. Every new block brings it closer to its end.</p></article><article><i class="expired"></i><h2>Expired</h2><p>The life is over. The inscription remains.</p></article><article><i class="immortal"></i><h2>Immortal</h2><p>The 0.69% exception. A life without a countdown.</p></article></div><a class="about-link" href="https://ord.net/collection/best-before-by-lemonhaze-x-ordinally" target="_blank" rel="noreferrer">Explore on Ord.net ↗</a>`;
+}
+function renderLedgerPage(previous){
+    const expanded=new Map(previous==='ledger'?[...$('#information').querySelectorAll('[data-ledger-section]')].map(el=>[el.dataset.ledgerSection,el.querySelector('details')?.open]):[]);
+    $('#information').innerHTML=renderLedger(state.analytics,state.items,{tip:state.tip,generatedAt:state.liveGeneratedAt,live:!!state.liveItems});
+    $('#information').querySelectorAll('[data-ledger-section]').forEach(el=>{if(expanded.has(el.dataset.ledgerSection))el.querySelector('details').open=expanded.get(el.dataset.ledgerSection);});
+}
+function adopt(feed,live=false){
+  state.items=normalizeItems(feed);state.liveItems=live?state.items:null;state.analytics=feed.analytics||state.analytics;state.liveGeneratedAt=feed.generated_at;state.tip=feed.tip;
+  const counts=Object.fromEntries(['open','sealed','expired','immortal'].map(p=>[p,state.items.filter(i=>phase(i)===p).length]));
+  $('#live-counts').innerHTML=Object.entries(counts).map(([p,n])=>`<span class="${p}"><i></i><b>${n}</b> ${p}</span>`).join('');
+  $('#chain-height').textContent=`BLOCK ${Number(feed.tip).toLocaleString()}`;
+  $('#feed-status').textContent=`${live?'Live feed':'Saved snapshot'} · updated ${new Date(feed.generated_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}`;
+  renderHomeWorks(state.items);
+  revision++;if(routing){routing.refresh();updateArtworkModal(state.items);}
+}
+$('.status-filters').addEventListener('click',e=>{const b=e.target.closest('[data-status]');if(b)routing.navigate(`#/grid?status=${b.dataset.status}&sort=${route.sort}`);});
+$('#sort-select').addEventListener('change',e=>routing.navigate(route.view==='canvas'?`#/canvas?arrange=${e.target.value}`:`#/grid?status=${route.status}&sort=${e.target.value}`));
+$('#information').addEventListener('click',e=>{const a=e.target.closest('a');const match=a?.getAttribute('href')?.match(/^\/(\d+)$/);if(match){e.preventDefault();routing.openWork(Number(match[1]));}});
+window.addEventListener('bb:modal-step',e=>{const current=Number(document.querySelector('.bb-modal-overlay')?.dataset.number);const index=browseItems.findIndex(i=>i.number===current);const next=browseItems[(index+e.detail.direction+browseItems.length)%browseItems.length];if(next)routing.openWork(next.number,{replace:true});});
+async function refreshLive(){
+  try{const response=await fetch('https://bestbefore.space/best-before.json',{signal:AbortSignal.timeout(12000)});if(!response.ok)throw new Error();const feed=await response.json();if(feed.inscriptions?.length!==420)throw new Error();if(feed.generated_at!==state.liveGeneratedAt)adopt(feed,true);else $('#feed-status').textContent=`Live feed · block ${Number(feed.tip).toLocaleString()}`;}
+  catch{$('#feed-status').textContent=`Saved snapshot · live feed unavailable · last update ${new Date(state.liveGeneratedAt).toLocaleString()}`;}
+}
+document.addEventListener('click',e=>{
+  const work=e.target.closest('[data-open-work]');if(work){routing.openWork(Number(work.dataset.openWork));return;}
+  const moment=e.target.closest('[data-exhibition-moment]');if(moment){const index=Number(moment.dataset.exhibitionMoment);$('#exhibition-moment').innerHTML=exhibitionMoment(index);document.querySelectorAll('[data-exhibition-moment]').forEach(b=>b.setAttribute('aria-pressed',String(b===moment)));studies.refresh();return;}
+  if(e.target.closest('.skip-link,[data-scroll-collection]')){e.preventDefault();if(route.view!=='grid')routing.navigate('#/grid');$('#collection').scrollIntoView({behavior:'smooth'});$('.collection-title h2').setAttribute('tabindex','-1');$('.collection-title h2').focus({preventScroll:true});}
+});
+async function boot(){
+  try{const[feed,manifest]=await Promise.all([loadJson('/data/collection.json'),loadJson('/data/thumbnail-manifest.json')]);setThumbnailManifest(manifest);adopt(feed);
+    routing=initCollectionRouting({render,open:number=>{const item=state.items.find(i=>i.number===number);if(item)openArtworkModal(item);else{$('#feed-status').textContent='That work could not be found. Showing the collection.';history.replaceState({},'','#/grid');render({...route,view:'grid',work:null});}},close:closeArtworkModal});
+    window.bbOpenItem=number=>{routing.openWork(number);return true;};
+    refreshLive();setInterval(()=>{if(!document.hidden)refreshLive();},60000);
+  }catch{$('#grid').innerHTML='<p class="empty-state">The collection could not be loaded. <button onclick="location.reload()">Try again</button></p>';}
+}
 boot();

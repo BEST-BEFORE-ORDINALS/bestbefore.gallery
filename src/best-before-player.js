@@ -6,13 +6,21 @@ function playerBridge(channel, token) {
     const send = (type, data = {}) => parent.postMessage({ channel, token, type, ...data }, '*');
     let active = null;
     let ready = false;
+    let visible = false;
     let previousPhase = null;
     const mime = ['video/mp4;codecs=avc1.640033', 'video/mp4'].find(type => globalThis.MediaRecorder?.isTypeSupported(type));
     const watch = setInterval(() => {
         const base = document.getElementById('artwork-canvas');
         const phase = typeof ACTIVE_PHASE === 'undefined' ? null : ACTIVE_PHASE;
         const rendering = typeof textureProgressing !== 'undefined' && textureProgressing;
-        if (!base || !phase || rendering) return;
+        if (!base || !phase) return;
+        // Reveal the original canvas while its progressive renderer is running.
+        // Export readiness still waits for the completed texture below.
+        if (!visible) {
+            visible = true;
+            send('drawing', { phase });
+        }
+        if (rendering) return;
         if (phase === 'OPEN' && (typeof glContext === 'undefined' || !glContext || textureDirty)) return;
         if (!ready || phase !== previousPhase) {
             ready = true;
@@ -156,10 +164,14 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, onClose 
     const receive = event => {
         const data = event.data;
         if (disposed || event.source !== frame.contentWindow || data?.channel !== CHANNEL || data?.token !== token) return;
+        if (data.type === 'drawing') {
+            viewport.classList.add('is-live');
+            status.textContent = 'Artwork taking shape…';
+        }
         if (data.type === 'ready') {
             ready = true; canRecord = data.canRecord;
             frame.style.visibility = 'visible';
-            viewport.classList.add('is-ready');
+            viewport.classList.add('is-live', 'is-ready');
             status.textContent = canRecord ? '1800 × 3200 · MP4' : data.phase === 'OPEN' ? 'MP4 recording unavailable in this browser' : 'Recording available for open artworks';
             update();
         }
@@ -211,7 +223,7 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, onClose 
             frame.src = 'about:blank';
             if (originalSandbox === null) frame.removeAttribute('sandbox'); else frame.setAttribute('sandbox', originalSandbox);
             if (originalStyle === null) frame.removeAttribute('style'); else frame.setAttribute('style', originalStyle);
-            viewport.classList.remove('bb-player-viewport', 'is-ready');
+            viewport.classList.remove('bb-player-viewport', 'is-live', 'is-ready');
             controls.replaceChildren();
         },
     };

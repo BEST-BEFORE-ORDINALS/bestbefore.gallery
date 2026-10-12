@@ -5,6 +5,7 @@ import { escapeHtml } from './state.js';
 const MINUTES_PER_BLOCK = 10;
 
 const toFiniteNumber = (value) => {
+  if (value === null || value === undefined || value === '') return null;
   const num = Number(value);
   return Number.isFinite(num) ? num : null;
 };
@@ -184,39 +185,14 @@ const resolveSupply = (analytics) => {
   return null;
 };
 
-const renderSupply = (analytics) => {
-  const supply = resolveSupply(analytics);
-  if (!supply) return '';
-
-  return `
-    <div class="bb-ledger-grid">
-      <div class="bb-ledger-card bb-ledger-card--hero">
-        <h3 class="bb-ledger-kpi-label">Total</h3>
-        <div class="bb-ledger-kpi-value">${formatNum(supply.total, '0')}</div>
-        <div class="bb-ledger-kpi-sub">Fixed Supply</div>
-      </div>
-
-      <div class="bb-ledger-card">
-        <h3 class="bb-ledger-kpi-label">OPEN</h3>
-        <div class="bb-ledger-kpi-value">${formatNum(supply.open, '0')}</div>
-      </div>
-
-      <div class="bb-ledger-card">
-        <h3 class="bb-ledger-kpi-label">SEALED</h3>
-        <div class="bb-ledger-kpi-value">${formatNum(supply.sealed, '0')}</div>
-      </div>
-
-      <div class="bb-ledger-card">
-        <h3 class="bb-ledger-kpi-label">EXPIRED</h3>
-        <div class="bb-ledger-kpi-value">${formatNum(supply.expired, '0')}</div>
-      </div>
-
-      <div class="bb-ledger-card bb-ledger-card--accent">
-        <h3 class="bb-ledger-kpi-label">Immortal (activated)</h3>
-        <div class="bb-ledger-kpi-value">${formatNum(supply.immortal, '0')}</div>
-      </div>
-    </div>
-  `;
+const renderSupply = (analytics, allItems) => {
+  const supply = allItems?.length ? allItems.reduce((counts,item)=>{
+    const status=item.immortal||item.block?.immortal?'immortal':normalizeStatus(item.status||item.phase);
+    if(status in counts)counts[status]++;return counts;
+  },{total:allItems.length,open:0,sealed:0,expired:0,immortal:0}) : resolveSupply(analytics);
+  if(!supply)return '';
+  const labels={open:'Living, with an expiry',sealed:'Waiting to begin',expired:'A life completed',immortal:'No final block'};
+  return `<section class="ledger-overview" aria-label="Collection at a glance"><div class="bb-ledger-grid"><div class="bb-ledger-card bb-ledger-card--hero"><span class="bb-ledger-kpi-label">The collection</span><strong class="bb-ledger-kpi-value">${formatNum(supply.total)}</strong><span class="bb-ledger-kpi-sub">Works · fixed supply</span></div>${Object.entries(labels).map(([status,label])=>`<a class="bb-ledger-card" href="#/grid?status=${status}" data-ledger-status="${status}"><span class="bb-ledger-kpi-label"><i class="${status}"></i>${status}<span aria-hidden="true">↗</span></span><strong class="bb-ledger-kpi-value">${formatNum(supply[status])}</strong><span class="bb-ledger-kpi-sub">${label}</span></a>`).join('')}</div><div class="ledger-life-strip" aria-hidden="true">${Object.keys(labels).map(status=>`<span class="${status}" style="flex:${Number(supply[status])||0}"></span>`).join('')}</div></section>`;
 };
 
 const renderLifetime = (lifetime) => {
@@ -248,8 +224,8 @@ const renderLifetime = (lifetime) => {
 
   return `
     <div class="bb-ledger-section" data-ledger-section="mortal-lifespan">
-      <details class="bb-ledger-collapsible--mobile">
-        <summary class="bb-ledger-collapsible__summary">Mortal Lifespan Profile</summary>
+      <details class="bb-ledger-collapsible--mobile" open>
+        <summary class="bb-ledger-collapsible__summary">Lifespan distribution</summary>
         <div class="bb-ledger-collapsible__body">
           <h3 class="bb-ledger-section-title">Mortal Lifespan Profile</h3>
           <div class="bb-ledger-inline-stats">
@@ -448,7 +424,7 @@ const renderWalletLeaderboards = (stats, allItems) => {
   return `
     <div class="bb-ledger-section" data-ledger-section="collector-showcase">
       <details class="bb-ledger-collapsible--mobile">
-        <summary class="bb-ledger-collapsible__summary">Collector Showcase</summary>
+        <summary class="bb-ledger-collapsible__summary">Collectors</summary>
         <div class="bb-ledger-collapsible__body">
           <h3 class="bb-ledger-section-title">Collector Showcase</h3>
           <div class="bb-ledger-boards-grid">
@@ -494,9 +470,9 @@ const renderHallOfFame = (analytics) => {
   };
 
   const cards = [
-    renderList('Top 5 Longest Mortal', analytics.top_longest, (item) => renderStackedDurationMetric(item.lifespan_blocks), 'Lifespan'),
-    renderList('Top 5 Shortest Mortal', analytics.top_shortest, (item) => renderStackedDurationMetric(item.lifespan_blocks), 'Lifespan'),
-    renderList('Next Expiry', analytics.next_expiries, (item) => renderStackedDurationMetric(item.remaining_blocks), 'Remaining'),
+    renderList('The longest lives', analytics.top_longest, (item) => renderStackedDurationMetric(item.lifespan_blocks), 'Lifespan'),
+    renderList('The shortest lives', analytics.top_shortest, (item) => renderStackedDurationMetric(item.lifespan_blocks), 'Lifespan'),
+    renderList('Approaching the last block', analytics.next_expiries, (item) => renderStackedDurationMetric(item.remaining_blocks), 'Remaining'),
     renderList('Immortals', analytics.immortals, (item) => renderBlockMetric(item.activation_block), 'Born (Block)'),
   ].filter(Boolean);
 
@@ -504,8 +480,8 @@ const renderHallOfFame = (analytics) => {
 
   return `
     <div class="bb-ledger-section" data-ledger-section="hall-of-fame">
-      <details class="bb-ledger-collapsible--mobile">
-        <summary class="bb-ledger-collapsible__summary">Hall of Fame</summary>
+      <details class="bb-ledger-collapsible--mobile" open>
+        <summary class="bb-ledger-collapsible__summary">Lifespans &amp; milestones</summary>
         <div class="bb-ledger-collapsible__body">
           <h3 class="bb-ledger-section-title">Hall of Fame</h3>
           <div class="bb-ledger-boards-grid bb-ledger-boards-grid--hall">
@@ -657,8 +633,8 @@ const renderActivationLog = (analytics, allItems) => {
 
   return `
     <div class="bb-ledger-section" data-ledger-section="activation-log">
-      <details class="bb-ledger-collapsible--mobile bb-ledger-collapsible--log">
-        <summary class="bb-ledger-collapsible__summary">Activation Log</summary>
+      <details class="bb-ledger-collapsible--mobile bb-ledger-collapsible--log" open>
+        <summary class="bb-ledger-collapsible__summary">Activation history</summary>
         <div class="bb-ledger-collapsible__body">
           <h3 class="bb-ledger-section-title">Activation Log</h3>
           <div class="bb-ledger-log-mobile">
@@ -708,56 +684,8 @@ const renderPaletteBadges = (palette) => {
 };
 
 export const renderLedger = (analytics, allItems, meta = {}) => {
-  if (!analytics) {
-    return `
-      <div class="bb-vault-section bb-ledger-container">
-        <header class="bb-ledger-header">
-          <h2>The Ledger</h2>
-          <p class="bb-ledger-subtitle">Connecting...</p>
-        </header>
-        <div class="bb-ledger-loading">
-          <p>Reading the chain...</p>
-        </div>
-      </div>
-    `;
-  }
-
-  const blockHeight = analytics.block_height ?? analytics.tip ?? meta.tip;
-  let blockLine = '';
-
-  if (toFiniteNumber(blockHeight) !== null) {
-    blockLine = `Block Height: ${formatNum(blockHeight, '—')}`;
-  }
-
-  const generatedAt = formatUtcTime(meta.generatedAt || meta.generated_at);
-  const updatedLine = generatedAt !== '—' ? `Updated: ${generatedAt}` : '';
-
-  if (!blockLine && !updatedLine) {
-    blockLine = 'On-chain records and analytics';
-  }
-
-  const subtitleMarkup = `
-    <p class="bb-ledger-subtitle">
-      ${blockLine ? `<span class="bb-ledger-subtitle-line">${escapeHtml(blockLine)}</span>` : ''}
-      ${updatedLine ? `<span class="bb-ledger-subtitle-line">${escapeHtml(updatedLine)}</span>` : ''}
-    </p>
-  `;
-
-  return `
-    <div class="bb-vault-section bb-ledger-container">
-      <header class="bb-ledger-header">
-        <h2>The Ledger</h2>
-        ${subtitleMarkup}
-      </header>
-
-      <div class="bb-ledger-content">
-        ${renderSupply(analytics)}
-        ${renderHallOfFame(analytics)}
-        ${renderWalletLeaderboards(analytics.wallet_stats, allItems)}
-        ${renderActivationLog(analytics, allItems)}
-        ${renderPalettes(analytics.palettes)}
-        ${renderLifetime(analytics.lifetime)}
-      </div>
-    </div>
-  `;
+  const records=analytics||{};
+  const blockHeight=records.block_height??records.tip??meta.tip;
+  const generatedAt=formatUtcTime(meta.generatedAt||meta.generated_at);
+  return `<div class="bb-ledger-container"><header class="editorial-heading bb-ledger-header"><span class="eyebrow">THE COLLECTION / IN NUMBERS</span><h1>The Ledger.</h1><div class="editorial-deck"><p>Every opening. Every ending.<br>A record of the lives within BEST BEFORE.</p><div class="ledger-clock"><span>${meta.live?'LIVE RECORD':'SAVED SNAPSHOT'}</span><strong>BLOCK ${formatNum(blockHeight)}</strong><small>${generatedAt==='—'?'Connecting to the live feed':`Updated ${escapeHtml(generatedAt)}`}</small></div></div></header><div class="bb-ledger-content">${renderSupply(records,allItems)}${!analytics?'<p class="ledger-feed-note">Showing the saved collection while the full ledger connects.</p>':''}${renderHallOfFame(records)}${renderWalletLeaderboards(records.wallet_stats,allItems)}${renderActivationLog(records,allItems)}${renderPalettes(records.palettes)}${renderLifetime(records.lifetime)}</div><div class="ledger-footnote"><p>Time estimates use an average of ten minutes per block.<br>Bitcoin blocks determine each work’s actual lifespan.</p><a class="text-link" href="#/grid">Return to the works <span aria-hidden="true">↗</span></a></div></div>`;
 };

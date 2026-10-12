@@ -70,15 +70,13 @@ export const state = {
 };
 
 export const ARTIST_BIO_LEMONHAZE = `
-Lemonhaze is a Montreal born and Puerto Escondido based self-taught artist who merges his background in music, entrepreneurship, and expressive writing into an explorative digital art journey.
+Lemonhaze is the artistic practice of Frédérick Nathaniel St-Louis (b. 1990), a Montréal-born, self-taught artist working between Montréal and Puerto Escondido.
 
-Continually experimenting with the tools of his time, such as - laptop, JavaScript, AI, and various digital drawing software - Lemonhaze craft moments with pixels.
+The work moves through images, textures, and writing. Black, ink-like marks recur across shifting grounds. Place, identity, and time keep returning: a city remembered, a figure changing, a work that ages on block time. Since 2023, Bitcoin has been the primary medium.
 
-His practice is iterative, spontaneous, and modular, touching a wide range of interests from journaling to physical mediums, while remaining anchored in the development of his personal code-based paint engine.
+He came to this from music and writing, outside art school. Code, drawing, and generative systems became the tools; the Paint Engines extend the same practice.
 
-His art acts both as a means of escape and as a tangible memento, often deeply personal - capturing fragments of lived experience, emotion, and time. With a deep appreciation for the lasting nature of the Bitcoin blockchain, he has chosen it as the foundation for his poetic and visual expressions.
-
-Lemonhaze's singular and offbeat journey as an artist, without the constraints of traditional art education or industry expectations - exudes a raw individuality, with each piece serving as a modest reflection of his evolving perspective and soul.
+The work is held by more than 100 collectors and has been shown internationally, including in Sotheby’s Contemporary Discoveries, New York (2025).
 `;
 
 export const ARTIST_BIO_ORDINALLY = `

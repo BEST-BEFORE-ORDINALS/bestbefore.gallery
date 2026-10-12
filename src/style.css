@@ -1,5 +1,5 @@
 @import "./best-before-player.css";
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 :root {
   --bg-0: #020202;
@@ -18,7 +18,7 @@
   --blur: 20px;
 
   /* Typography */
-  --font-display: 'Cormorant Garamond', serif;
+  --font-display: 'Space Grotesk', sans-serif;
   --font-ui: 'Space Grotesk', sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
@@ -799,7 +799,7 @@ h4,
 }
 
 .bb-about-hero__question {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-style: italic;
   font-size: clamp(1rem, 1.8vw, 1.2rem);
   font-weight: 300;
@@ -860,9 +860,9 @@ h4,
 
 /* ─── Living Text / Carpe Diem mechanic ────────────────────────────────────── */
 
-/* "BEST BEFORE" — italic Cormorant, all-caps brand title */
+/* "BEST BEFORE" — Space Grotesk, all-caps brand title */
 .bb-about-hero__title {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-style: italic;
   font-size: clamp(4rem, 11vw, 7.5rem);
   font-weight: 300;
@@ -1001,7 +1001,7 @@ h4,
 }
 
 .bb-quote {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-style: italic;
   font-size: clamp(0.85rem, 1.4vw, 1rem);
   font-weight: 300;
@@ -1186,7 +1186,7 @@ h4,
 
 .bb-statement__title {
   font-size: 1.42rem;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-style: italic;
   letter-spacing: 0.01em;
   line-height: 1.05;
@@ -3508,7 +3508,7 @@ body.bb-intro-exit .bb-intro {
   display: flex;
   flex-direction: column; grid-column:2; grid-row:2; width:auto; min-height:0; padding:38px 0 40px 30px; margin:0; gap:22px; border-left:1px solid #ffffff15; scrollbar-width:thin; scrollbar-color:#333 transparent; }
 .bb-modal__detail-title {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 400;
   color: #fff;
   margin: 0; font-size:32px; line-height:1.15; }
