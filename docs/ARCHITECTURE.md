@@ -101,3 +101,9 @@ existing authenticated message bridge, and restores the prior mode on return.
 Native fullscreen and the viewport fallback share the same layout. Portrait sizing
 uses both available dimensions; exhibition study scaling covers the exact frame
 content box, avoiding fractional-pixel gaps.
+
+SEALED and EXPIRED modal faces use a square viewport from the saved preview
+through the live renderer, including Solo and Exhibition. Their original
+responsive phase renderer receives 900 × 900, while living works keep 900 × 1600.
+The preview remains visible until the inactive phase bitmap exists, preventing
+a blank loading flash. Chain phase messages update presentation when necessary.

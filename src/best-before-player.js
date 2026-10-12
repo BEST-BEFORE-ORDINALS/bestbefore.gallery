@@ -14,6 +14,8 @@ function playerBridge(channel, token) {
         const phase = typeof ACTIVE_PHASE === 'undefined' ? null : ACTIVE_PHASE;
         const rendering = typeof textureProgressing !== 'undefined' && textureProgressing;
         if (!base || !phase) return;
+        // Keep the state preview visible until the responsive square face is painted.
+        if (phase !== 'OPEN' && (typeof PHASE_CACHE === 'undefined' || !PHASE_CACHE.bitmap || PHASE_CACHE.phase !== phase)) return;
         // Reveal the original canvas while its progressive renderer is running.
         // Export readiness still waits for the completed texture below.
         if (!visible) {
@@ -128,7 +130,7 @@ export function buildBestBeforeDocument(source, id, token) {
     return source.replace(/<\/body>/i, () => `<script>(${playerBridge.toString()})(${JSON.stringify(CHANNEL)},${JSON.stringify(token)});</script></body>`);
 }
 
-export function createBestBeforePlayer({ frame, viewport, controls, id, onClose = () => {} }) {
+export function createBestBeforePlayer({ frame, viewport, controls, id, initialPhase = 'OPEN', onPhase = () => {}, onClose = () => {} }) {
     const token = crypto.randomUUID();
     const abort = new AbortController();
     const number = Number(id.split('i').pop()) + 1;
@@ -137,6 +139,7 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, onClose 
     let canRecord = false;
     let busy = false;
     let exhibition = false;
+    let currentPhase = initialPhase.toUpperCase();
     const originalStyle = frame.getAttribute('style');
     const originalSandbox = frame.getAttribute('sandbox');
     controls.classList.add('bb-capture');
@@ -168,6 +171,11 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, onClose 
     const receive = event => {
         const data = event.data;
         if (disposed || event.source !== frame.contentWindow || data?.channel !== CHANNEL || data?.token !== token) return;
+        if (['drawing', 'ready'].includes(data.type)) {
+            currentPhase = data.phase;
+            onPhase(currentPhase);
+            resize();
+        }
         if (data.type === 'drawing') {
             send('exhibition', { enabled: exhibition });
             viewport.classList.add('is-live');
@@ -205,8 +213,9 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, onClose 
     document.addEventListener('keydown', keydown);
     const resize = () => {
         const box = viewport.getBoundingClientRect();
-        const scale = Math.max(box.width / 900, box.height / 1600);
-        frame.style.cssText = `position:absolute!important;width:900px!important;height:1600px!important;max-width:none!important;max-height:none!important;inset:auto!important;left:50%!important;top:50%!important;border:0;transform-origin:center;transform:translate(-50%,-50%) scale(${scale})!important;visibility:visible;`;
+        const height = ['SEALED', 'EXPIRED'].includes(currentPhase) ? 900 : 1600;
+        const scale = Math.max(box.width / 900, box.height / height);
+        frame.style.cssText = `position:absolute!important;width:900px!important;height:${height}px!important;max-width:none!important;max-height:none!important;inset:auto!important;left:50%!important;top:50%!important;border:0;transform-origin:center;transform:translate(-50%,-50%) scale(${scale})!important;visibility:visible;`;
     };
     frame.setAttribute('sandbox', 'allow-scripts allow-downloads');
     frame.removeAttribute('src');
