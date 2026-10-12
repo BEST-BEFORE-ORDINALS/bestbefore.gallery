@@ -25,6 +25,14 @@ function render(next){
   const key=JSON.stringify(next)+revision;if(key===renderKey)return;renderKey=key;
   if(previous==='grid'&&next.view!=='grid')gridScroll=window.scrollY;
   const isCanvas=next.view==='canvas',isCollection=['grid','canvas'].includes(next.view);
+  renderShell(next,previous);
+  renderCollection(next,previous,isCanvas);
+  renderInformation(next,previous,isCollection);
+  studies.refresh();
+}
+
+function renderShell(next,previous){
+  const isCanvas=next.view==='canvas',isCollection=['grid','canvas'].includes(next.view);
   document.body.classList.toggle('canvas-mode',isCanvas);
   document.body.dataset.page=next.view;
   const titles={grid:'What if art could expire?',rooms:'Colour rooms',process:'The process',exhibition:'Exhibition & performance',diary:'The diary',about:'The project',artists:'The artists',ledger:'Collection ledger',canvas:'Canvas'};
@@ -43,9 +51,13 @@ function render(next){
   $('#sort-select').setAttribute('aria-label',isCanvas?'Arrange works':'Sort works');
   $('#sort-select').innerHTML=(isCanvas?[['number','Number'],['palette','Palette'],['lifespan','Lifespan']]:[['number','Number'],['time','Time left'],['palette','Palette']]).map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
   $('#sort-select').value=isCanvas?next.arrange:next.sort;
+}
+function renderCollection(next,previous,isCanvas){
   if(next.view==='grid'){browseItems=grid.render(state.items,next);$('#result-count').textContent=`${browseItems.length} works`;if(previous&&previous!=='grid')window.scrollTo(0,gridScroll);}
   if(isCanvas){browseItems=state.items;$('#result-count').textContent='420 works · drag to explore';if(canvasArrangement!==next.arrange+revision){board.render(state.items,next.arrange);canvasArrangement=next.arrange+revision;}}
   board.setActive(isCanvas);
+}
+function renderInformation(next,previous,isCollection){
   $('#information').classList.toggle('information--diary',next.view==='diary');
   if(!isCollection && next.view!=='rooms')browseItems=state.items;
   if(next.view==='rooms')browseItems=rooms.render(state.items,next.palette);
@@ -53,13 +65,13 @@ function render(next){
   if(next.view==='exhibition' && (previous!=='exhibition'||!$('#information').querySelector('.exhibition-page')))$('#information').innerHTML=renderExhibition();
   if(next.view==='diary')renderDiary($('#information'),next.part);
   if(next.view==='artists')$('#information').innerHTML=renderArtists();
-  if(next.view==='ledger'){
+  if(next.view==='ledger')renderLedgerPage(previous);
+  if(next.view==='about')$('#information').innerHTML=`<span class="eyebrow">THE PROJECT</span><h1>Forever on-chain.<br>Only briefly alive.</h1><p>BEST BEFORE is a collection of 420 generative HTML works by Lemonhaze × Ordinally, inscribed on Bitcoin at 1800 × 3200 pixels. Each starts sealed. Activation reveals its palette and starts its lifespan, measured in Bitcoin blocks.</p><div class="about-states"><article><i class="sealed"></i><h2>Sealed</h2><p>A possibility, waiting to be opened.</p></article><article><i class="open"></i><h2>Open</h2><p>A living work. Every new block brings it closer to its end.</p></article><article><i class="expired"></i><h2>Expired</h2><p>The life is over. The inscription remains.</p></article><article><i class="immortal"></i><h2>Immortal</h2><p>The 0.69% exception. A life without a countdown.</p></article></div><a class="about-link" href="https://ord.net/collection/best-before-by-lemonhaze-x-ordinally" target="_blank" rel="noreferrer">Explore on Ord.net ↗</a>`;
+}
+function renderLedgerPage(previous){
     const expanded=new Map(previous==='ledger'?[...$('#information').querySelectorAll('[data-ledger-section]')].map(el=>[el.dataset.ledgerSection,el.querySelector('details')?.open]):[]);
     $('#information').innerHTML=renderLedger(state.analytics,state.items,{tip:state.tip,generatedAt:state.liveGeneratedAt,live:!!state.liveItems});
     $('#information').querySelectorAll('[data-ledger-section]').forEach(el=>{if(expanded.has(el.dataset.ledgerSection))el.querySelector('details').open=expanded.get(el.dataset.ledgerSection);});
-  }
-  if(next.view==='about')$('#information').innerHTML=`<span class="eyebrow">THE PROJECT</span><h1>Forever on-chain.<br>Only briefly alive.</h1><p>BEST BEFORE is a collection of 420 generative HTML works by Lemonhaze × Ordinally, inscribed on Bitcoin at 1800 × 3200 pixels. Each starts sealed. Activation reveals its palette and starts its lifespan, measured in Bitcoin blocks.</p><div class="about-states"><article><i class="sealed"></i><h2>Sealed</h2><p>A possibility, waiting to be opened.</p></article><article><i class="open"></i><h2>Open</h2><p>A living work. Every new block brings it closer to its end.</p></article><article><i class="expired"></i><h2>Expired</h2><p>The life is over. The inscription remains.</p></article><article><i class="immortal"></i><h2>Immortal</h2><p>The 0.69% exception. A life without a countdown.</p></article></div><a class="about-link" href="https://ord.net/collection/best-before-by-lemonhaze-x-ordinally" target="_blank" rel="noreferrer">Explore on Ord.net ↗</a>`;
-  studies.refresh();
 }
 function adopt(feed,live=false){
   state.items=normalizeItems(feed);state.liveItems=live?state.items:null;state.analytics=feed.analytics||state.analytics;state.liveGeneratedAt=feed.generated_at;state.tip=feed.tip;
