@@ -21,15 +21,29 @@ export const diaryDescriptions=[
   'The visual language of BEST BEFORE: conversations about colour, texture and painting with code.',
   'Individual thoughts and last logs from the making of BEST BEFORE, by Lemonhaze and Ordinally.',
 ];
+function workMetadata(item){
+  const palette=item.palette?.id;
+  return {
+    title:`BEST BEFORE Nº${item.number}${palette?` — ${palette}`:''}`,
+    description:`BEST BEFORE Nº${item.number}${palette?`, ${palette},`:':'} a generative HTML artwork by Lemonhaze × Ordinally, inscribed on Bitcoin. Watch the live work and explore its life in blocks.`,
+    path:`/work/${item.number}`,card:`work-${item.number}`,
+    imageAlt:`BEST BEFORE Nº${item.number}${palette?` — ${palette}`:''}, artwork preview`,
+  };
+}
+function sectionMetadata(route){
+  const view=route.view||'grid',part=route.part||0;
+  const [label,description]=sectionMeta[view]||sectionMeta.grid;
+  const meta={title:`BEST BEFORE — ${label}`,description,path:view==='grid'?'/':`/${view}`,card:view,imageAlt:`${label} — BEST BEFORE by Lemonhaze × Ordinally`};
+  if(view==='diary'){
+    meta.description=diaryDescriptions[part];
+    if(part){meta.title=`${diaryTitles[part]} — BEST BEFORE diary`;meta.path=`/diary/${part}`;meta.card=`diary-${part}`;}
+  }
+  return meta;
+}
 export function pageMetadata(route,items=[],origin='https://bestbefore.gallery') {
-  const item=items.find(i=>i.number===route.work),view=route.view||'grid';
-  const [label,sectionDescription]=sectionMeta[view]||sectionMeta.grid;
-  const description=view==='diary'?diaryDescriptions[route.part||0]:sectionDescription;
-  const part=route.part||0;
-  const path=item?`/work/${item.number}`:view==='grid'?'/':view==='diary'&&part?`/diary/${part}`:`/${view}`;
-  const title=item?`BEST BEFORE Nº${item.number}${item.palette?.id?` — ${item.palette.id}`:''}`:view==='diary'&&part?`${diaryTitles[part]} — BEST BEFORE diary`:`BEST BEFORE — ${label}`;
-  const card=item?`work-${item.number}`:view==='diary'&&part?`diary-${part}`:view;
-  return {title,description:item?`BEST BEFORE Nº${item.number}${item.palette?.id?`, ${item.palette.id},`:':'} a generative HTML artwork by Lemonhaze × Ordinally, inscribed on Bitcoin. Watch the live work and explore its life in blocks.`:description,path,url:origin+path,image:`${origin}/assets/social/${card}.jpg`,imageAlt:item?`BEST BEFORE Nº${item.number}${item.palette?.id?` — ${item.palette.id}`:''}, artwork preview`:`${label} — BEST BEFORE by Lemonhaze × Ordinally`,noindex:view==='canvas',item};
+  const item=items.find(i=>i.number===route.work);
+  const meta=item?workMetadata(item):sectionMetadata(route);
+  return {...meta,url:origin+meta.path,image:`${origin}/assets/social/${meta.card}.jpg`,noindex:route.view==='canvas',item};
 }
 export function structuredData(meta){
   const creators=[{'@type':'Person',name:'Lemonhaze',url:'https://lemonhaze.com'},{'@type':'Person',name:'Ordinally'}];

@@ -8,7 +8,9 @@ export function parseCollectionRoute(hash) {
   if(diaryPart)path='/diary';
   const params=new URLSearchParams(query);
   const work=/^\/work\/(\d+)$/.exec(path);
-  return { view:path==='/artists'?'artists':path==='/rooms'?'rooms':path==='/process'?'process':path==='/exhibition'?'exhibition':path==='/canvas'?'canvas':path==='/diary'?'diary':path==='/ledger'?'ledger':path==='/about'?'about':'grid',
+  const views=['artists','rooms','process','exhibition','canvas','diary','ledger','about'];
+  const view=valid(path.slice(1),views,'grid');
+  return { view,
     work:work?Number(work[1]):null,
     status:valid(params.get('status'),['all','open','sealed','expired','immortal'],'all'),
     sort:valid(params.get('sort'),['number','time','palette'],'number'),
