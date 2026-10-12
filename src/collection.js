@@ -12,7 +12,14 @@ export const imageName = item => ['sealed', 'expired'].includes(item.status) ? i
 let thumbnails = new Set();
 export const setThumbnailManifest = names => { thumbnails = new Set(names); };
 export const thumbnail = (item, width = 400) => thumbnails.has(imageName(item)) ? `/assets/thumbs/${imageName(item)}-${width}.webp` : `https://bestbefore.space/images/${imageName(item)}_800.webp`;
-export const imageMarkup = (item, sizes = '(max-width: 600px) 45vw, (max-width: 1000px) 30vw, 16vw', eager = false) => `<img src="${thumbnail(item, 200)}" srcset="${[200,400,800].map(w=>`${thumbnail(item,w)} ${w}w`).join(', ')}" sizes="${sizes}" width="800" height="1422" loading="${eager ? 'eager' : 'lazy'}" decoding="async" alt="BEST BEFORE Nº${item.number}${item.palette?.id ? ` — ${escapeHtml(item.palette.id)}` : ` — ${phase(item)}`}" />`;
+export const previewMarkup = (name, sizes, alt, eager=false, local=true) => {
+  const url=(w,ext)=>`/assets/${ext==='avif'?'previews':'thumbs'}/${name}-${w}.${ext}`;
+  const fallback=local?url(200,'webp'):`https://bestbefore.space/images/${name}_800.webp`;
+  const source=local?`<source type="image/avif" srcset="${[200,400,600,800].map(w=>`${url(w,'avif')} ${w}w`).join(', ')}" sizes="${sizes}"/>`:'';
+  const srcset=local?` srcset="${[200,400,800].map(w=>`${url(w,'webp')} ${w}w`).join(', ')}" sizes="${sizes}"`:'';
+  return `<picture>${source}<img src="${fallback}"${srcset} width="800" height="1422" loading="${eager?'eager':'lazy'}" decoding="async" alt="${escapeHtml(alt)}"/></picture>`;
+};
+export const imageMarkup = (item, sizes = '(max-width: 600px) 45vw, (max-width: 1000px) 30vw, 16vw', eager = false) => previewMarkup(imageName(item),sizes,`BEST BEFORE Nº${item.number} — ${item.palette?.id||phase(item)}`,eager,thumbnails.has(imageName(item)));
 export const timeLeft = item => {
   if (phase(item) === 'immortal') return 'No expiry';
   if (item.status === 'sealed') return 'Awaiting activation';

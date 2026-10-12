@@ -90,6 +90,7 @@ function playerBridge(channel, token) {
         const { type, seconds, filename } = event.data;
         if (type === 'record') void record(seconds);
         if (type === 'cancel') cancel();
+        if (type === 'exhibition') document.documentElement.classList.toggle('exhibition-display', !!event.data.enabled);
         if (type === 'save' && ready && !active) {
             try { await saveFullArtwork({ fileName: filename }); }
             catch { send('error', { message: 'Unable to save PNG. Please try again.' }); }
@@ -115,6 +116,7 @@ export function buildBestBeforeDocument(source, id, token) {
     const url = `${CHAIN_ORIGIN}/content/${id}`;
     const setup = `<base href="${url}"><style>
         html,body { background: transparent !important; }
+        html.exhibition-display #artwork-wrapper > :not(canvas) { display:none !important; }
         #artwork-wrapper { transform: none !important; position: absolute !important; inset: 0 !important; width:100% !important; height:100% !important; }
         #artwork-canvas,#gl-layer { left:0 !important; top:0 !important; width:100% !important; height:100% !important; border:0 !important; }
     </style><script>
@@ -133,6 +135,7 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, onClose 
     let ready = false;
     let canRecord = false;
     let busy = false;
+    let exhibition = false;
     const originalStyle = frame.getAttribute('style');
     const originalSandbox = frame.getAttribute('sandbox');
     controls.classList.add('bb-capture');
@@ -165,6 +168,7 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, onClose 
         const data = event.data;
         if (disposed || event.source !== frame.contentWindow || data?.channel !== CHANNEL || data?.token !== token) return;
         if (data.type === 'drawing') {
+            send('exhibition', { enabled: exhibition });
             viewport.classList.add('is-live');
             status.textContent = 'Artwork taking shape…';
         }
@@ -199,7 +203,8 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, onClose 
     };
     document.addEventListener('keydown', keydown);
     const resize = () => {
-        const scale = viewport.getBoundingClientRect().width / 900;
+        const box = viewport.getBoundingClientRect();
+        const scale = Math.max(box.width / 900, box.height / 1600);
         frame.style.cssText = `position:absolute!important;width:900px!important;height:1600px!important;max-width:none!important;max-height:none!important;inset:auto!important;left:50%!important;top:50%!important;border:0;transform-origin:center;transform:translate(-50%,-50%) scale(${scale})!important;visibility:visible;`;
     };
     frame.setAttribute('sandbox', 'allow-scripts allow-downloads');
@@ -214,6 +219,7 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, onClose 
     }).catch(error => { if (!disposed) status.textContent = error.message; });
     return {
         savePNG,
+        setExhibition(enabled) { exhibition=enabled; send('exhibition', { enabled }); },
         destroy() {
             disposed = true; abort.abort(); send('cancel');
             observer.disconnect();

@@ -35,6 +35,11 @@ test('all current preview tiers exist and fit the image budget',()=>{
   for(const name of names)for(const size of [96,200,400,800])assert.ok(statSync(new URL(`${name}-${size}.webp`,root)).size<=300000);
   assert.ok(statSync(new URL('../public/assets/social-preview.png',import.meta.url)).size<500000);
   assert.equal(readdirSync(root).length,names.length*4);
+  const avif=new URL('../public/assets/previews/',import.meta.url);
+  for(const name of names)for(const width of [200,400,600,800]){
+    assert.ok(statSync(new URL(`${name}-${width}.avif`,avif)).size<=300000);
+  }
+  assert.equal(readdirSync(avif).length,names.length*4);
 });
 
 test('diary routes support all six chapters and validate the part query',()=>{

@@ -64,7 +64,10 @@ export function createLiveStudies(getItems) {
     entry.frame=frame;entry.abort=abort;
     entry.root.classList.add('is-loading');entry.root.append(frame);
     const fit=()=>{
-      const scale=entry.root.clientWidth/900;
+      const box=entry.root.getBoundingClientRect(),style=getComputedStyle(entry.root);
+      const w=box.width-parseFloat(style.borderLeftWidth)-parseFloat(style.borderRightWidth);
+      const h=box.height-parseFloat(style.borderTopWidth)-parseFloat(style.borderBottomWidth);
+      const scale=Math.max(w/900,h/1600);
       frame.style.transform=`translate(-50%,-50%) scale(${scale})`;
     };
     entry.resize=new ResizeObserver(fit);entry.resize.observe(entry.root);fit();

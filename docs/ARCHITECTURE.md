@@ -77,7 +77,7 @@ Canonical paths include:
 - `/ledger/<section>`
 - `/<number>` for direct artwork/card opens
 
-`public/_redirects` rewrites all paths to `index.html` so Cloudflare Pages can serve the SPA correctly.
+`public/_redirects` preserves known historic work, diary and artist links with explicit redirects to the current hash routes. Unknown URLs receive the static 404 page instead of the gallery shell.
 
 ## Data Boundaries
 
@@ -214,3 +214,18 @@ resized without reloading; native Fullscreen API is used when available, with a
 viewport overlay fallback on unsupported browsers. Return/Escape restores the
 study and scroll position. The overlay keeps keyboard focus in its controls.
 Solo view reserves separate vertical space for its caption and Show details.
+
+
+### Mobile image and exhibition refinement
+
+Collection previews use AVIF picture sources with WebP fallbacks and a 600px
+intermediate tier for high-density screens. `scripts/prepare-avif.mjs` generates
+the committed files. Decorative diagonal arrows are SVGs, independent of mobile
+emoji fonts. See `SEO-AUDIT.md` for technical search findings and measurements.
+
+`modal-exhibition.js` adds a framed fullscreen presentation from both Details and
+Solo. It preserves the current live iframe, hides only its display HUD through the
+existing authenticated message bridge, and restores the prior mode on return.
+Native fullscreen and the viewport fallback share the same layout. Portrait sizing
+uses both available dimensions; exhibition study scaling covers the exact frame
+content box, avoiding fractional-pixel gaps.
