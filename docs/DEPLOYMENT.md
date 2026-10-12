@@ -57,8 +57,8 @@ npx wrangler whoami
 Then deploy:
 
 ```bash
-npm run verify
-npx wrangler pages deploy dist --project-name=best-before
+SITE_URL=https://bestbefore.gallery npm run verify
+npx wrangler pages deploy dist --project-name=best-before --branch=main
 ```
 
 ## Routing
@@ -73,3 +73,26 @@ npx wrangler pages deploy dist --project-name=best-before
 
 - This repo is static-only today; there are no Pages Functions to deploy.
 - The local `dist/` folder is build output and should not be treated as source of truth.
+
+## Grid/canvas preview branch
+
+The redesign received visual approval for production on October 12, 2026.
+Use the explicit production command above for approved releases; use the preview
+branch below when reviewing further visual changes.
+The existing Pages domain is `best-before-ctf.pages.dev`.
+
+```sh
+SITE_URL=https://preview-grid-canvas-redesign.best-before-ctf.pages.dev SITE_URL=https://bestbefore.gallery npm run verify
+npx wrangler pages deploy dist --project-name=best-before --branch=main --branch=preview-grid-canvas-redesign
+```
+
+`SITE_URL` sets absolute Open Graph and Twitter card URLs at build time so the
+preview card uses the preview's compressed image. It defaults to the production
+origin for production builds. No merge is necessary for a direct
+Pages preview deployment. Use the returned deployment URL to verify the output.
+
+Validation covers all 420 identities, exclusive statuses, URL parsing, image
+budgets and cursor zoom invariants, alongside the existing repository checks.
+Browser QA must also cover history/scroll restoration, touch gestures, exports,
+and both desktop and mobile layouts. Lighthouse results are measurements of the
+specific browser run, not a guarantee for every device or network.

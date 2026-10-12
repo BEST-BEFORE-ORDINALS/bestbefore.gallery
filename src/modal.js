@@ -2,6 +2,7 @@
 
 import { statusLabel, numberFormat, escapeHtml } from './state.js';
 import { createBestBeforePlayer } from './best-before-player.js';
+import { imageMarkup, phase, statusChip, timeLeft } from './collection.js';
 
 /** @type {() => void} */
 let _restartMotionTimers;
@@ -264,178 +265,76 @@ const buildModalMetadataRowsHtml = (item, status, block) => {
           ${buildModalActivationTimestampRowHtml(item)}`;
 };
 
-const buildModalMarkup = ({
-    item,
-    status,
-    badgeClass,
-    badgeLabel,
-    paletteHtml,
-    signatureHtml,
-    artworkMediaHtml,
-    lifespanHtml,
-    metadataRowsHtml,
-    truncAddr,
-}) => `
-    <div class="bb-modal" id="bbArtworkModal" role="dialog" aria-modal="true" aria-label="Artwork viewer">
-      <header class="bb-modal__bar">
-      <span class="bb-modal__viewer-title">${escapeHtml(item.name)}</span>
-      <div class="bb-modal__toggle">
-        <button class="bb-modal__toggle-btn" data-modal-view="solo" aria-pressed="false" type="button">Solo</button>
-        <button class="bb-modal__toggle-btn is-active" data-modal-view="details" aria-pressed="true" type="button">Details</button>
-      </div>
-      <button class="bb-modal__close" type="button" aria-label="Close modal">&times;</button>
-      </header>
-      <div class="bb-modal__stage">
-
-      <div class="bb-modal__artwork">
-        ${artworkMediaHtml}
-      </div>
-
-      </div>
-      <div class="bb-modal__details">
-        <div>
-          <h2 class="bb-modal__detail-title">${escapeHtml(item.name)}</h2>
-          <p class="bb-modal__detail-edition">Edition ${item.number || '?'} / 420</p>
-        </div>
-
-        <div class="bb-modal__detail-status">
-          <span class="bb-modal__status-badge ${badgeClass}">${badgeLabel}</span>
-        </div>
-
-        ${paletteHtml}
-        ${signatureHtml}
-        <div class="bb-modal__capture"></div>
-
-        <hr class="bb-modal__detail-divider" />
-
-        <div class="bb-modal__data-grid">
-          ${lifespanHtml}
-        </div>
-
-        <hr class="bb-modal__detail-divider" />
-
-        <div class="bb-modal__data-grid">
-          ${metadataRowsHtml}
-        </div>
-
-        <hr class="bb-modal__detail-divider" />
-
-        <div>
-          <span class="bb-modal__data-label">Owner</span>
-          <p class="bb-modal__address">${escapeHtml(truncAddr)}</p>
-        </div>
-
-        ${item.ordinalsUrl ? `<a class="bb-modal__ext-link" href="${item.ordinalsUrl}" target="_blank" rel="noreferrer">View on Ordinals &rarr;</a>` : ''}
-      </div>
-    </div>
-  `;
-
-export const closeArtworkModal = () => {
-    const overlay = document.querySelector('.bb-modal-overlay');
-    if (!overlay) return;
-    if (overlay.dataset.closing === '1') return;
-    overlay.dataset.closing = '1';
-    overlay._artworkFrame?.destroy();
-
-    if (overlay._escHandler) {
-        document.removeEventListener('keydown', overlay._escHandler);
-    }
-
-    overlay.classList.remove('is-active');
-
-    setTimeout(() => {
-        const iframe = overlay.querySelector('iframe');
-        if (iframe) iframe.src = 'about:blank';
-        overlay.remove();
-    }, 450);
-
-    document.body.style.overflow = '';
-    window.dispatchEvent(new CustomEvent('bb:modal-close'));
-
-    if (_restartMotionTimers) _restartMotionTimers();
+const countdownMarkup = item => {
+    const b=item.block||{}, p=phase(item);
+    const value=p==='immortal'?'∞':p==='sealed'?'Not yet':p==='expired'?'0':numberFormat.format(b.remaining??0);
+    const progress=b.lifespan?Math.max(0,Math.min(100,100*(b.remaining||0)/b.lifespan)):p==='immortal'?100:0;
+    return `<span class="countdown-label">${p==='sealed'?'Waiting to begin':p==='immortal'?'Beyond time':p==='expired'?'The countdown is over':'Expires in'}</span><div class="countdown-number">${value} <small>${['open','expired'].includes(p)?'blocks':''}</small></div><div class="countdown-track"><i style="width:${progress}%"></i></div><span class="countdown-note">${timeLeft(item)}${p==='open'?` · ${(100-progress).toFixed(1)}% of life used`:''}</span>`;
 };
-
-export const openArtworkModal = (item) => {
-    if (_stopMotionTimers) _stopMotionTimers();
-
-    const existing = document.querySelector('.bb-modal-overlay');
-    if (existing) {
-        existing._artworkFrame?.destroy();
-        if (existing._escHandler) document.removeEventListener('keydown', existing._escHandler);
-        existing.remove();
-    }
-
-    const block = item.block || {};
-    const status = (item.status || 'unknown').toLowerCase();
-    const badgeClass = block.immortal ? 'is-immortal' : `is-${status}`;
-    const badgeLabel = block.immortal ? 'IMMORTAL' : statusLabel[status] || status.toUpperCase();
-    const paletteHtml = buildModalPaletteHtml(item);
-    const signatureHtml = buildModalSignatureHtml(getModalSignatureDisplay(item));
-    const artworkMediaHtml = buildModalArtworkMediaHtml(item);
-    const lifespanHtml = buildModalLifespanHtml(status, block);
-    const metadataRowsHtml = buildModalMetadataRowsHtml(item, status, block);
-    const truncAddr = truncateValue(item.address, 10, 8);
-
-    const overlay = document.createElement('div');
-    overlay.className = 'bb-modal-overlay';
-    overlay.innerHTML = buildModalMarkup({
-        item,
-        status,
-        badgeClass,
-        badgeLabel,
-        paletteHtml,
-        signatureHtml,
-        artworkMediaHtml,
-        lifespanHtml,
-        metadataRowsHtml,
-        truncAddr,
-    });
-
-    document.body.appendChild(overlay);
-    const frame = overlay.querySelector('.bb-modal__iframe');
-    if (frame) {
-        overlay._artworkFrame = createBestBeforePlayer({
-            frame, viewport: overlay.querySelector('.bb-modal__artwork'),
-            controls: overlay.querySelector('.bb-modal__capture'), id: item.id, onClose: closeArtworkModal,
-        });
-    }
-
-    requestAnimationFrame(() => {
-        overlay.classList.add('is-active');
-    });
-
-    document.body.style.overflow = 'hidden';
-    window.dispatchEvent(new CustomEvent('bb:modal-open', {
-        detail: {
-            number: item?.number ?? null,
-            id: item?.id ?? null,
-        },
-    }));
-
-    overlay.querySelector('.bb-modal__close').addEventListener('click', closeArtworkModal);
-
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) closeArtworkModal();
-    });
-
-    const escHandler = (e) => {
-        if (e.key === 'Escape') {
-            closeArtworkModal();
-            document.removeEventListener('keydown', escHandler);
-        }
+export const updateArtworkModal = items => {
+    const overlay=document.querySelector('.bb-modal-overlay');if(!overlay)return;
+    const item=items.find(i=>i.number===Number(overlay.dataset.number));if(!item)return;
+    overlay.querySelector('.countdown').innerHTML=countdownMarkup(item);
+    overlay.querySelector('.modal-status').innerHTML=statusChip(item);
+};
+export const closeArtworkModal = () => {
+    const overlay=document.querySelector('.bb-modal-overlay');if(!overlay)return;
+    overlay._artworkFrame?.destroy();overlay._cleanup?.();overlay.remove();
+    document.body.style.overflow='';document.querySelector('#app').inert=false;
+    overlay._returnFocus?.focus({preventScroll:true});
+    window.dispatchEvent(new CustomEvent('bb:modal-close'));
+    _restartMotionTimers?.();
+};
+export const openArtworkModal = item => {
+    const existing=document.querySelector('.bb-modal-overlay');
+    if(existing?.dataset.number===String(item.number))return;
+    const returnFocus=existing?existing._returnFocus:document.activeElement;
+    existing?._artworkFrame?.destroy();existing?._cleanup?.();existing?.remove();
+    _stopMotionTimers?.();
+    const overlay=document.createElement('div');overlay.className='bb-modal-overlay';overlay.dataset.number=item.number;overlay._returnFocus=returnFocus;
+    const b=item.block||{};
+    const colors=(item.palette?.colors||[]).filter(c=>/^#[0-9a-f]{3,8}$/i.test(c));
+    overlay.innerHTML=`<div class="bb-modal" id="bbArtworkModal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="bb-modal__close" aria-label="Close artwork">×</button>
+      <div class="bb-modal__stage"><span class="modal-edition">BEST BEFORE / ${String(item.number).padStart(3,'0')}</span>
+        <button class="modal-prev" type="button" aria-label="Previous artwork"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="m15 6-6 6 6 6"/></svg></button>
+        <div class="bb-modal__artwork">${imageMarkup(item,'(max-width: 700px) 85vw, 40vw',true)}<iframe class="bb-modal__iframe" title="${escapeHtml(item.name)} — Live artwork" sandbox="allow-scripts allow-downloads"></iframe></div>
+        <button class="modal-next" type="button" aria-label="Next artwork"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="m9 6 6 6-6 6"/></svg></button>
+        <span class="modal-media-note">GENERATIVE HTML · 1800 × 3200 · BITCOIN</span>
+      </div>
+      <aside class="bb-modal__details">
+        <div class="modal-status">${statusChip(item)}</div>
+        <h2 id="modal-title">BEST BEFORE Nº${item.number}</h2>
+        <p class="modal-credit">${escapeHtml(item.palette?.id||'Unrevealed')} · Lemonhaze × Ordinally</p>
+        <div class="modal-swatches" aria-label="Artwork palette">${colors.map(c=>`<span style="background:${c}" title="${c}"></span>`).join('')}</div>
+        <div class="countdown" aria-live="polite">${countdownMarkup(item)}</div>
+        <dl class="modal-metadata"><div><dt>OPENED</dt><dd>${b.activation?`Block ${numberFormat.format(b.activation)}`:'Awaiting activation'}</dd></div><div><dt>EXPIRES</dt><dd>${b.immortal?'Never':b.expiry?`Block ${numberFormat.format(b.expiry)}`:'Unrevealed'}</dd></div><div><dt>FORMAT</dt><dd>HTML · 1800 × 3200</dd></div><div><dt>INSCRIPTION</dt><dd><a href="${item.ordinalsUrl}" target="_blank" rel="noreferrer">ordinals.com ↗</a></dd></div></dl>
+        <div class="modal-actions"><div class="bb-modal__capture"></div><div class="modal-secondary"><button data-solo aria-pressed="false">Solo view</button><a href="https://ord.net/collection/best-before-by-lemonhaze-x-ordinally" target="_blank" rel="noreferrer">Ord.net ↗</a></div><p class="modal-shortcuts">← → browse · S save · Esc close</p></div>
+      </aside>
+    </div>`;
+    document.body.append(overlay);document.body.style.overflow='hidden';document.querySelector('#app').inert=true;
+    const step=direction=>window.dispatchEvent(new CustomEvent('bb:modal-step',{detail:{direction}}));
+    overlay.querySelector('.bb-modal__close').onclick=closeArtworkModal;
+    overlay.querySelector('.modal-prev').onclick=()=>step(-1);overlay.querySelector('.modal-next').onclick=()=>step(1);
+    overlay.addEventListener('click',e=>{if(e.target===overlay)closeArtworkModal();});
+    overlay.querySelector('[data-solo]').onclick=e=>{const solo=overlay.querySelector('.bb-modal').classList.toggle('is-solo');e.target.setAttribute('aria-pressed',String(solo));e.target.textContent=solo?'Show details':'Solo view';};
+    const key=e=>{
+      if(e.key==='Escape')closeArtworkModal();
+      if(!/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)){
+        if(e.key==='ArrowLeft'){e.preventDefault();step(-1);}if(e.key==='ArrowRight'){e.preventDefault();step(1);}
+      }
+      if(e.key==='Tab'){
+        const focusable=[...overlay.querySelectorAll('button:not(:disabled),a,select:not(:disabled)')].filter(el=>el.getClientRects().length);
+        const first=focusable[0],last=focusable.at(-1);
+        if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+        else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+      }
     };
-    document.addEventListener('keydown', escHandler);
-    overlay._escHandler = escHandler;
-
-    overlay.querySelectorAll('[data-modal-view]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const modal = document.querySelector('#bbArtworkModal');
-            const view = btn.dataset.modalView;
-            modal.classList.toggle('is-solo', view === 'solo');
-            overlay.querySelectorAll('[data-modal-view]').forEach(b => {
-                b.classList.toggle('is-active', b.dataset.modalView === view);
-                b.setAttribute('aria-pressed', String(b.dataset.modalView === view));
-            });
-        });
-    });
+    document.addEventListener('keydown',key);overlay._cleanup=()=>document.removeEventListener('keydown',key);
+    let touch;
+    const stage=overlay.querySelector('.bb-modal__stage');
+    stage.addEventListener('touchstart',e=>{if(e.touches.length===1)touch={x:e.touches[0].clientX,y:e.touches[0].clientY};},{passive:true});
+    stage.addEventListener('touchend',e=>{if(!touch)return;const dx=e.changedTouches[0].clientX-touch.x,dy=e.changedTouches[0].clientY-touch.y;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.5)step(dx<0?1:-1);touch=null;},{passive:true});
+    overlay._artworkFrame=createBestBeforePlayer({frame:overlay.querySelector('iframe'),viewport:overlay.querySelector('.bb-modal__artwork'),controls:overlay.querySelector('.bb-modal__capture'),id:item.id,onClose:closeArtworkModal});
+    overlay.querySelector('.bb-modal__close').focus({preventScroll:true});
 };
