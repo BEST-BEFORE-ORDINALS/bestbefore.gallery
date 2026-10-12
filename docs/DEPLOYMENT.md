@@ -63,11 +63,10 @@ npx wrangler pages deploy dist --project-name=best-before --branch=main
 
 ## Routing
 
-`public/_redirects` ensures Cloudflare Pages rewrites route requests to the SPA entrypoint:
-
-```text
-/* /index.html 200
-```
+Hash routes are served from the root document. `public/_redirects` redirects known
+historic work paths (`/1`–`/420`), diary chapters and `/artists` to their current
+routes. Unknown URLs and missing assets receive the static `404.html` response,
+rather than returning the gallery HTML with status 200.
 
 ## Operational Notes
 
@@ -82,8 +81,8 @@ branch below when reviewing further visual changes.
 The existing Pages domain is `best-before-ctf.pages.dev`.
 
 ```sh
-SITE_URL=https://preview-grid-canvas-redesign.best-before-ctf.pages.dev SITE_URL=https://bestbefore.gallery npm run verify
-npx wrangler pages deploy dist --project-name=best-before --branch=main --branch=preview-grid-canvas-redesign
+SITE_URL=https://preview-grid-canvas-redesign.best-before-ctf.pages.dev npm run verify
+npx wrangler pages deploy dist --project-name=best-before --branch=preview-grid-canvas-redesign
 ```
 
 `SITE_URL` sets absolute Open Graph and Twitter card URLs at build time so the

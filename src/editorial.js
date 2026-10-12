@@ -1,7 +1,7 @@
 import { escapeHtml, ARTIST_BIO_LEMONHAZE, ARTIST_BIO_ORDINALLY } from './state.js';
 import { imageMarkup, statusChip, timeLeft } from './collection.js';
 
-const arrow = '<span aria-hidden="true">↗</span>';
+const arrow = '<span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 19 19 5M5 5h14v14"/></svg></span>';
 const link = (href, label) => `<a class="text-link" href="${href}">${label}${arrow}</a>`;
 const findWork = (items, number) => items.find(item => item.number === number);
 const work = (items, number, className = '') => {
@@ -51,7 +51,7 @@ export function renderExhibition() {
     ${editorialNext('THE COLLECTION', 'Which life will you spend time with?', '#/grid')}
   </div>`;
 }
-function editorialNext(label,title,href){return `<a class="editorial-next" href="${href}"><span class="eyebrow">${label}</span><span>${title}</span><span aria-hidden="true">↗</span></a>`;}
+function editorialNext(label,title,href){return `<a class="editorial-next" href="${href}"><span class="eyebrow">${label}</span><span>${title}</span><span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a>`;}
 
 export function renderArtists() {
   const bio = text => text.trim().split(/\n\s*\n/).map(p=>`<p>${escapeHtml(p)}</p>`).join('');

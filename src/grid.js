@@ -4,7 +4,7 @@ export function createGrid(root, open, pagination) {
   const initialLimit=12;
   let filtered=[], limit=initialLimit, key='';
   const card = (item) => `<button class="work-card" data-work="${item.number}">
-    <div class="work-card__image ${item.status}">${imageMarkup(item,'(max-width: 700px) 44vw, (max-width: 1100px) 23vw, 15vw')}<span class="work-card__enter" aria-hidden="true">↗</span></div>
+    <div class="work-card__image ${item.status}">${imageMarkup(item,'(max-width: 700px) 44vw, (max-width: 1100px) 23vw, 15vw')}<span class="work-card__enter" aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 19 19 5M5 5h14v14"/></svg></span></div>
     <div class="work-card__heading"><span>Nº ${numberLabel(item.number)}</span>${statusChip(item)}</div>
     <div class="work-card__caption"><span>${escapeHtml(item.palette?.id || (item.status === 'sealed' ? 'Unrevealed' : 'Expired'))}</span><span>${timeLeft(item)}</span></div>
   </button>`;

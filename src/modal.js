@@ -1,6 +1,7 @@
 /* ═══ Artwork Modal — Live from Chain ═══ */
 
 import { statusLabel, numberFormat, escapeHtml } from './state.js';
+import { connectModalExhibition } from './modal-exhibition.js';
 import { createBestBeforePlayer } from './best-before-player.js';
 import { imageMarkup, phase, statusChip, timeLeft } from './collection.js';
 
@@ -308,8 +309,8 @@ export const openArtworkModal = item => {
         <p class="modal-credit">${escapeHtml(item.palette?.id||'Unrevealed')} · Lemonhaze × Ordinally</p>
         <div class="modal-swatches" aria-label="Artwork palette">${colors.map(c=>`<span style="background:${c}" title="${c}"></span>`).join('')}</div>
         <div class="countdown" aria-live="polite">${countdownMarkup(item)}</div>
-        <dl class="modal-metadata"><div><dt>OPENED</dt><dd>${b.activation?`Block ${numberFormat.format(b.activation)}`:'Awaiting activation'}</dd></div><div><dt>EXPIRES</dt><dd>${b.immortal?'Never':b.expiry?`Block ${numberFormat.format(b.expiry)}`:'Unrevealed'}</dd></div><div><dt>FORMAT</dt><dd>HTML · 1800 × 3200</dd></div><div><dt>INSCRIPTION</dt><dd><a href="${item.ordinalsUrl}" target="_blank" rel="noreferrer">ordinals.com ↗</a></dd></div></dl>
-        <div class="modal-actions"><div class="bb-modal__capture"></div><div class="modal-secondary"><button data-solo aria-pressed="false">Solo view</button><a href="https://ord.net/collection/best-before-by-lemonhaze-x-ordinally" target="_blank" rel="noreferrer">Ord.net ↗</a></div><p class="modal-shortcuts">← → browse · S save · Esc close</p></div>
+        <dl class="modal-metadata"><div><dt>OPENED</dt><dd>${b.activation?`Block ${numberFormat.format(b.activation)}`:'Awaiting activation'}</dd></div><div><dt>EXPIRES</dt><dd>${b.immortal?'Never':b.expiry?`Block ${numberFormat.format(b.expiry)}`:'Unrevealed'}</dd></div><div><dt>FORMAT</dt><dd>HTML · 1800 × 3200</dd></div><div><dt>INSCRIPTION</dt><dd><a href="${item.ordinalsUrl}" target="_blank" rel="noreferrer">ordinals.com <svg class="ui-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 19 19 5M5 5h14v14"/></svg></a></dd></div></dl>
+        <div class="modal-actions"><div class="bb-modal__capture"></div><div class="modal-secondary"><button data-exhibition aria-expanded="false">Exhibition view</button><button data-solo aria-pressed="false">Solo view</button><a href="https://ord.net/collection/best-before-by-lemonhaze-x-ordinally" target="_blank" rel="noreferrer">Ord.net <svg class="ui-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 19 19 5M5 5h14v14"/></svg></a></div><p class="modal-shortcuts">← → browse · S save · Esc close</p></div>
       </aside>
     </div>`;
     document.body.append(overlay);document.body.style.overflow='hidden';document.querySelector('#app').inert=true;
@@ -330,7 +331,9 @@ export const openArtworkModal = item => {
         else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
       }
     };
-    document.addEventListener('keydown',key);overlay._cleanup=()=>document.removeEventListener('keydown',key);
+    document.addEventListener('keydown',key);
+    const cleanupExhibition=connectModalExhibition(overlay);
+    overlay._cleanup=()=>{document.removeEventListener('keydown',key);cleanupExhibition();};
     let touch;
     const stage=overlay.querySelector('.bb-modal__stage');
     stage.addEventListener('touchstart',e=>{if(e.touches.length===1)touch={x:e.touches[0].clientX,y:e.touches[0].clientY};},{passive:true});

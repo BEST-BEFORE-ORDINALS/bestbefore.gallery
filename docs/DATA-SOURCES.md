@@ -86,3 +86,11 @@ https://lemonhaze.com/about on October 12, 2026 at the artist’s request.
 Ordinally’s original biography is preserved. Portraits retain the original site's sources:
 Lemonhaze inscription `757c7d19f53501b9f1e11f49f1731622d5d257eed99c721b32af0438d0d1f9cfi0`
 and `public/assets/ordinally-avatar.png`, compressed as local 480px WebP variants.
+
+### Mobile AVIF previews
+
+`npm run prepare:avif` generates local 200, 400, 600 and 800px AVIF previews at
+quality 40. It prefers the original cached images in `../image-cache/` and can
+fall back to the committed 800px WebP previews. `<picture>` selects AVIF on
+supported browsers and preserves the existing WebP fallback. Regenerate these
+alongside the WebP tiers whenever the thumbnail manifest is updated.
