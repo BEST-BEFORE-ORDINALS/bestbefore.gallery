@@ -6,25 +6,18 @@ loading, mobile Lighthouse, and the gallery's URL architecture.
 
 ## Findings addressed in this release
 
-- Add one absolute homepage canonical URL, plus WebSite and CollectionPage JSON-LD
-  identifying the collection and its two creators. This is descriptive structured
-  data, not a promise of a Google rich result.
-- Keep the static hero and descriptive text in the initial HTML, with a title,
-  description, English language declaration and mobile viewport.
-- Add a sitemap and link it from robots.txt. The sitemap intentionally lists only
-  the indexable root URL; fragment routes are not separate sitemap entries.
-- Complete Open Graph image dimensions/type, site name and Twitter image alt text.
-  The shared PNG remains 1200 × 675 and 135,426 bytes.
-- Remove the wildcard SPA rewrite that returned the homepage with status 200 for
-  missing assets and arbitrary paths. Return a real 404 with a noindex error page.
-  Preserve historic artwork, artist and diary URLs with explicit 301 redirects.
-- Serve AVIF previews in 200/400/600/800px tiers with WebP fallbacks. The 600px tier
-  avoids an unnecessary jump from 400 to 800px on high-density mobile displays.
-  Correct the homepage sizes hints and add the missing 200px Process source.
-- Preconnect the live-feed origin, preload the small saved collection snapshot,
-  and add explicit cache policies for preview images, local fonts and data.
-- Replace decorative diagonal arrow characters with accessible, currentColor SVGs
-  so mobile fonts cannot substitute colored emoji glyphs.
+- Pre-render 435 documents with readable content before JavaScript. Main sections,
+  seven diary chapters and all 420 works have independent paths. The optional
+  canvas is noindex; all other 434 URLs appear in the generated sitemap.
+- Use crawlable anchors and History API navigation. Preserve old hash bookmarks
+  and redirect numeric work paths to their new canonical URLs.
+- Supply unique title/description/canonical and Open Graph/Twitter metadata per
+  page, plus WebSite/WebPage and individual VisualArtwork structured data.
+- Generate individual 1200 × 630 JPEG cards from actual artwork previews. All
+  cards are below 500 KB, and the artwork has no decorative frame.
+- Preserve real 404 responses for missing paths and assets.
+- Keep AVIF 200/400/600/800px previews with WebP fallbacks, lazy loading, accurate
+  sizes, self-hosted fonts and explicit caching. Decorative arrows use SVG.
 
 ## Measurements
 
@@ -45,23 +38,13 @@ or downloading/recording a live inscription.
 
 ## Remaining priorities
 
-1. **Separate indexable pages.** Navigation currently uses fragment URLs such as
-   `/#/diary` and `/#/work/133`. Google advises using regular paths and the History
-   API for distinct pages. The next structural SEO release should add pre-rendered
-   `/diary`, `/process`, `/exhibition`, `/artists` and `/work/133` pages, unique
-   canonical/title/description metadata, crawlable artwork links and a full
-   sitemap, while preserving existing shared links. This release keeps the
-   approved routing behavior; it does not claim each work is separately indexed.
-2. **Work-specific social cards.** Crawlers do not send fragment identifiers to
-   the server. Shared work links therefore currently use the collection card.
-   Regular pre-rendered work paths would allow artwork-specific cards.
-3. **Search Console and field data.** Index coverage, search queries, sitemap
-   submission and real-user Core Web Vitals were not verified: this audit has no
-   Search Console data. After deployment, submit the sitemap and monitor indexing
-   and mobile field LCP/INP/CLS there.
-4. **Freshly activated works.** Works not yet present in the committed thumbnail
-   manifest use the image origin's fallback. Refresh both preview sets when new
-   works activate to keep their images lightweight too.
+- Search Console index coverage, sitemap submission and real-user Core Web Vitals
+  require account data and were not verified. Having indexable pages does not
+  mean search engines have already indexed them.
+- Refresh thumbnail/AVIF sets and social cards when newly activated works receive
+  previews. Cards and pre-rendered metadata use the committed snapshot; the
+  browser still loads current live data for the actual artwork and countdown.
+- Social platforms can cache an older card until they crawl the shared URL again.
 
 ## References
 

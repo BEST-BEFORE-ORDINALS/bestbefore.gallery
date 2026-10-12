@@ -2,37 +2,66 @@
 export { parseRoute, initRouting } from './legacy-router.js';
 const valid=(value,options,fallback)=>options.includes(value)?value:fallback;
 export function parseCollectionRoute(hash) {
-  const [path,query='']=hash.replace(/^#/, '').split('?');
+  let [path,query='']=hash.replace(/^#/, '').split('?');
+  path=path.replace(/\/$/,'')||'/';
+  const diaryPart=/^\/diary\/([1-6])$/.exec(path);
+  if(diaryPart)path='/diary';
   const params=new URLSearchParams(query);
   const work=/^\/work\/(\d+)$/.exec(path);
-  return { view:path==='/artists'?'artists':path==='/rooms'?'rooms':path==='/process'?'process':path==='/exhibition'?'exhibition':path==='/canvas'?'canvas':path==='/diary'?'diary':path==='/ledger'?'ledger':path==='/about'?'about':'grid',
+  const views=['artists','rooms','process','exhibition','canvas','diary','ledger','about'];
+  const view=valid(path.slice(1),views,'grid');
+  return { view,
     work:work?Number(work[1]):null,
     status:valid(params.get('status'),['all','open','sealed','expired','immortal'],'all'),
     sort:valid(params.get('sort'),['number','time','palette'],'number'),
     arrange:valid(params.get('arrange'),['number','palette','lifespan'],'number'),
     ...(path==='/rooms'?{palette:params.get('palette')||''}:{}),
-    ...(path==='/diary'?{part:Math.max(0,Math.min(6,parseInt(params.get('part'),10)||0))}:{}) };
+    ...(path==='/diary'?{part:Math.max(0,Math.min(6,parseInt(diaryPart?.[1]||params.get('part'),10)||0))}:{}) };
 }
-export function initCollectionRouting({ render, open, close }) {
-  let background=location.hash.startsWith('#/work/')?'#/grid':location.hash||'#/grid';
+export function routeUrl(input) {
+  const url=new URL(input.replace(/^#/,''),'https://bestbefore.gallery');
+  let path=url.pathname.replace(/\/$/,'')||'/';
+  if(path==='/grid')path='/';
+  if(/^\/\d+$/.test(path))path=`/work${path}`;
+  if(path==='/diary'&&url.searchParams.has('part')){
+    const part=Math.max(0,Math.min(6,parseInt(url.searchParams.get('part'),10)||0));
+    path=part?`/diary/${part}`:'/diary';url.searchParams.delete('part');
+  }
+  return path+(url.searchParams.size?`?${url.searchParams}`:'');
+}
+export const currentRouteUrl=()=>routeUrl(location.hash.startsWith('#/')?location.hash:location.pathname+location.search);
+export function initCollectionRouting({ render, open, close, metadata=()=>{} }) {
+  let background=parseCollectionRoute(currentRouteUrl()).work?'/':currentRouteUrl();
   let applying=false;
-  if(!location.hash){const old=/^\/(\d+)$/.exec(location.pathname);const diary=/^\/diary(?:\/([1-6]))?$/.exec(location.pathname);history.replaceState({},'',`/${old?`#/work/${old[1]}`:diary?`#/diary${diary[1]?`?part=${diary[1]}`:''}`:location.pathname==='/artists'?'#/artists':'#/grid'}`);}
+  const initial=currentRouteUrl();
+  if(location.hash.startsWith('#/')||initial!==location.pathname+location.search)history.replaceState(history.state,'',initial);
   const apply=()=>{
     applying=true;
-    const route=parseCollectionRoute(location.hash);
+    const url=currentRouteUrl(),route=parseCollectionRoute(url);
     if(route.work){render(parseCollectionRoute(background));open(route.work);}
-    else{close();background=location.hash||'#/grid';render(route);}
+    else{close();background=url;render(route);}
+    metadata(route);
     applying=false;
   };
-  const navigate=(hash,{replace=false}={})=>{history[replace?'replaceState':'pushState']({},'',hash);apply();};
+  const navigate=(url,{replace=false}={})=>{history[replace?'replaceState':'pushState']({},'',routeUrl(url));apply();};
   const openWork=(number,{replace=false}={})=>{
-    if(!parseCollectionRoute(location.hash).work)background=location.hash||'#/grid';
-    history[replace?'replaceState':'pushState']({collectionReturn:background},'',`#/work/${number}`);apply();
+    if(!parseCollectionRoute(currentRouteUrl()).work)background=currentRouteUrl();
+    history[replace?'replaceState':'pushState']({collectionReturn:background},'',`/work/${number}`);apply();
   };
+  document.addEventListener('click',event=>{
+    if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+    const anchor=event.target.closest('a[href]');
+    if(!anchor||anchor.target||anchor.hasAttribute('download'))return;
+    const href=anchor.getAttribute('href');if(href.startsWith('#')&&!href.startsWith('#/'))return;
+    const url=new URL(anchor.href,location.href);
+    if(url.origin!==location.origin)return;
+    if(!/^\/(?:|grid|canvas|rooms|about|artists|process|exhibition|ledger|diary(?:\/[1-6])?|work\/[1-9]\d{0,2})$/.test(url.pathname))return;
+    event.preventDefault();navigate(url.pathname+url.search);
+  });
   window.addEventListener('popstate',apply);
-  window.addEventListener('hashchange',()=>{if(!applying)apply();});
+  window.addEventListener('hashchange',()=>{if(!applying){history.replaceState(history.state,'',currentRouteUrl());apply();}});
   window.addEventListener('bb:modal-close',()=>{
-    if(applying||!parseCollectionRoute(location.hash).work)return;
+    if(applying||!parseCollectionRoute(currentRouteUrl()).work)return;
     if(history.state?.collectionReturn)history.back();else navigate(background,{replace:true});
   });
   apply();

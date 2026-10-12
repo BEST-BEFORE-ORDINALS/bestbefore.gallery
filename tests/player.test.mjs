@@ -35,3 +35,13 @@ test('the live canvas is revealed during drawing, while exports wait for complet
     assert.equal(messages[1].canRecord, true);
     assert.ok(messages.every(m => m.token === 'test-token'));
 });
+
+test('injected bridge preserves replacement metacharacters in serialized code', async()=>{
+  const {buildBestBeforeDocument}=await import('../src/best-before-player.js');
+  const id='a'.repeat(64)+'i1';
+  const source='<html><head></head><body><script>function self(){return window.location.pathname.split("/").pop();} const local=location.protocol === "file:" || location.origin === "null";</script></body></html>';
+  // A minifier may name a variable $, producing the same $& replacement sequence.
+  const result=buildBestBeforeDocument(source,id,'literal$&token');
+  assert.ok(result.includes('"literal$&token"'));
+  assert.equal((result.match(/<\/body>/g)||[]).length,1);
+});

@@ -124,7 +124,8 @@ export function buildBestBeforeDocument(source, id, token) {
         window.fetch = (input, init) => chainFetch(typeof input === 'string' ? new URL(input, ${JSON.stringify(url)}).href : input, init);
     </script>`;
     source = source.replace(/<head([^>]*)>/i, `<head$1>${setup}`);
-    return source.replace(/<\/body>/i, `<script>(${playerBridge.toString()})(${JSON.stringify(CHANNEL)},${JSON.stringify(token)});</script></body>`);
+    // A callback keeps minified $& sequences literal instead of expanding the match.
+    return source.replace(/<\/body>/i, () => `<script>(${playerBridge.toString()})(${JSON.stringify(CHANNEL)},${JSON.stringify(token)});</script></body>`);
 }
 
 export function createBestBeforePlayer({ frame, viewport, controls, id, onClose = () => {} }) {

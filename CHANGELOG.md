@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-12
+- Add pre-rendered section, diary and individual work pages with canonical URLs, structured data and a full sitemap.
+- Preserve legacy links and lightbox history while making work links crawlable.
+- Add 435 individual social cards, cropped cleanly to the artwork without a frame.
+- Feature 233 and 133 in Process, 189 in Exhibition, and credit Lemonhaze’s opening quote.
+
 ## 2026-03-05
 - Added repo docs for architecture, data sources, and deployment.
 - Added Node version pinning, EditorConfig, CODEOWNERS, Dependabot, PR template, and Cloudflare Pages config.
