@@ -295,7 +295,7 @@ export const openArtworkModal = item => {
     const overlay=document.createElement('div');overlay.className='bb-modal-overlay';overlay.dataset.number=item.number;overlay._returnFocus=returnFocus;
     const b=item.block||{};
     const colors=(item.palette?.colors||[]).filter(c=>/^#[0-9a-f]{3,8}$/i.test(c));
-    overlay.innerHTML=`<div class="bb-modal" id="bbArtworkModal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    overlay.innerHTML=`<div class="bb-modal" data-shape="${['sealed','expired'].includes(item.status)?'square':'portrait'}" id="bbArtworkModal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <button class="bb-modal__close" aria-label="Close artwork">×</button>
       <div class="bb-modal__stage"><span class="modal-edition">BEST BEFORE / ${String(item.number).padStart(3,'0')}</span>
         <button class="modal-prev" type="button" aria-label="Previous artwork"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="m15 6-6 6 6 6"/></svg></button>
@@ -338,6 +338,6 @@ export const openArtworkModal = item => {
     const stage=overlay.querySelector('.bb-modal__stage');
     stage.addEventListener('touchstart',e=>{if(e.touches.length===1)touch={x:e.touches[0].clientX,y:e.touches[0].clientY};},{passive:true});
     stage.addEventListener('touchend',e=>{if(!touch)return;const dx=e.changedTouches[0].clientX-touch.x,dy=e.changedTouches[0].clientY-touch.y;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.5)step(dx<0?1:-1);touch=null;},{passive:true});
-    overlay._artworkFrame=createBestBeforePlayer({frame:overlay.querySelector('iframe'),viewport:overlay.querySelector('.bb-modal__artwork'),controls:overlay.querySelector('.bb-modal__capture'),id:item.id,onClose:closeArtworkModal});
+    overlay._artworkFrame=createBestBeforePlayer({frame:overlay.querySelector('iframe'),viewport:overlay.querySelector('.bb-modal__artwork'),controls:overlay.querySelector('.bb-modal__capture'),id:item.id,initialPhase:item.status,onPhase:phase=>{overlay.querySelector('.bb-modal').dataset.shape=['SEALED','EXPIRED'].includes(phase)?'square':'portrait';},onClose:closeArtworkModal});
     overlay.querySelector('.bb-modal__close').focus({preventScroll:true});
 };

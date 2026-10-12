@@ -45,3 +45,17 @@ test('injected bridge preserves replacement metacharacters in serialized code', 
   assert.ok(result.includes('"literal$&token"'));
   assert.equal((result.match(/<\/body>/g)||[]).length,1);
 });
+
+test('sealed and expired previews stay visible until their live face has painted',()=>{
+  const source='<head></head><body>return window.location.pathname.split("/").pop(); location.protocol === "file:" || location.origin === "null"</body>';
+  const html=buildBestBeforeDocument(source,`${'a'.repeat(64)}i3`,'phase-test');
+  const bridge=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].at(-1)[1];
+  for(const phase of ['SEALED','EXPIRED']){
+    const messages=[];let tick;
+    const context=vm.createContext({parent:{postMessage:m=>messages.push(m)},document:{getElementById:()=>({}),addEventListener(){}},addEventListener(){},setInterval:fn=>{tick=fn;},ACTIVE_PHASE:phase,PHASE_CACHE:{bitmap:null,phase:null}});
+    vm.runInContext(bridge,context);tick();assert.equal(messages.length,0);
+    context.PHASE_CACHE={bitmap:{},phase};tick();
+    assert.deepEqual(messages.map(m=>m.type),['drawing','ready']);
+    assert.equal(messages[1].canRecord,false);
+  }
+});
