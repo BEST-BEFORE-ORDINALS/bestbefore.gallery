@@ -8,7 +8,7 @@ export function parseCollectionRoute(hash) {
   if(diaryPart)path='/diary';
   const params=new URLSearchParams(query);
   const work=/^\/work\/(\d+)$/.exec(path);
-  const views=['artists','rooms','process','exhibition','canvas','diary','ledger','about'];
+  const views=['artists','rooms','process','exhibition','canvas','diary','ledger','about','faq'];
   const view=valid(path.slice(1),views,'grid');
   return { view,
     work:work?Number(work[1]):null,
@@ -55,7 +55,7 @@ export function initCollectionRouting({ render, open, close, metadata=()=>{} }) 
     const href=anchor.getAttribute('href');if(href.startsWith('#')&&!href.startsWith('#/'))return;
     const url=new URL(anchor.href,location.href);
     if(url.origin!==location.origin)return;
-    if(!/^\/(?:|grid|canvas|rooms|about|artists|process|exhibition|ledger|diary(?:\/[1-6])?|work\/[1-9]\d{0,2})$/.test(url.pathname))return;
+    if(!/^\/(?:|grid|canvas|rooms|about|faq|artists|process|exhibition|ledger|diary(?:\/[1-6])?|work\/[1-9]\d{0,2})$/.test(url.pathname))return;
     event.preventDefault();navigate(url.pathname+url.search);
   });
   window.addEventListener('popstate',apply);

@@ -63,14 +63,14 @@ npx wrangler pages deploy dist --project-name=best-before --branch=main
 
 ## Routing
 
-`npm run build` pre-renders 435 HTML documents and generates the sitemap and
+`npm run build` pre-renders 436 HTML documents and generates the sitemap and
 robots.txt. `SITE_URL` supplies their absolute metadata origin. Cloudflare serves
 `work/133.html` at `/work/133`. Old numeric work paths have explicit 301 redirects;
 old hash bookmarks migrate client-side. Unknown paths and missing assets return
 404, not the application shell.
 
 After changing artwork previews or card design, run `npm run prepare:social`
-before verification. The 435 generated JPEG cards are committed source assets.
+before verification. The 436 generated JPEG cards are committed source assets.
 Verify a clean work URL without JavaScript, its social image, the sitemap and an
 unknown URL on the preview deployment before shipping production.
 

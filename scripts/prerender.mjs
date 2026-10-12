@@ -7,6 +7,7 @@ import { renderProcess,renderExhibition,renderArtists,renderAbout } from '../src
 import { parseDiary,renderDiaryMarkup } from '../src/diary.js';
 import { renderLedger } from '../src/ledger.js';
 import { createRooms } from '../src/rooms.js';
+import { renderFaq } from '../src/faq.js';
 import { createGrid } from '../src/grid.js';
 const root=new URL('../',import.meta.url),out=new URL('dist/',root);
 const origin=(process.env.SITE_URL||'https://bestbefore.gallery').replace(/\/$/,'');
@@ -14,7 +15,7 @@ const template=await readFile(new URL('index.html',out),'utf8');
 const feed=JSON.parse(await readFile(new URL('public/data/collection.json',root)));
 const items=normalizeItems(feed),chapters=parseDiary(await readFile(new URL('public/data/bb-diary.txt',root),'utf8'));
 setThumbnailManifest(JSON.parse(await readFile(new URL('public/data/thumbnail-manifest.json',root))));
-const paths=['/','/rooms','/diary','/process','/exhibition','/ledger','/artists','/about','/canvas',...Array.from({length:6},(_,i)=>`/diary/${i+1}`),...items.map(i=>`/work/${i.number}`)];
+const paths=['/','/rooms','/diary','/process','/exhibition','/ledger','/artists','/about','/faq','/canvas',...Array.from({length:6},(_,i)=>`/diary/${i+1}`),...items.map(i=>`/work/${i.number}`)];
 function showView(doc,route){
   const view=route.work?'work':route.view,home=view==='grid';
   for(const id of ['hero','diary-feature','home-editorial','collection'])doc.getElementById(id).hidden=!home;
@@ -27,7 +28,7 @@ function showView(doc,route){
 function renderContent(doc,route){
   const info=showView(doc,route),noop=()=>{};
   if(route.work){info.innerHTML=renderWorkPage(items.find(i=>i.number===route.work));return;}
-  const renderers={process:()=>renderProcess(items),exhibition:renderExhibition,artists:renderArtists,about:renderAbout,diary:()=>renderDiaryMarkup(chapters,route.part),ledger:()=>renderLedger(feed.analytics,items,{tip:feed.tip,generatedAt:feed.generated_at,live:false})};
+  const renderers={faq:renderFaq,process:()=>renderProcess(items),exhibition:renderExhibition,artists:renderArtists,about:renderAbout,diary:()=>renderDiaryMarkup(chapters,route.part),ledger:()=>renderLedger(feed.analytics,items,{tip:feed.tip,generatedAt:feed.generated_at,live:false})};
   if(renderers[route.view])info.innerHTML=renderers[route.view]();
   if(route.view==='diary'){info.classList.add('information--diary');info.dataset.diaryPart=route.part;}
   if(route.view==='rooms')createRooms(info,noop,noop).render(items,'');

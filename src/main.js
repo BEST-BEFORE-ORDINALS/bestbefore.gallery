@@ -1,4 +1,5 @@
 import './gallery.css';
+import { renderFaq } from './faq.js';
 import { applyMetadata, pageMetadata } from './seo.js';
 import './refined.css';
 import './ledger-artists.css';
@@ -36,7 +37,7 @@ function renderShell(next,previous){
   const isCanvas=next.view==='canvas',isCollection=['grid','canvas'].includes(next.view);
   document.body.classList.toggle('canvas-mode',isCanvas);
   document.body.dataset.page=next.view;
-  const titles={grid:'What if art could expire?',rooms:'Colour rooms',process:'The process',exhibition:'Exhibition & performance',diary:'The diary',about:'The project',artists:'The artists',ledger:'Collection ledger',canvas:'Canvas'};
+  const titles={grid:'What if art could expire?',faq:'How it works / FAQ',rooms:'Colour rooms',process:'The process',exhibition:'Exhibition & performance',diary:'The diary',about:'The project',artists:'The artists',ledger:'Collection ledger',canvas:'Canvas'};
   document.title=`BEST BEFORE — ${titles[next.view]||titles.grid}`;
   $('#home-editorial').hidden=next.view!=='grid';$('#grid-pagination').hidden=isCanvas;
   if(previous && previous!==next.view && next.view!=='grid')window.scrollTo(0,0);
@@ -67,6 +68,7 @@ function renderInformation(next,previous,isCollection){
   if(next.view==='diary')renderDiary($('#information'),next.part);
   if(next.view==='artists')$('#information').innerHTML=renderArtists();
   if(next.view==='ledger')renderLedgerPage(previous);
+  if(next.view==='faq' && (previous!=='faq'||!$('#information').querySelector('.faq-page')))$('#information').innerHTML=renderFaq();
   if(next.view==='about')$('#information').innerHTML=renderAbout();
 }
 function renderLedgerPage(previous){

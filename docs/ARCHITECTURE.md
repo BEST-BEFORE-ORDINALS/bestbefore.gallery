@@ -5,9 +5,9 @@
 Vite 7 and vanilla JavaScript serve a static Cloudflare Pages site. The build runs
 Vite followed by `scripts/prerender.mjs`. Build-only LinkeDOM renders the same
 editorial, diary, grid, rooms and Ledger markup used in the browser. There are
-435 HTML documents: the homepage, eight other sections, six additional diary
+436 HTML documents: the homepage, nine other sections, six additional diary
 chapters and all 420 works. The optional Canvas is noindex; the sitemap lists
-434 canonical URLs. No framework or server runtime is introduced.
+435 canonical URLs. No framework or server runtime is introduced.
 
 ## Routing and navigation
 
@@ -16,7 +16,7 @@ chapters and all 420 works. The optional Canvas is noindex; the sitemap lists
 - `/` — collection, with `?status=open&sort=time` filters
 - `/rooms?palette=Horizon` — palette rooms
 - `/diary` and `/diary/1` through `/diary/6` — individual diary chapters
-- `/process`, `/exhibition`, `/ledger`, `/artists`, `/about`
+- `/process`, `/exhibition`, `/ledger`, `/artists`, `/about`, `/faq`
 - `/work/133` — individual work, opening the shared live lightbox
 - `/canvas?arrange=palette` — optional spatial view
 
@@ -65,7 +65,7 @@ metadata and WebSite/WebPage/VisualArtwork JSON-LD. Work pages include a readabl
 preview and identity before JavaScript opens the live renderer. Diary chapters
 have separate text and metadata. Filtered views canonicalize to their section.
 
-`scripts/prepare-social.mjs` generates 435 1200 × 630 JPEG cards using the actual
+`scripts/prepare-social.mjs` generates 436 1200 × 630 JPEG cards using the actual
 committed artwork previews and original BB logo. The artwork is cropped to its
 canvas without a decorative frame. Cards stay below 500 KB. These are saved
 preview images, not real-time renderings; regenerate them when imagery changes.
@@ -107,3 +107,18 @@ through the live renderer, including Solo and Exhibition. Their original
 responsive phase renderer receives 900 × 900, while living works keep 900 × 1600.
 The preview remains visible until the inactive phase bitmap exists, preventing
 a blank loading flash. Chain phase messages update presentation when necessary.
+
+## Collector FAQ
+
+`faq.js` contains sixteen brief answers in three native disclosure groups. `/faq`
+is pre-rendered, has individual metadata and a social card, and is linked in the
+eighth (bottom-right) footer position. Disclosure state survives live-feed
+refreshes. The page links to inscribe.dev, Lemonhaze’s X and the Discord invite
+published on lemonhaze.com.
+
+Activation wording was checked against `public/data/bb-about-faq.txt`, the
+inscription’s Lifecycle implementation (first child and its confirmation block),
+and the [Ordinal Theory Handbook’s provenance specification](https://docs.ordinals.com/inscriptions/provenance.html).
+The service’s [Parent Inscription field](https://inscribe.dev/) was checked on
+October 12, 2026. Calendar durations are estimates; no fixed final count of
+immortal works is promised.

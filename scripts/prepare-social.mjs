@@ -7,7 +7,7 @@ const root=new URL('../',import.meta.url),out=new URL('public/assets/social/',ro
 const feed=JSON.parse(await readFile(new URL('public/data/collection.json',root))),items=normalizeItems(feed);
 const logo=await sharp(new URL('public/assets/logo/bb-original-256.webp',root).pathname).resize(76,76).png().toBuffer();
 const jobs=items.map(item=>({key:`work-${item.number}`,item,title:`Nº${String(item.number).padStart(3,'0')}`,subtitle:item.palette?.id||'A life on Bitcoin',label:'420 WORKS · LEMONHAZE × ORDINALLY'}));
-const sectionWork={grid:139,rooms:402,diary:139,process:133,exhibition:189,ledger:402,artists:139,about:402,canvas:189};
+const sectionWork={faq:233,grid:139,rooms:402,diary:139,process:133,exhibition:189,ledger:402,artists:139,about:402,canvas:189};
 for(const [key,[title]] of Object.entries(sectionMeta))jobs.push({key,item:items.find(i=>i.number===sectionWork[key]),title:key==='grid'?'What if art':'BEST BEFORE',subtitle:key==='grid'?'could expire?':title,label:'LEMONHAZE × ORDINALLY'});
 for(let i=1;i<=6;i++)jobs.push({key:`diary-${i}`,item:items.find(candidate=>candidate.number===[139,402,133,189,233,315][i-1]),title:`The diary / 0${i}`,subtitle:diaryTitles[i],label:'BEST BEFORE · LEMONHAZE × ORDINALLY'});
 function textLines(text){
