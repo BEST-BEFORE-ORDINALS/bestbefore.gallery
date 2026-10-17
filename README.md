@@ -36,7 +36,7 @@ SEALED → OPEN → EXPIRED
 
 ## Viewing and exporting
 
-Open an individual artwork in Details to find its palette, lifecycle information, **Save PNG**, and **Record MP4** in the sidebar. Choose **15, 30, or 60 seconds** to record an OPEN work at its native **1800 × 3200** resolution. The export contains only the artwork canvas. MP4 recording requires a browser with MP4 MediaRecorder support; keep the tab visible during capture, or cancel from the same button.
+Open an individual artwork in Details to find its palette, lifecycle information, **Save PNG**, and **Record MP4** in the sidebar. Choose **15, 30, or 60 seconds** to record an OPEN work as a **1080 × 1920, 30 fps MP4** prepared for sharing on X. The export contains the artwork canvas and a silent AAC audio track. MP4 recording requires browser support for H.264 encoding; keep the tab visible during capture, or cancel from the same button.
 
 Solo provides a centered, immersive view with the sidebar hidden. Press **S** to save a PNG and **Escape** to close the viewer.
 
