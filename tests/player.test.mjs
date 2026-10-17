@@ -16,7 +16,7 @@ test('the live canvas is revealed during drawing, while exports wait for complet
         addEventListener() {},
         setInterval: callback => { tick = callback; },
         ACTIVE_PHASE: 'OPEN', textureProgressing: true, textureDirty: true,
-        glContext: {}, MediaRecorder: { isTypeSupported: () => true },
+        glContext: {}, createImageBitmap() {},
     });
     vm.runInContext(bridge, context);
     tick();

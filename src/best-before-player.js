@@ -1,14 +1,16 @@
+import { createBestBeforeRecorder, recordingDimensions, supportsRecording } from './best-before-recorder.js';
+
 const CHAIN_ORIGIN = 'https://ordinals.com';
 const CHANNEL = 'best-before-player-v1';
 
 // This runs inside an opaque sandbox, alongside the original on-chain renderer.
-function playerBridge(channel, token) {
-    const send = (type, data = {}) => parent.postMessage({ channel, token, type, ...data }, '*');
+function playerBridge(channel, token, fitDimensions) {
+    const send = (type, data = {}, transfer = []) => parent.postMessage({ channel, token, type, ...data }, '*', transfer);
     let active = null;
     let ready = false;
     let visible = false;
     let previousPhase = null;
-    const mime = ['video/mp4;codecs=avc1.640033', 'video/mp4'].find(type => globalThis.MediaRecorder?.isTypeSupported(type));
+    const canCapture = typeof createImageBitmap === 'function';
     const watch = setInterval(() => {
         const base = document.getElementById('artwork-canvas');
         const phase = typeof ACTIVE_PHASE === 'undefined' ? null : ACTIVE_PHASE;
@@ -27,71 +29,50 @@ function playerBridge(channel, token) {
         if (!ready || phase !== previousPhase) {
             ready = true;
             previousPhase = phase;
-            send('ready', { phase, canRecord: phase === 'OPEN' && !!mime });
+            send('ready', { phase, canRecord: phase === 'OPEN' && canCapture });
         }
     }, 200);
-
-    async function record(seconds) {
-        if (active || !ready || ![15, 30, 60].includes(seconds)) return;
-        if (!mime || ACTIVE_PHASE !== 'OPEN') return send('error', { message: 'MP4 recording is not available for this artwork in this browser.' });
-        const base = document.getElementById('artwork-canvas');
-        const layer = document.getElementById('gl-layer');
-        const canvas = document.createElement('canvas');
-        canvas.width = base.width;
-        canvas.height = base.height;
-        const ctx = canvas.getContext('2d');
-        const state = { cancelled: false, raf: 0, timer: 0, progress: 0, stream: null, recorder: null };
-        active = state;
-        try {
-            const paint = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(base, 0, 0);
-                ctx.drawImage(layer, 0, 0);
-                state.raf = requestAnimationFrame(paint);
-            };
-            paint();
-            state.stream = canvas.captureStream(30);
-            const recorder = new MediaRecorder(state.stream, { mimeType: mime, videoBitsPerSecond: 50000000 });
-            state.recorder = recorder;
-            const chunks = [];
-            recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
-            const stopped = new Promise((resolve, reject) => {
-                recorder.onstop = resolve;
-                recorder.onerror = event => reject(event.error || new Error('Recording failed.'));
-            });
-            recorder.start(1000);
-            const started = performance.now();
-            send('recording', { seconds, elapsed: 0 });
-            state.progress = setInterval(() => send('recording', { seconds, elapsed: Math.min(seconds, (performance.now() - started) / 1000) }), 250);
-            state.timer = setTimeout(() => { if (recorder.state === 'recording') recorder.stop(); }, seconds * 1000);
-            await stopped;
-            if (state.cancelled) send('cancelled');
-            else {
-                send('finishing');
-                const blob = new Blob(chunks, { type: recorder.mimeType });
-                send('video', { blob, seconds, width: canvas.width, height: canvas.height });
-            }
-        } catch (error) {
-            send('error', { message: error.message || 'Unable to record. Please try again.' });
-        } finally {
-            cancelAnimationFrame(state.raf);
-            clearTimeout(state.timer);
-            clearInterval(state.progress);
-            state.stream?.getTracks().forEach(track => track.stop());
-            active = null;
-        }
-    }
 
     function cancel() {
         if (!active) return;
         active.cancelled = true;
-        if (active.recorder?.state === 'recording') active.recorder.stop();
+        active.canvas.width = active.canvas.height = 0;
+        active = null;
+    }
+    async function capture({ type, requestId, runId }) {
+        let bitmap;
+        try {
+            if (type === 'capture-start') {
+                if (active || !ready || ACTIVE_PHASE !== 'OPEN' || !canCapture) throw new Error('Recording is unavailable for this artwork.');
+                const base = document.getElementById('artwork-canvas');
+                const canvas = document.createElement('canvas');
+                const size = fitDimensions(base.width, base.height);
+                canvas.width = size.width; canvas.height = size.height;
+                const ctx = canvas.getContext('2d', { alpha: false });
+                if (!ctx) throw new Error('Unable to prepare artwork capture.');
+                active = { canvas, ctx, runId, cancelled: false };
+                send('capture-ready', { requestId, runId, ...size });
+                return;
+            }
+            const state = active;
+            if (!state || state.runId !== runId || ACTIVE_PHASE !== 'OPEN') throw new Error('Recording is no longer available.');
+            const { canvas, ctx } = state;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(document.getElementById('artwork-canvas'), 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(document.getElementById('gl-layer'), 0, 0, canvas.width, canvas.height);
+            bitmap = await createImageBitmap(canvas);
+            if (state.cancelled || active !== state) { bitmap.close(); return; }
+            send('capture-frame', { requestId, runId, bitmap }, [bitmap]);
+        } catch (error) {
+            bitmap?.close();
+            send('capture-error', { requestId, runId, message: error.message || 'Unable to capture the artwork.' });
+        }
     }
     addEventListener('message', async event => {
         if (event.source !== parent || event.data?.channel !== channel || event.data?.token !== token) return;
-        const { type, seconds, filename } = event.data;
-        if (type === 'record') void record(seconds);
-        if (type === 'cancel') cancel();
+        const { type, filename, runId } = event.data;
+        if (type === 'capture-start' || type === 'capture-frame') void capture(event.data);
+        if (type === 'capture-stop' && active?.runId === runId) cancel();
         if (type === 'exhibition') document.documentElement.classList.toggle('exhibition-display', !!event.data.enabled);
         if (type === 'save' && ready && !active) {
             try { await saveFullArtwork({ fileName: filename }); }
@@ -127,7 +108,7 @@ export function buildBestBeforeDocument(source, id, token) {
     </script>`;
     source = source.replace(/<head([^>]*)>/i, `<head$1>${setup}`);
     // A callback keeps minified $& sequences literal instead of expanding the match.
-    return source.replace(/<\/body>/i, () => `<script>(${playerBridge.toString()})(${JSON.stringify(CHANNEL)},${JSON.stringify(token)});</script></body>`);
+    return source.replace(/<\/body>/i, () => `<script>(${playerBridge.toString()})(${JSON.stringify(CHANNEL)},${JSON.stringify(token)},${recordingDimensions.toString()});</script></body>`);
 }
 
 export function createBestBeforePlayer({ frame, viewport, controls, id, initialPhase = 'OPEN', onPhase = () => {}, onClose = () => {} }) {
@@ -153,6 +134,7 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, initialP
     const duration = controls.querySelector('select');
     const status = controls.querySelector('[role="status"]');
     const send = (type, data = {}) => frame.contentWindow?.postMessage({ channel: CHANNEL, token, type, ...data }, '*');
+    const recorder = createBestBeforeRecorder(send);
     const update = () => {
         save.disabled = !ready || busy;
         duration.disabled = !canRecord || busy;
@@ -162,15 +144,34 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, initialP
     };
     const savePNG = () => { if (ready && !busy) send('save', { filename: `BEST BEFORE ${number}.png` }); };
     save.addEventListener('click', savePNG);
-    record.addEventListener('click', () => {
-        if (busy) return send('cancel');
+    const download = data => {
+        const url = URL.createObjectURL(data.blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `BEST-BEFORE-${number}-${data.width}x${data.height}-${data.seconds}s.mp4`;
+        document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+    };
+    record.addEventListener('click', async () => {
+        if (busy) return recorder.cancel();
         if (!canRecord) return;
         busy = true; update(); status.textContent = 'Starting recording…';
-        send('record', { seconds: Number(duration.value) });
+        try {
+            const result = await recorder.record(Number(duration.value),
+                elapsed => { status.textContent = `Recording ${Math.floor(elapsed)} / ${duration.value}s`; },
+                () => { status.textContent = 'Preparing MP4…'; });
+            if (!disposed) { download(result); status.textContent = `${result.seconds}s MP4 saved`; }
+        } catch (error) {
+            if (!disposed) status.textContent = error.name === 'AbortError' ? 'Recording cancelled' : error.message;
+        } finally {
+            busy = false;
+            if (!disposed) update();
+        }
     });
     const receive = event => {
         const data = event.data;
         if (disposed || event.source !== frame.contentWindow || data?.channel !== CHANNEL || data?.token !== token) return;
+        recorder.receive(data);
         if (['drawing', 'ready'].includes(data.type)) {
             currentPhase = data.phase;
             onPhase(currentPhase);
@@ -182,28 +183,17 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, initialP
             status.textContent = 'Artwork taking shape…';
         }
         if (data.type === 'ready') {
-            ready = true; canRecord = data.canRecord;
+            ready = true; canRecord = data.canRecord && supportsRecording();
             frame.style.visibility = 'visible';
             viewport.classList.add('is-live', 'is-ready');
-            status.textContent = canRecord ? '1800 × 3200 · MP4' : data.phase === 'OPEN' ? 'MP4 recording unavailable in this browser' : 'Recording available for open artworks';
+            status.textContent = canRecord ? '1080p · MP4 for X' : data.phase === 'OPEN' ? 'MP4 recording needs an updated browser with H.264 support' : 'Recording available for open artworks';
             update();
         }
-        if (data.type === 'recording') status.textContent = `Recording ${Math.floor(data.elapsed)} / ${data.seconds}s`;
-        if (data.type === 'finishing') status.textContent = 'Preparing MP4…';
-        if (data.type === 'cancelled') { busy = false; update(); status.textContent = 'Recording cancelled'; }
-        if (data.type === 'error') { busy = false; update(); status.textContent = data.message; }
-        if (data.type === 'escape') onClose();
-        if (data.type === 'video' && data.blob instanceof Blob && data.blob.type.startsWith('video/mp4')) {
-            const url = URL.createObjectURL(data.blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `BEST-BEFORE-${number}-${data.width}x${data.height}-${data.seconds}s.mp4`;
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            setTimeout(() => URL.revokeObjectURL(url), 60000);
-            busy = false; update(); status.textContent = `${data.seconds}s MP4 saved`;
+        if (data.type === 'error') {
+            recorder.cancel(new Error(data.message));
+            status.textContent = data.message;
         }
+        if (data.type === 'escape') onClose();
     };
     window.addEventListener('message', receive);
     const keydown = event => {
@@ -211,6 +201,8 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, initialP
         if (ready && !busy) { event.preventDefault(); savePNG(); }
     };
     document.addEventListener('keydown', keydown);
+    const visibility = () => { if (document.hidden) recorder.cancel(new Error('Recording stopped. Keep this tab visible while recording.')); };
+    document.addEventListener('visibilitychange', visibility);
     const resize = () => {
         const box = viewport.getBoundingClientRect();
         const height = ['SEALED', 'EXPIRED'].includes(currentPhase) ? 900 : 1600;
@@ -231,10 +223,11 @@ export function createBestBeforePlayer({ frame, viewport, controls, id, initialP
         savePNG,
         setExhibition(enabled) { exhibition=enabled; send('exhibition', { enabled }); },
         destroy() {
-            disposed = true; abort.abort(); send('cancel');
+            disposed = true; abort.abort(); recorder.cancel();
             observer.disconnect();
             window.removeEventListener('message', receive);
             document.removeEventListener('keydown', keydown);
+            document.removeEventListener('visibilitychange', visibility);
             frame.removeAttribute('srcdoc');
             frame.src = 'about:blank';
             if (originalSandbox === null) frame.removeAttribute('sandbox'); else frame.setAttribute('sandbox', originalSandbox);
